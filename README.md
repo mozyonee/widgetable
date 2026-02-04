@@ -28,16 +28,16 @@ Install dependencies from the repository root:
 npm install
 ```
 
-Start the server (development):
-
-```bash
-npm run dev:server
-```
-
 Start the client (development):
 
 ```bash
 npm run dev:client
+```
+
+Start the server (development):
+
+```bash
+npm run dev:server
 ```
 
 Configuration: Per-app `*.env.example` files are provided to help with local setup. Copy to a local env file (e.g. `.env` or `.env.local`) and fill values on your machine — do not commit secrets.
