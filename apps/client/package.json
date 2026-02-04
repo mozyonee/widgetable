@@ -1,0 +1,45 @@
+{
+	"name": "@widgetable/client",
+	"version": "0.1.0",
+	"private": true,
+	"scripts": {
+		"dev": "npm-run-all --parallel dev:next dev:ts",
+		"start:dev": "npm run dev",
+		"dev:next": "next dev -H 0.0.0.0 -p 3000 --webpack",
+		"dev:ts": "tsc --noEmit --watch --preserveWatchOutput",
+		"build": "next build --webpack",
+		"start": "next start",
+		"lint": "next lint",
+		"format": "prettier --config ../../packages/config/prettier.config.js --write \"src/**/*.{ts,tsx}\"",
+		"typecheck": "tsc -p tsconfig.json --noEmit",
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"dependencies": {
+		"@reduxjs/toolkit": "^2.11.2",
+		"@widgetable/types": "file:../../packages/types",
+		"axios": "^1.13.2",
+		"lucide-react": "^0.562.0",
+		"next": "^16.1.0",
+		"next-pwa": "^5.6.0",
+		"prettier": "^3.7.4",
+		"react": "^19.2.3",
+		"react-dom": "^19.2.3",
+		"react-hot-toast": "^2.6.0",
+		"react-redux": "^9.2.0",
+		"redux-persist": "^6.0.0",
+		"uninstall": "^0.0.0"
+	},
+	"devDependencies": {
+		"@tailwindcss/postcss": "^4.1.18",
+		"@types/lodash": "^4.17.21",
+		"@types/multer": "^2.0.0",
+		"@types/next-pwa": "^5.6.9",
+		"@types/node": "^25.0.3",
+		"@types/react": "^19.2.7",
+		"@types/react-dom": "^19.2.3",
+		"npm-run-all": "^4.1.5",
+		"tailwindcss": "^4",
+		"typescript": "^5.9.3",
+		"webpack": "^5.104.1"
+	}
+}

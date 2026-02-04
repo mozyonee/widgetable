@@ -1,0 +1,29 @@
+{
+	"name": "@widgetable/root",
+	"private": true,
+	"workspaces": [
+		"packages/*",
+		"apps/*"
+	],
+	"version": "0.1.0",
+	"description": "",
+	"main": "index.js",
+	"scripts": {
+		"build:types": "npm run build --prefix packages/types",
+		"build:client": "npm run build --prefix apps/client",
+		"build:server": "npm run build --prefix apps/server",
+		"build": "npm run build:types && npm run build:client && npm run build:server",
+		"dev:client": "npm run dev --workspace=apps/client",
+		"dev:server": "npm run dev --workspace=apps/server",
+		"test": "npm run test --workspaces --if-present",
+		"tsc:client": "npm run typecheck --workspace=apps/client",
+		"tsc:server": "npm run typecheck --workspace=apps/server",
+		"tsc": "npm run tsc:client && npm run tsc:server",
+		"format:client": "npm run format --workspace=apps/client",
+		"format:server": "npm run format --workspace=apps/server",
+		"format": "npm run format:client && npm run format:server"
+	},
+	"keywords": [],
+	"author": "",
+	"license": "ISC"
+}

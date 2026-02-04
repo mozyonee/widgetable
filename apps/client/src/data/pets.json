@@ -1,0 +1,24 @@
+{
+  "fox": {
+    "idle": {
+      "happy": "/assets/pets/fox/happy.png",
+      "sad": "/assets/pets/fox/sad.png",
+      "dirty": "/assets/pets/fox/dirty.png",
+      "sleepy": "/assets/pets/fox/sleepy.png"
+    },
+    "animations": {
+      "eat": {
+        "duration": 2000,
+        "sprite": "/assets/pets/fox/eat.png"
+      },
+      "toilet": {
+        "duration": 2000,
+        "sprite": "/assets/pets/fox/toilet.png"
+      },
+      "bath": {
+        "duration": 2000,
+        "sprite": "/assets/pets/fox/bath.png"
+      }
+    }
+  }
+}

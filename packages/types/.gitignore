@@ -1,0 +1,6 @@
+# Ignore build output and node modules for the types package
+/dist
+/node_modules
+*.tsbuildinfo
+.DS_Store
+.env
