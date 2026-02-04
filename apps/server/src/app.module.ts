@@ -13,7 +13,11 @@ import { v4 as uuidv4 } from 'uuid';
 
 @Module({
 	imports: [
-		ConfigModule.forRoot({ isGlobal: true }),
+		ConfigModule.forRoot({
+			isGlobal: true,
+			envFilePath: ['.env.local', '.env'],
+			expandVariables: true
+		}),
 		MulterModule.register({
 			storage: diskStorage({
 				destination: tmpdir(),
@@ -39,4 +43,4 @@ import { v4 as uuidv4 } from 'uuid';
 	controllers: [],
 	providers: [],
 })
-export class AppModule {}
+export class AppModule { }
