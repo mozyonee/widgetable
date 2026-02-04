@@ -16,7 +16,7 @@
 	},
 	"dependencies": {
 		"@reduxjs/toolkit": "^2.11.2",
-		"@widgetable/types": "workspace:*",
+		"@widgetable/types": "file:../../packages/types",
 		"axios": "^1.13.2",
 		"lucide-react": "^0.562.0",
 		"next": "^16.1.0",
@@ -26,7 +26,8 @@
 		"react-dom": "^19.2.3",
 		"react-hot-toast": "^2.6.0",
 		"react-redux": "^9.2.0",
-		"redux-persist": "^6.0.0"
+		"redux-persist": "^6.0.0",
+		"uninstall": "^0.0.0"
 	},
 	"devDependencies": {
 		"@tailwindcss/postcss": "^4.1.18",

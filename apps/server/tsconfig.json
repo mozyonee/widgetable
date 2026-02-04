@@ -2,6 +2,7 @@
 	"compilerOptions": {
 		"module": "commonjs",
 		"declaration": true,
+		"removeComments": true,
 		"emitDecoratorMetadata": true,
 		"experimentalDecorators": true,
 		"allowSyntheticDefaultImports": true,
@@ -13,23 +14,13 @@
 		"skipLibCheck": true,
 		"strictNullChecks": true,
 		"forceConsistentCasingInFileNames": true,
-		"noImplicitAny": false
+		"noImplicitAny": false,
+		"strictBindCallApply": false,
+		"noFallthroughCasesInSwitch": false
 	},
 	"references": [
 		{
 			"path": "../../packages/types"
 		}
-	],
-	"paths": {
-		"@widgetable/types": [
-			"../../packages/types/src"
-		]
-	},
-	"include": [
-		"src/**/*.ts"
-	],
-	"exclude": [
-		"node_modules",
-		"dist"
 	]
 }
