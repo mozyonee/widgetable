@@ -66,6 +66,7 @@ export interface InputTagsProps extends BaseInputProps {
 export interface InputTextHiddenProps extends BaseInputProps {
 	type?: 'text' | 'email' | 'number' | 'tel' | 'url' | 'submit';
 	onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+	onBlur?: (e: React.FocusEvent<HTMLInputElement>) => void;
 	readOnly?: boolean;
 }
 

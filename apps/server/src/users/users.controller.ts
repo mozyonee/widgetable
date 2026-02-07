@@ -1,4 +1,4 @@
-import { BadRequestException, Controller, Get, Param, Patch, UploadedFile, UseInterceptors } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Get, Param, Patch, UploadedFile, UseInterceptors } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { UsersService } from './users.service';
 
@@ -25,6 +25,14 @@ export class UsersController {
 	setImage(@Param('id') id: string, @UploadedFile() file: Express.Multer.File) {
 		if (!file) throw new BadRequestException('No file uploaded');
 
-		void this.usersService.setImage(id, file);
+		return this.usersService.setImage(id, file);
+	}
+
+	@Patch(':id/name')
+	updateName(@Param('id') id: string, @Body('name') name: string) {
+		if (!name || name.trim().length === 0) {
+			throw new BadRequestException('Name cannot be empty');
+		}
+		return this.usersService.updateName(id, name.trim());
 	}
 }

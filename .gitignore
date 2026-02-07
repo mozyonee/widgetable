@@ -18,6 +18,10 @@
 /.next
 /out
 
+# Service worker files (generated)
+**/public/sw.js
+**/public/workbox-*.js
+
 # Env files (do NOT commit real secrets)
 .env
 .env.*
@@ -60,3 +64,5 @@ yarn-debug.log*
 # package-lock.json
 # yarn.lock
 # pnpm-lock.yaml
+
+.mcp.json

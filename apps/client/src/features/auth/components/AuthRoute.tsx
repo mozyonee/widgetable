@@ -13,23 +13,32 @@ interface AuthRouteProps {
 export default function AuthRoute({ children }: AuthRouteProps) {
 	const router = useRouter();
 	const pathname = usePathname();
-	const { isAuthenticated, checkAuth } = useAuth();
+	const { checkAuth } = useAuth();
 
 	useEffect(() => {
+		let isMounted = true;
+
 		const verifyAuth = async () => {
 			const isAuthorized = await checkAuth();
 
+			if (!isMounted) return;
+
 			if (!isAuthorized && !PUBLIC_ROUTES.includes(pathname)) {
-				router.push('/auth');
+				router.replace('/auth');
+				return;
 			}
 
 			if (isAuthorized && pathname === '/auth') {
-				router.push('/');
+				router.replace('/');
 			}
 		};
 
-		verifyAuth();
-	}, [pathname]);
+		if (pathname) verifyAuth();
+
+		return () => {
+			isMounted = false;
+		};
+	}, [pathname, checkAuth, router]);
 
 	return <div className="flex flex-col min-h-screen">{children}</div>;
 }

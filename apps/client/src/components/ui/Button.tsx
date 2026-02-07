@@ -1,5 +1,4 @@
 import { InputTextHiddenProps } from '@/types/buttons.types';
-import { useEffect, useRef, useState } from 'react';
 
 export const Button = ({
 	children,
@@ -40,6 +39,7 @@ export const InputTextHidden = ({
 	value = '',
 	placeholder = '',
 	onChange,
+	onBlur,
 	readOnly,
 	inputStyles = '',
 }: InputTextHiddenProps) => {
@@ -49,6 +49,7 @@ export const InputTextHidden = ({
 			value={value}
 			placeholder={placeholder}
 			onChange={onChange}
+			onBlur={onBlur}
 			readOnly={readOnly}
 			size={Math.max(value.length, placeholder.length, 1)}
 			className={`bg-transparent text-center outline-none w-fit ${inputStyles}`}

@@ -218,11 +218,10 @@ const PetPage = () => {
 					{actionCategories.map((category) => (
 						<div
 							key={category.categoryName}
-							className={`px-4 py-2 cursor-pointer font-semibold ${
-								selectedCategory === category.categoryName
+							className={`px-4 py-2 cursor-pointer font-semibold ${selectedCategory === category.categoryName
 									? 'text-primary border-b-2 border-primary'
 									: 'text-secondary'
-							}`}
+								}`}
 							onClick={() => setSelectedCategory(category.categoryName)}
 						>
 							{category.categoryName}
