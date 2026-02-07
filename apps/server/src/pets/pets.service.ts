@@ -2,8 +2,8 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { random } from 'lodash';
 import { Model, Types } from 'mongoose';
-import { Pet, PetDocument, PetType } from './entities/pet.entity';
 import { UserDocument } from 'src/users/entities/user.entity';
+import { Pet, PetDocument, PetType } from './entities/pet.entity';
 
 @Injectable()
 export class PetsService {
@@ -11,7 +11,7 @@ export class PetsService {
 
 	async getPet(petId: PetDocument['_id']) {
 		const pet = await this.petModel.findById(petId);
-		if (!pet) throw new NotFoundException('Not found');
+		if (!pet) throw new NotFoundException();
 
 		return await this.calculateCurrentStats(pet);
 	}
@@ -53,13 +53,13 @@ export class PetsService {
 
 		const pet = await this.petModel.findByIdAndUpdate(id, newData, { new: true });
 
-		if (!pet) throw new NotFoundException('Pet not found');
+		if (!pet) throw new NotFoundException();
 		return pet;
 	}
 
 	async remove(id: PetDocument['_id']) {
 		const result = await this.petModel.findByIdAndDelete(id);
-		if (!result) throw new NotFoundException('Pet not found');
+		if (!result) throw new NotFoundException();
 		return result;
 	}
 

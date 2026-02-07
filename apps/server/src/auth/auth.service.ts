@@ -1,4 +1,4 @@
-import { Injectable, BadRequestException, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import * as argon2 from 'argon2';
@@ -15,9 +15,8 @@ export class AuthService {
 
 	async register(email: string, password: string) {
 		const existingUser = await this.usersService.findByEmail(email);
-		if (existingUser) {
-			throw new BadRequestException('Пользователь с такой электронной почтой уже существует');
-		}
+		if (existingUser) throw new BadRequestException();
+
 
 		const hashedPassword = await this.hashPassword(password);
 		const user = await this.usersService.create(email, hashedPassword);
@@ -27,14 +26,10 @@ export class AuthService {
 
 	async login(email: string, password: string) {
 		const user = await this.usersService.findByEmail(email);
-		if (!user) {
-			throw new UnauthorizedException('Неправильная электронная почта или пароль');
-		}
+		if (!user) throw new UnauthorizedException();
 
 		const isPasswordValid = await this.verifyPassword(user.password, password);
-		if (!isPasswordValid) {
-			throw new UnauthorizedException('Неправильная электронная почта или пароль');
-		}
+		if (!isPasswordValid) throw new UnauthorizedException();
 
 		const token = this.generateToken(user);
 		const cookie = this.getCookieWithJwtToken(token);

@@ -3,10 +3,10 @@
 import { Button, InputTextHidden } from '@/components/ui/Button';
 import PetSprite from '@/features/pets/components/PetSprite';
 import { PetContext } from '@/features/pets/context/PetContext';
-import { IPet, IPetDocument, PetAnimation } from '@/features/pets/types/pet.types';
 import api from '@/lib/api';
 import { callError } from '@/lib/functions';
 import { useAppSelector } from '@/store';
+import { Pet, PetAnimation } from '@widgetable/types/src/pet';
 import { sample } from 'lodash';
 import { CircleX, Triangle } from 'lucide-react';
 import { useContext, useEffect, useRef, useState } from 'react';
@@ -27,7 +27,7 @@ const PetPage = () => {
 	const [selectedCategory, setSelectedCategory] = useState('Feed');
 	const [currentAnimation, setCurrentAnimation] = useState<PetAnimation>();
 
-	const getMessage = (pet: IPet) => {
+	const getMessage = (pet: Pet) => {
 		if (pet.hygiene < 30) return sample(petReplicas.hygiene);
 		if (pet.toilet < 30) return sample(petReplicas.toilet);
 		if (pet.hunger < 30) return sample(petReplicas.hunger);
@@ -37,7 +37,7 @@ const PetPage = () => {
 		return sample(petReplicas.happy);
 	};
 
-	const calculateCurrentStats = (pet: IPetDocument) => {
+	const calculateCurrentStats = (pet: Pet) => {
 		const now = Date.now();
 		const updatedAtDate = pet.updatedAt ? new Date(pet.updatedAt) : new Date();
 		const timeDiff = now - updatedAtDate.getTime();
@@ -66,7 +66,7 @@ const PetPage = () => {
 	};
 
 	const updatePetStats = () => {
-		setPet((currentPet) => {
+		setPet((currentPet: Pet) => {
 			if (!currentPet) return currentPet;
 			return calculateCurrentStats(currentPet);
 		});
@@ -100,8 +100,11 @@ const PetPage = () => {
 		};
 	}, [pet?._id]);
 
-	const handleSet = async (data: Partial<IPetDocument>, animation?: PetAnimation) => {
-		if (currentAnimation) return;
+	const handleSet = async (data: Partial<Pet>, animation?: PetAnimation) => {
+		if (currentAnimation) {
+			callError(`${pet?.name} is busy`)
+			return;
+		}
 
 		if (animation) {
 			setCurrentAnimation(animation);
@@ -118,7 +121,7 @@ const PetPage = () => {
 			});
 	};
 
-	const handleDelete = async (petId: IPetDocument['_id']) => {
+	const handleDelete = async (petId: Pet['_id']) => {
 		await api
 			.delete(`/pets/${petId}`)
 			.then(() => {
@@ -192,30 +195,36 @@ const PetPage = () => {
 			</div>
 
 			<div className="flex-1 flex flex-col gap-5 items-center justify-center">
-				<div className="relative inline-block max-w-[80vw] sm:max-w-md">
-					{/* Bubble */}
-					<div className="bg-white border-2 border-primary rounded-xl px-4 py-2 text-base whitespace-nowrap">
-						{getMessage(pet)}
-					</div>
+				<div className="relative inline-block max-w-[80vw] sm:max-w-md" style={{ minHeight: '44px' }}>
+					{!currentAnimation && (
+						<>
+							{/* Bubble */}
+							<div className="bg-white border-2 border-primary rounded-xl px-4 py-2 text-base whitespace-nowrap">
+								{getMessage(pet)}
+							</div>
 
-					{/* Tail */}
-					<svg
-						width="24"
-						height="14"
-						viewBox="0 0 24 14"
-						className="absolute left-1/2 -translate-x-1/2 -bottom-[12px]"
-					>
-						<path
-							d="M2 0 L12 10 L22 0"
-							fill="white"
-							stroke="var(--primary)"
-							strokeWidth="2"
-							strokeLinejoin="round"
-						/>
-					</svg>
+							{/* Tail */}
+							<svg
+								width="24"
+								height="14"
+								viewBox="0 0 24 14"
+								className="absolute left-1/2 -translate-x-1/2 -bottom-[12px]"
+							>
+								<path
+									d="M2 0 L12 10 L22 0"
+									fill="white"
+									stroke="var(--primary)"
+									strokeWidth="2"
+									strokeLinejoin="round"
+								/>
+							</svg>
+						</>
+					)}
 				</div>
 
-				<PetSprite height={300} pet={pet} animation={currentAnimation} onAnimationEnd={() => setCurrentAnimation(undefined)} />
+				<div className="relative">
+					<PetSprite height={300} pet={pet} animation={currentAnimation} onAnimationEnd={() => setCurrentAnimation(undefined)} />
+				</div>
 			</div>
 
 			<div className="w-full bg-white rounded-2xl p-4 shadow-md border border-secondary/20">
@@ -235,7 +244,14 @@ const PetPage = () => {
 				</div>
 				<div className="grid grid-cols-2 gap-2">
 					{selectedActions.map((action) => (
-						<Button key={action.name} onClick={action.onClick} variant="ghost" size="sm">
+						<Button
+							key={action.name}
+							onClick={action.onClick}
+							variant="ghost"
+							size="sm"
+							disabled={!!currentAnimation}
+							style={`${currentAnimation ? 'opacity-30 pointer-events-none' : ''}`}
+						>
 							{action.name}
 						</Button>
 					))}

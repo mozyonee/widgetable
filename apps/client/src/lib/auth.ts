@@ -1,10 +1,6 @@
+import { User } from '@widgetable/types';
 import { useRouter } from 'next/navigation';
 import api from './api';
-
-export interface User {
-	id: string;
-	email: string;
-}
 
 export const getCurrentUser = async (): Promise<User | null> => {
 	try {

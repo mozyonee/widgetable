@@ -1,10 +1,10 @@
 import spriteData from '@/data/pets.json';
-import { IPet, PetAnimation } from '@/features/pets/types/pet.types';
+import { Pet, PetAnimation } from '@widgetable/types/src/pet';
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
 
 interface PetSpriteProps {
-	pet: IPet;
+	pet: Pet;
 	height?: number;
 	width?: number;
 	animation?: PetAnimation;

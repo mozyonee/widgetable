@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Request } from 'express';
-import { HydratedDocument } from 'mongoose';
+import { HydratedDocument, Schema as MongooseSchema } from 'mongoose';
 import { Cookies, TimeStamps } from 'src/common/interfaces/app.interface';
 
 @Schema({ timestamps: true })
@@ -11,11 +11,20 @@ export class User {
 	@Prop({ required: true })
 	password: string;
 
-	@Prop()
-	name?: string;
+	@Prop({ required: true })
+	name: string;
 
 	@Prop()
 	picture?: string;
+
+	@Prop({ type: [{ type: MongooseSchema.Types.ObjectId, ref: 'User' }], default: [] })
+	friends?: MongooseSchema.Types.ObjectId[];
+
+	@Prop({ type: [{ type: MongooseSchema.Types.ObjectId, ref: 'User' }], default: [] })
+	friendRequestsSent?: MongooseSchema.Types.ObjectId[];
+
+	@Prop({ type: [{ type: MongooseSchema.Types.ObjectId, ref: 'User' }], default: [] })
+	friendRequestsReceived?: MongooseSchema.Types.ObjectId[];
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

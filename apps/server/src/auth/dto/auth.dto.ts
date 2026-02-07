@@ -7,6 +7,6 @@ export class AuthDto {
 
 	@IsString()
 	@IsNotEmpty()
-	@MinLength(8, { message: 'Пароль должен содержать минимум 8 символов' })
+	@MinLength(8)
 	password: string;
 }

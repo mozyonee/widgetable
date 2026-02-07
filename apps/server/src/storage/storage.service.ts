@@ -14,7 +14,6 @@ export class StorageService {
 
 		for (const bucket of buckets) {
 			const exists = await this.s3Client.bucketExists(bucket);
-
 			if (!exists) await this.s3Client.makeBucket(bucket, this.storageConfig.options.region);
 		}
 	}

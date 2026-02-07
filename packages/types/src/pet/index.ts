@@ -1,3 +1,5 @@
+import { Database } from "../database";
+
 export enum PetType {
 	FOX = 'fox',
 	// CAT = 'cat',
@@ -13,7 +15,7 @@ export enum PetAnimation {
 	SLEEP = 'sleep',
 }
 
-export interface IPet {
+export interface PetData {
 	type: PetType;
 	name: string;
 	parents: string[];
@@ -24,8 +26,5 @@ export interface IPet {
 	toilet: number;
 }
 
-export interface IPetDocument extends IPet {
-	_id: string;
-	createdAt?: Date;
-	updatedAt?: Date;
-}
+
+export type Pet = PetData & Database;
