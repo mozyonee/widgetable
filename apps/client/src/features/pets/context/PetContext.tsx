@@ -1,9 +1,9 @@
-import { IPetDocument } from '@/features/pets/types/pet.types';
+import { Pet } from '@widgetable/types';
 import { Dispatch, SetStateAction, createContext } from 'react';
 
 interface PetContextProps {
-	pet: IPetDocument | undefined;
-	setPet: Dispatch<SetStateAction<IPetDocument | undefined>>;
+	pet: Pet | undefined;
+	setPet: Dispatch<SetStateAction<Pet | undefined>>;
 }
 
 export const PetContext = createContext<PetContextProps>({

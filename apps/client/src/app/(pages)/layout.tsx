@@ -2,11 +2,11 @@
 
 import Footer from '@/components/ui/Footer';
 import { PetContext } from '@/features/pets/context/PetContext';
-import { IPetDocument } from '@/features/pets/types/pet.types';
+import { Pet } from '@widgetable/types';
 import { useState } from 'react';
 
 const PagesLayout = ({ children }: Readonly<{ children: React.ReactNode }>) => {
-	const [pet, setPet] = useState<IPetDocument>();
+	const [pet, setPet] = useState<Pet>();
 
 	return (
 		<PetContext.Provider value={{ pet, setPet }}>

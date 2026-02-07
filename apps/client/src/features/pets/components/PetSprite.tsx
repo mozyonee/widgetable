@@ -1,5 +1,5 @@
 import spriteData from '@/data/pets.json';
-import { Pet, PetAnimation } from '@widgetable/types/src/pet';
+import { Pet, PetAnimation } from '@widgetable/types';
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
 

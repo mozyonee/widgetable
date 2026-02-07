@@ -6,7 +6,7 @@ import { PetContext } from '@/features/pets/context/PetContext';
 import api from '@/lib/api';
 import { callError } from '@/lib/functions';
 import { useAppSelector } from '@/store';
-import { Pet, PetAnimation } from '@widgetable/types/src/pet';
+import { Pet, PetAnimation } from '@widgetable/types';
 import { sample } from 'lodash';
 import { CircleX, Triangle } from 'lucide-react';
 import { useContext, useEffect, useRef, useState } from 'react';
@@ -66,7 +66,7 @@ const PetPage = () => {
 	};
 
 	const updatePetStats = () => {
-		setPet((currentPet: Pet) => {
+		setPet((currentPet: Pet | undefined) => {
 			if (!currentPet) return currentPet;
 			return calculateCurrentStats(currentPet);
 		});

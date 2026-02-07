@@ -16,14 +16,14 @@ export class UsersController {
 		FileInterceptor('picture', {
 			fileFilter: (req, file, cb) => {
 				if (!file.mimetype.startsWith('image/')) {
-					return cb(new Error('Only image files are allowed'), false);
+					return cb(new BadRequestException(), false);
 				}
 				cb(null, true);
 			},
 		}),
 	)
 	setImage(@Param('id') id: string, @UploadedFile() file: Express.Multer.File) {
-		if (!file) throw new BadRequestException('No file uploaded');
+		if (!file) throw new BadRequestException();
 
 		return this.usersService.setImage(id, file);
 	}
@@ -31,7 +31,7 @@ export class UsersController {
 	@Patch(':id/name')
 	updateName(@Param('id') id: string, @Body('name') name: string) {
 		if (!name || name.trim().length === 0) {
-			throw new BadRequestException('Name cannot be empty');
+			throw new BadRequestException();
 		}
 		return this.usersService.updateName(id, name.trim());
 	}
@@ -39,7 +39,7 @@ export class UsersController {
 	@Get('search')
 	searchUsers(@Query('query') query: string) {
 		if (!query || query.trim().length === 0) {
-			throw new BadRequestException('Search query cannot be empty');
+			throw new BadRequestException();
 		}
 		return this.usersService.searchUsers(query.trim());
 	}

@@ -4,7 +4,7 @@ import { PetContext } from '@/features/pets/context/PetContext';
 import api from '@/lib/api';
 import { callError } from '@/lib/functions';
 import { useAppSelector } from '@/store';
-import { Pet } from '@widgetable/types/src/pet';
+import { Pet } from '@widgetable/types';
 import { Plus } from 'lucide-react';
 import { useContext, useEffect, useState } from 'react';
 

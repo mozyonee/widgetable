@@ -26,5 +26,4 @@ export interface PetData {
 	toilet: number;
 }
 
-
 export type Pet = PetData & Database;
