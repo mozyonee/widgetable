@@ -1,24 +1,32 @@
 {
-  "fox": {
-    "idle": {
-      "happy": "/assets/pets/fox/happy.png",
-      "sad": "/assets/pets/fox/sad.png",
-      "dirty": "/assets/pets/fox/dirty.png",
-      "sleepy": "/assets/pets/fox/sleepy.png"
-    },
-    "animations": {
-      "eat": {
-        "duration": 2000,
-        "sprite": "/assets/pets/fox/eat.png"
-      },
-      "toilet": {
-        "duration": 2000,
-        "sprite": "/assets/pets/fox/toilet.png"
-      },
-      "bath": {
-        "duration": 2000,
-        "sprite": "/assets/pets/fox/bath.png"
-      }
-    }
-  }
+	"fox": {
+		"idle": {
+			"happy": "/pets/fox/happy.png",
+			"sad": "/pets/fox/sad.png",
+			"dirty": "/pets/fox/dirty.png",
+			"sleepy": "/pets/fox/sleepy.png"
+		},
+		"animations": {
+			"eat": {
+				"duration": 1000,
+				"sprite": "/pets/fox/animations/eat.png"
+			},
+			"drink": {
+				"duration": 500,
+				"sprite": "/pets/fox/animations/drink.png"
+			},
+			"toilet": {
+				"duration": 2000,
+				"sprite": "/pets/fox/animations/toilet.png"
+			},
+			"bath": {
+				"duration": 3000,
+				"sprite": "/pets/fox/animations/bath.png"
+			},
+			"sleep": {
+				"duration": 5000,
+				"sprite": "/pets/fox/animations/sleep.png"
+			}
+		}
+	}
 }

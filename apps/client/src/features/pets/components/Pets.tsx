@@ -1,3 +1,5 @@
+import { Skeleton } from '@/components/ui/Skeleton';
+import Pet from '@/features/pets/components/PetSprite';
 import { PetContext } from '@/features/pets/context/PetContext';
 import { IPetDocument } from '@/features/pets/types/pet.types';
 import api from '@/lib/api';
@@ -5,8 +7,6 @@ import { callError } from '@/lib/functions';
 import { useAppSelector } from '@/store';
 import { Plus } from 'lucide-react';
 import { useContext, useEffect, useState } from 'react';
-import Pet from '@/features/pets/components/PetSprite';
-import { Skeleton } from '@/components/ui/Skeleton';
 
 const PetCardSkeleton = () => {
 	return (
@@ -66,8 +66,7 @@ function PetsPage() {
 							className="bg-white rounded-2xl p-4 flex flex-col items-center justify-between gap-4 cursor-pointer relative shadow-md border border-secondary/20 hover:scale-105 transition-transform duration-300"
 							onClick={() => setPet(pet)}
 						>
-							<Pet pet={pet} width={100} />
-
+							<Pet pet={pet} height={100} />
 							<p className="text-2xl font-bold text-foreground text-center">{pet.name}</p>
 						</div>
 					))}

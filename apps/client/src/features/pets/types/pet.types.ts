@@ -5,6 +5,14 @@ export enum PetType {
 	// RABBIT = 'rabbit',
 }
 
+export enum PetAnimation {
+	EAT = 'eat',
+	DRINK = 'drink',
+	TOILET = 'toilet',
+	BATH = 'bath',
+	SLEEP = 'sleep',
+}
+
 export interface IPet {
 	type: PetType;
 	name: string;

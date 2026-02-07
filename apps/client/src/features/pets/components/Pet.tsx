@@ -3,13 +3,12 @@
 import { Button, InputTextHidden } from '@/components/ui/Button';
 import PetSprite from '@/features/pets/components/PetSprite';
 import { PetContext } from '@/features/pets/context/PetContext';
-import { IPet, IPetDocument } from '@/features/pets/types/pet.types';
+import { IPet, IPetDocument, PetAnimation } from '@/features/pets/types/pet.types';
 import api from '@/lib/api';
 import { callError } from '@/lib/functions';
 import { useAppSelector } from '@/store';
 import { sample } from 'lodash';
 import { CircleX, Triangle } from 'lucide-react';
-import { useRouter } from 'next/navigation';
 import { useContext, useEffect, useRef, useState } from 'react';
 
 const petReplicas = {
@@ -25,8 +24,8 @@ const PetPage = () => {
 	const intervalRef = useRef<NodeJS.Timeout | null>(null);
 	const user = useAppSelector((state) => state.user.userData);
 	const { pet, setPet } = useContext(PetContext);
-	const router = useRouter();
 	const [selectedCategory, setSelectedCategory] = useState('Feed');
+	const [currentAnimation, setCurrentAnimation] = useState<PetAnimation>();
 
 	const getMessage = (pet: IPet) => {
 		if (pet.hygiene < 30) return sample(petReplicas.hygiene);
@@ -101,7 +100,13 @@ const PetPage = () => {
 		};
 	}, [pet?._id]);
 
-	const handleSet = async (data: Partial<IPetDocument>) => {
+	const handleSet = async (data: Partial<IPetDocument>, animation?: PetAnimation) => {
+		if (currentAnimation) return;
+
+		if (animation) {
+			setCurrentAnimation(animation);
+		}
+
 		await api
 			.patch(`/pets/${pet?._id}`, data)
 			.then((response) => {
@@ -130,29 +135,29 @@ const PetPage = () => {
 		{
 			categoryName: 'Feed',
 			actions: [
-				{ name: 'Meal', onClick: () => handleSet({ hunger: 100 }) },
-				{ name: 'Snack', onClick: () => handleSet({ hunger: Math.min(pet.hunger + 30, 100) }) },
+				{ name: 'Meal', onClick: () => handleSet({ hunger: 100 }, PetAnimation.EAT) },
+				{ name: 'Snack', onClick: () => handleSet({ hunger: Math.min(pet.hunger + 30, 100) }, PetAnimation.EAT) },
 			],
 		},
 		{
 			categoryName: 'Drink',
 			actions: [
-				{ name: 'Water', onClick: () => handleSet({ thirst: 100 }) },
-				{ name: 'Juice', onClick: () => handleSet({ thirst: Math.min(pet.thirst + 40, 100) }) },
+				{ name: 'Water', onClick: () => handleSet({ thirst: 100 }, PetAnimation.DRINK) },
+				{ name: 'Juice', onClick: () => handleSet({ thirst: Math.min(pet.thirst + 40, 100) }, PetAnimation.DRINK) },
 			],
 		},
 		{
 			categoryName: 'Wash',
 			actions: [
-				{ name: 'Bath', onClick: () => handleSet({ hygiene: 100 }) },
-				{ name: 'Shower', onClick: () => handleSet({ hygiene: Math.min(pet.hygiene + 50, 100) }) },
+				{ name: 'Bath', onClick: () => handleSet({ hygiene: 100 }, PetAnimation.BATH) },
+				{ name: 'Shower', onClick: () => handleSet({ hygiene: Math.min(pet.hygiene + 50, 100) }, PetAnimation.BATH) },
 			],
 		},
 		{
 			categoryName: 'Care',
 			actions: [
-				{ name: 'Toilet', onClick: () => handleSet({ toilet: 100 }) },
-				{ name: 'Sleep', onClick: () => handleSet({ energy: 100 }) },
+				{ name: 'Toilet', onClick: () => handleSet({ toilet: 100 }, PetAnimation.TOILET) },
+				{ name: 'Sleep', onClick: () => handleSet({ energy: 100 }, PetAnimation.SLEEP) },
 			],
 		},
 	];
@@ -189,7 +194,7 @@ const PetPage = () => {
 			<div className="flex-1 flex flex-col gap-5 items-center justify-center">
 				<div className="relative inline-block max-w-[80vw] sm:max-w-md">
 					{/* Bubble */}
-					<div className="bg-background border-2 border-primary rounded-xl px-4 py-2 text-base whitespace-nowrap">
+					<div className="bg-white border-2 border-primary rounded-xl px-4 py-2 text-base whitespace-nowrap">
 						{getMessage(pet)}
 					</div>
 
@@ -202,7 +207,7 @@ const PetPage = () => {
 					>
 						<path
 							d="M2 0 L12 10 L22 0"
-							fill="var(--background)"
+							fill="white"
 							stroke="var(--primary)"
 							strokeWidth="2"
 							strokeLinejoin="round"
@@ -210,7 +215,7 @@ const PetPage = () => {
 					</svg>
 				</div>
 
-				<PetSprite pet={pet} />
+				<PetSprite height={300} pet={pet} animation={currentAnimation} onAnimationEnd={() => setCurrentAnimation(undefined)} />
 			</div>
 
 			<div className="w-full bg-white rounded-2xl p-4 shadow-md border border-secondary/20">
@@ -219,8 +224,8 @@ const PetPage = () => {
 						<div
 							key={category.categoryName}
 							className={`px-4 py-2 cursor-pointer font-semibold ${selectedCategory === category.categoryName
-									? 'text-primary border-b-2 border-primary'
-									: 'text-secondary'
+								? 'text-primary border-b-2 border-primary'
+								: 'text-secondary'
 								}`}
 							onClick={() => setSelectedCategory(category.categoryName)}
 						>
