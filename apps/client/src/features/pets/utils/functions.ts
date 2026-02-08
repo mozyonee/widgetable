@@ -1,13 +1,13 @@
-import { Pet } from '@widgetable/types';
-import { PET_MESSAGES, STAT_THRESHOLD } from './constants';
+import { Pet, PET_NEEDS_CONFIG, STAT_THRESHOLD, HAPPY_MESSAGE, PET_NEED_KEYS } from '@widgetable/types';
 
 export function getPetMessage(pet: Pet): string {
-	if (pet.needs.hygiene < STAT_THRESHOLD) return PET_MESSAGES.hygiene;
-	if (pet.needs.toilet < STAT_THRESHOLD) return PET_MESSAGES.toilet;
-	if (pet.needs.hunger < STAT_THRESHOLD) return PET_MESSAGES.hunger;
-	if (pet.needs.thirst < STAT_THRESHOLD) return PET_MESSAGES.thirst;
-	if (pet.needs.energy < STAT_THRESHOLD) return PET_MESSAGES.energy;
-	return PET_MESSAGES.happy;
+	for (const needKey of PET_NEED_KEYS) {
+		if (pet.needs[needKey] < STAT_THRESHOLD) {
+			return PET_NEEDS_CONFIG[needKey].urgencyMessage;
+		}
+	}
+
+	return HAPPY_MESSAGE;
 }
 
 export function getParentId(parent: string | { _id: string }): string {

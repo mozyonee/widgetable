@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { PetType } from '@widgetable/types';
+import { PetType, PET_NEEDS_CONFIG, PET_NEED_KEYS } from '@widgetable/types';
 import { clamp, random } from 'lodash';
 import { Model, Types } from 'mongoose';
 import { UserDocument } from 'src/users/entities/user.entity';
@@ -59,7 +59,7 @@ export class PetsService {
 		// Clamp needs values to valid range [0, 100]
 		if (updateData.needs) {
 			newData.needs = {};
-			(['hunger', 'thirst', 'hygiene', 'energy', 'toilet'] as const).forEach((key) => {
+			PET_NEED_KEYS.forEach((key) => {
 				if (updateData.needs?.[key] !== undefined) {
 					newData.needs[key] = clamp(updateData.needs[key], 0, 100);
 				}
@@ -87,20 +87,13 @@ export class PetsService {
 
 		if (intervals <= 0) return pet;
 
-		// Decrease needs (adjust rates as needed)
-		const hungerDecrease = intervals * 10;
-		const thirstDecrease = intervals * 10.2;
-		const energyDecrease = intervals * 10.5;
-		const hygieneDecrease = intervals * 10.3;
-		const toiletDecrease = intervals * 10.2;
-
-		const updatedNeeds = {
-			hunger: clamp(pet.needs.hunger - hungerDecrease, 0, 100),
-			thirst: clamp(pet.needs.thirst - thirstDecrease, 0, 100),
-			energy: clamp(pet.needs.energy - energyDecrease, 0, 100),
-			hygiene: clamp(pet.needs.hygiene - hygieneDecrease, 0, 100),
-			toilet: clamp(pet.needs.toilet - toiletDecrease, 0, 100),
-		};
+		// Decrease needs based on configuration
+		const updatedNeeds = {} as any;
+		PET_NEED_KEYS.forEach((key) => {
+			const config = PET_NEEDS_CONFIG[key];
+			const decrease = intervals * config.decayRate;
+			updatedNeeds[key] = clamp(pet.needs[key] - decrease, 0, 100);
+		});
 
 		const updatedPet = await this.petModel
 			.findByIdAndUpdate(pet._id, { needs: updatedNeeds }, { new: true })

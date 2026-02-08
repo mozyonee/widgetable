@@ -5,9 +5,9 @@ import { Dropdown } from '@/components/ui/Dropdown';
 import UserCard from '@/features/friends/components/UserCard';
 import PetSprite from '@/features/pets/components/PetSprite';
 import { PetContext } from '@/features/pets/context/PetContext';
-import { PetActionCategory, PetAnimation } from '@widgetable/types';
+import { PetActionCategory, PET_NEEDS_CONFIG, PET_ACTIONS_BY_CATEGORY } from '@widgetable/types';
 import { CircleX, Clock, Triangle, UserPlus, Users } from 'lucide-react';
-import { useContext } from 'react';
+import { useContext, useMemo } from 'react';
 import { usePet } from '../hooks/usePet';
 
 const PetPage = () => {
@@ -30,45 +30,22 @@ const PetPage = () => {
 
 	if (!pet) return null;
 
-	const actionCategories = [
-		{
-			categoryName: PetActionCategory.FEED,
-			actions: [
-				{ name: 'Meal', onClick: () => updatePet({ needs: { hunger: 100 } }, PetAnimation.EAT) },
-				{
-					name: 'Snack',
-					onClick: () => updatePet({ needs: { hunger: pet.needs.hunger + 30 } }, PetAnimation.EAT),
-				},
-			],
-		},
-		{
-			categoryName: PetActionCategory.DRINK,
-			actions: [
-				{ name: 'Water', onClick: () => updatePet({ needs: { thirst: 100 } }, PetAnimation.DRINK) },
-				{
-					name: 'Juice',
-					onClick: () => updatePet({ needs: { thirst: pet.needs.thirst + 40 } }, PetAnimation.DRINK),
-				},
-			],
-		},
-		{
-			categoryName: PetActionCategory.WASH,
-			actions: [
-				{ name: 'Bath', onClick: () => updatePet({ needs: { hygiene: 100 } }, PetAnimation.BATH) },
-				{
-					name: 'Shower',
-					onClick: () => updatePet({ needs: { hygiene: pet.needs.hygiene + 50 } }, PetAnimation.BATH),
-				},
-			],
-		},
-		{
-			categoryName: PetActionCategory.CARE,
-			actions: [
-				{ name: 'Toilet', onClick: () => updatePet({ needs: { toilet: 100 } }, PetAnimation.TOILET) },
-				{ name: 'Sleep', onClick: () => updatePet({ needs: { energy: 100 } }, PetAnimation.SLEEP) },
-			],
-		},
-	];
+	// Generate action categories dynamically from configuration
+	const actionCategories = useMemo(
+		() =>
+			Object.values(PetActionCategory).map((category) => ({
+				categoryName: category,
+				actions: PET_ACTIONS_BY_CATEGORY[category].map((action) => {
+					const needConfig = PET_NEEDS_CONFIG[action.needKey];
+					const newValue = action.value === 'increment' ? pet.needs[action.needKey] + action.amount : action.value;
+					return {
+						name: action.name,
+						onClick: () => updatePet({ needs: { [action.needKey]: newValue } }, needConfig.animation),
+					};
+				}),
+			})),
+		[pet.needs, updatePet],
+	);
 
 	const selectedActions = actionCategories.find((cat) => cat.categoryName === selectedCategory)?.actions || [];
 
