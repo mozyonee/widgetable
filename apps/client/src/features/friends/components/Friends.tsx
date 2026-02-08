@@ -1,176 +1,43 @@
 'use client';
 
 import { Skeleton } from '@/components/ui/Skeleton';
-import api from '@/lib/api';
-import { callError, callSuccess } from '@/lib/functions';
 import { useAppSelector } from '@/store';
-import { User } from '@widgetable/types';
+import { RequestDirection } from '@widgetable/types';
 import { Search } from 'lucide-react';
-import { useEffect, useMemo, useState } from 'react';
-import { FriendRequests, FriendshipStatus, FriendWithStatus } from '../types/friends.types';
+import { useCoparenting } from '../hooks/useCoparenting';
+import { useFriends } from '../hooks/useFriends';
+import CoparentingCard from './CoparentingCard';
 import FriendCard from './FriendCard';
-import SearchResultCard from './SearchResultCard';
 
-const FriendSkeleton = () => (
-	<div className="bg-white rounded-2xl p-4 shadow-md border border-secondary/20 flex items-center gap-4">
-		<Skeleton className="h-12 w-12 rounded-full" />
-		<div className="flex-1">
-			<Skeleton className="h-5 w-32 mb-2" />
-			<Skeleton className="h-4 w-40" />
-		</div>
-	</div>
-);
-
-export default function FriendsPage() {
+const Friends = () => {
 	const user = useAppSelector((state) => state.user.userData);
-	const [friends, setFriends] = useState<User[]>([]);
-	const [friendRequests, setFriendRequests] = useState<FriendRequests>({ received: [], sent: [] });
-	const [searchResults, setSearchResults] = useState<User[]>([]);
-	const [searchQuery, setSearchQuery] = useState('');
-	const [loading, setLoading] = useState(true);
-	const [searching, setSearching] = useState(false);
+	if (!user?._id) return null;
 
-	const fetchFriends = async () => {
-		if (!user?._id) return;
-		setLoading(true);
-		try {
-			const [friendsRes, requestsRes] = await Promise.all([
-				api.get(`/users/${user._id}/friends`),
-				api.get(`/users/${user._id}/friend-requests`),
-			]);
-			setFriends(friendsRes.data);
-			setFriendRequests(requestsRes.data);
-		} catch (error: any) {
-			callError('Failed to load friends');
-		} finally {
-			setLoading(false);
-		}
-	};
+	const {
+		friends,
+		searchResults,
+		searchQuery,
+		loading,
+		searching,
+		setSearchQuery,
+		addRequest,
+		cancelRequest,
+		acceptRequest,
+		declineRequest,
+		remove,
+		getStatus,
+	} = useFriends(user._id);
 
-	useEffect(() => {
-		fetchFriends();
-	}, [user?._id]);
+	const {
+		requests,
+		accept: acceptCoparenting,
+		decline: declineCoparenting,
+		cancel: cancelCoparenting,
+	} = useCoparenting(user._id);
 
-	const handleSearch = async () => {
-		if (!searchQuery.trim()) {
-			setSearchResults([]);
-			return;
-		}
-
-		setSearching(true);
-		try {
-			const response = await api.get('/users/search', { params: { query: searchQuery } });
-			const results = response.data.filter((searchUser: User) => {
-				return searchUser._id !== user?._id;
-			});
-			setSearchResults(results);
-		} catch (error: any) {
-			callError(error.response?.data?.message || 'Search failed');
-		} finally {
-			setSearching(false);
-		}
-	};
-
-	const handleSendRequest = async (friendId: string) => {
-		try {
-			await api.post(`/users/${user?._id}/friend-requests/${friendId}`);
-			setFriendRequests((prev) => ({
-				...prev,
-				sent: [...prev.sent, searchResults.find(u => u._id === friendId)!],
-			}));
-			callSuccess('Friend request sent');
-		} catch (error: any) {
-			callError(error.response?.data?.message || 'Failed to send friend request');
-		}
-	};
-
-	const handleCancelRequest = async (friendId: string) => {
-		try {
-			await api.delete(`/users/${user?._id}/friend-requests/${friendId}/cancel`);
-			setFriendRequests((prev) => ({
-				...prev,
-				sent: prev.sent.filter(f => f._id !== friendId),
-			}));
-			callSuccess('Friend request cancelled');
-		} catch (error: any) {
-			callError(error.response?.data?.message || 'Failed to cancel request');
-		}
-	};
-
-	const handleAcceptRequest = async (friendId: string) => {
-		try {
-			await api.post(`/users/${user?._id}/friend-requests/${friendId}/accept`);
-			const acceptedFriend = friendRequests.received.find(f => f._id === friendId);
-			if (acceptedFriend) {
-				setFriends((prev) => [...prev, acceptedFriend]);
-				setFriendRequests((prev) => ({
-					...prev,
-					received: prev.received.filter(f => f._id !== friendId),
-				}));
-				callSuccess('Friend request accepted');
-			}
-		} catch (error: any) {
-			callError(error.response?.data?.message || 'Failed to accept request');
-		}
-	};
-
-	const handleDeclineRequest = async (friendId: string) => {
-		try {
-			await api.delete(`/users/${user?._id}/friend-requests/${friendId}/decline`);
-			setFriendRequests((prev) => ({
-				...prev,
-				received: prev.received.filter(f => f._id !== friendId),
-			}));
-			callSuccess('Friend request declined');
-		} catch (error: any) {
-			callError(error.response?.data?.message || 'Failed to decline request');
-		}
-	};
-
-	const handleRemoveFriend = async (friendId: string) => {
-		try {
-			await api.delete(`/users/${user?._id}/friends/${friendId}`);
-			setFriends((prev) => prev.filter(f => f._id !== friendId));
-			callSuccess('Friend removed');
-		} catch (error: any) {
-			callError(error.response?.data?.message || 'Failed to remove friend');
-		}
-	};
-
-	const getUserStatus = (userId: string): FriendshipStatus => {
-		if (friends.some(f => f._id === userId)) return FriendshipStatus.FRIENDS;
-		if (friendRequests.sent.some(f => f._id === userId)) return FriendshipStatus.SENT;
-		if (friendRequests.received.some(f => f._id === userId)) return FriendshipStatus.RECEIVED;
-		return FriendshipStatus.NONE;
-	};
-
-	const sortedFriendsList = useMemo(() => {
-		const statusOrder = {
-			[FriendshipStatus.RECEIVED]: 0,
-			[FriendshipStatus.SENT]: 1,
-			[FriendshipStatus.FRIENDS]: 2,
-		};
-
-		const allFriends: FriendWithStatus[] = [
-			...friendRequests.received.map(f => ({ ...f, status: FriendshipStatus.RECEIVED as const })),
-			...friendRequests.sent.map(f => ({ ...f, status: FriendshipStatus.SENT as const })),
-			...friends.map(f => ({ ...f, status: FriendshipStatus.FRIENDS as const })),
-		];
-
-		return allFriends.sort((a, b) => statusOrder[a.status] - statusOrder[b.status]);
-	}, [friends, friendRequests]);
-
-	useEffect(() => {
-		const delaySearch = setTimeout(() => {
-			if (searchQuery.trim()) {
-				handleSearch();
-			} else {
-				setSearchResults([]);
-			}
-		}, 300);
-
-		return () => clearTimeout(delaySearch);
-	}, [searchQuery]);
+	const validReceivedRequests = requests?.received.filter((req) => req.metadata?.pet && req.sender) || [];
+	const validSentRequests = requests?.sent.filter((req) => req.metadata?.pet && req.recipient) || [];
+	const hasCoparentingRequests = validReceivedRequests.length > 0 || validSentRequests.length > 0;
 
 	return (
 		<div className="flex flex-col gap-4 h-full">
@@ -198,16 +65,17 @@ export default function FriendsPage() {
 
 				{!searching && searchResults.length > 0 && (
 					<div className="flex flex-col">
-						{searchResults.map((result) => (
-							<SearchResultCard
-								key={result._id}
-								friend={result}
-								status={getUserStatus(result._id!)}
-								onSendRequest={handleSendRequest}
-								onCancelRequest={handleCancelRequest}
-								onAccept={handleAcceptRequest}
-								onDecline={handleDeclineRequest}
-								onRemove={handleRemoveFriend}
+						{searchResults.map((user) => (
+							<FriendCard
+								key={user._id}
+								user={user}
+								status={getStatus(user._id!)}
+								onAdd={addRequest}
+								onCancel={cancelRequest}
+								onAccept={acceptRequest}
+								onDecline={declineRequest}
+								onRemove={remove}
+								variant="nested"
 							/>
 						))}
 					</div>
@@ -218,23 +86,46 @@ export default function FriendsPage() {
 				)}
 			</div>
 
+			{hasCoparentingRequests && (
+				<div className="flex flex-col gap-4">
+					{validSentRequests.map((req) => (
+						<CoparentingCard
+							key={req._id}
+							request={req}
+							type={RequestDirection.SENT}
+							onCancel={() => req._id && cancelCoparenting(req._id)}
+						/>
+					))}
+
+					{validReceivedRequests.map((req) => (
+						<CoparentingCard
+							key={req._id}
+							request={req}
+							type={RequestDirection.RECEIVED}
+							onAccept={() => req._id && acceptCoparenting(req._id)}
+							onDecline={() => req._id && declineCoparenting(req._id)}
+						/>
+					))}
+				</div>
+			)}
+
 			{loading ? (
 				<div className="flex flex-col gap-4">
 					<FriendSkeleton />
 					<FriendSkeleton />
 					<FriendSkeleton />
 				</div>
-			) : sortedFriendsList.length > 0 ? (
+			) : friends.length > 0 ? (
 				<div className="flex flex-col gap-4">
-					{sortedFriendsList.map((friend) => (
+					{friends.map((friend) => (
 						<FriendCard
 							key={friend._id}
-							friend={friend}
+							user={friend}
 							status={friend.status}
-							onCancelRequest={handleCancelRequest}
-							onAccept={handleAcceptRequest}
-							onDecline={handleDeclineRequest}
-							onRemove={handleRemoveFriend}
+							onCancel={() => friend.requestId && cancelRequest(friend.requestId)}
+							onAccept={() => friend.requestId && acceptRequest(friend.requestId)}
+							onDecline={() => friend.requestId && declineRequest(friend.requestId)}
+							onRemove={() => friend._id && remove(friend._id)}
 						/>
 					))}
 				</div>
@@ -245,4 +136,16 @@ export default function FriendsPage() {
 			)}
 		</div>
 	);
-}
+};
+
+const FriendSkeleton = () => (
+	<div className="bg-white rounded-2xl p-4 shadow-md border border-secondary/20 flex items-center gap-4">
+		<Skeleton className="h-12 w-12 rounded-full" />
+		<div className="flex-1">
+			<Skeleton className="h-5 w-32 mb-2" />
+			<Skeleton className="h-4 w-40" />
+		</div>
+	</div>
+);
+
+export default Friends;

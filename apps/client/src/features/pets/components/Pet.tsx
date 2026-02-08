@@ -1,166 +1,71 @@
 'use client';
 
 import { Button, InputTextHidden } from '@/components/ui/Button';
+import { Dropdown } from '@/components/ui/Dropdown';
+import UserCard from '@/features/friends/components/UserCard';
 import PetSprite from '@/features/pets/components/PetSprite';
 import { PetContext } from '@/features/pets/context/PetContext';
-import api from '@/lib/api';
-import { callError } from '@/lib/functions';
-import { useAppSelector } from '@/store';
-import { Pet, PetAnimation } from '@widgetable/types';
-import { sample } from 'lodash';
-import { CircleX, Triangle } from 'lucide-react';
-import { useContext, useEffect, useRef, useState } from 'react';
-
-const petReplicas = {
-	hygiene: ['I need a bath!'],
-	toilet: ['I need to go to the toilet!'],
-	hunger: ["I'm hungry!"],
-	thirst: ["I'm thirsty!"],
-	energy: ["I'm tired!"],
-	happy: ["I'm happy!"],
-};
+import { PetActionCategory, PetAnimation } from '@widgetable/types';
+import { CircleX, Clock, Triangle, UserPlus, Users } from 'lucide-react';
+import { useContext } from 'react';
+import { usePet } from '../hooks/usePet';
 
 const PetPage = () => {
-	const intervalRef = useRef<NodeJS.Timeout | null>(null);
-	const user = useAppSelector((state) => state.user.userData);
 	const { pet, setPet } = useContext(PetContext);
-	const [selectedCategory, setSelectedCategory] = useState('Feed');
-	const [currentAnimation, setCurrentAnimation] = useState<PetAnimation>();
 
-	const getMessage = (pet: Pet) => {
-		if (pet.hygiene < 30) return sample(petReplicas.hygiene);
-		if (pet.toilet < 30) return sample(petReplicas.toilet);
-		if (pet.hunger < 30) return sample(petReplicas.hunger);
-		if (pet.thirst < 30) return sample(petReplicas.thirst);
-		if (pet.energy < 30) return sample(petReplicas.energy);
-
-		return sample(petReplicas.happy);
-	};
-
-	const calculateCurrentStats = (pet: Pet) => {
-		const now = Date.now();
-		const updatedAtDate = pet.updatedAt ? new Date(pet.updatedAt) : new Date();
-		const timeDiff = now - updatedAtDate.getTime();
-		const intervals = Math.floor(timeDiff / 5000); // 5 second intervals
-
-		if (intervals <= 0) return pet;
-
-		// Decrease stats (adjust rates as needed)
-		const hungerDecrease = intervals * 10;
-		const thirstDecrease = intervals * 10.2;
-		const energyDecrease = intervals * 10.5;
-		const hygieneDecrease = intervals * 10.3;
-		const toiletDecrease = intervals * 10.2;
-
-		const updatedPet = {
-			...pet,
-			hunger: Math.max(0, pet.hunger - hungerDecrease),
-			thirst: Math.max(0, pet.thirst - thirstDecrease),
-			energy: Math.max(0, pet.energy - energyDecrease),
-			hygiene: Math.max(0, pet.hygiene - hygieneDecrease),
-			toilet: Math.max(0, pet.toilet - toiletDecrease),
-			updatedAt: new Date(), // Update the timestamp
-		};
-
-		return updatedPet;
-	};
-
-	const updatePetStats = () => {
-		setPet((currentPet: Pet | undefined) => {
-			if (!currentPet) return currentPet;
-			return calculateCurrentStats(currentPet);
-		});
-	};
-
-	useEffect(() => {
-		const fetchPet = async () => {
-			if (!user?._id) return;
-			await api
-				.get(`/pets/${pet?._id}`)
-				.then((response) => {
-					const updatedPet = calculateCurrentStats(response.data);
-					setPet(updatedPet);
-				})
-				.catch((error) => {
-					callError(error.message);
-				});
-		};
-		fetchPet();
-	}, [user?._id, pet?._id]);
-
-	useEffect(() => {
-		if (pet) {
-			intervalRef.current = setInterval(updatePetStats, 5000);
-		}
-
-		return () => {
-			if (intervalRef.current) {
-				clearInterval(intervalRef.current);
-			}
-		};
-	}, [pet?._id]);
-
-	const handleSet = async (data: Partial<Pet>, animation?: PetAnimation) => {
-		if (currentAnimation) {
-			callError(`${pet?.name} is busy`)
-			return;
-		}
-
-		if (animation) {
-			setCurrentAnimation(animation);
-		}
-
-		await api
-			.patch(`/pets/${pet?._id}`, data)
-			.then((response) => {
-				const updatedPet = calculateCurrentStats(response.data);
-				setPet(updatedPet);
-			})
-			.catch((error) => {
-				callError(error.message);
-			});
-	};
-
-	const handleDelete = async (petId: Pet['_id']) => {
-		await api
-			.delete(`/pets/${petId}`)
-			.then(() => {
-				setPet(undefined);
-			})
-			.catch((error) => {
-				callError(error.message);
-			});
-	};
+	const {
+		availableFriends,
+		parentNames,
+		showShareDropdown,
+		currentAnimation,
+		selectedCategory,
+		updatePet,
+		deletePet,
+		sendCoparentingRequest,
+		setShowShareDropdown,
+		setSelectedCategory,
+		clearAnimation,
+		getMessage,
+	} = usePet();
 
 	if (!pet) return null;
 
 	const actionCategories = [
 		{
-			categoryName: 'Feed',
+			categoryName: PetActionCategory.FEED,
 			actions: [
-				{ name: 'Meal', onClick: () => handleSet({ hunger: 100 }, PetAnimation.EAT) },
-				{ name: 'Snack', onClick: () => handleSet({ hunger: Math.min(pet.hunger + 30, 100) }, PetAnimation.EAT) },
+				{ name: 'Meal', onClick: () => updatePet({ needs: { hunger: 100 } }, PetAnimation.EAT) },
+				{
+					name: 'Snack',
+					onClick: () => updatePet({ needs: { hunger: pet.needs.hunger + 30 } }, PetAnimation.EAT),
+				},
 			],
 		},
 		{
-			categoryName: 'Drink',
+			categoryName: PetActionCategory.DRINK,
 			actions: [
-				{ name: 'Water', onClick: () => handleSet({ thirst: 100 }, PetAnimation.DRINK) },
-				{ name: 'Juice', onClick: () => handleSet({ thirst: Math.min(pet.thirst + 40, 100) }, PetAnimation.DRINK) },
+				{ name: 'Water', onClick: () => updatePet({ needs: { thirst: 100 } }, PetAnimation.DRINK) },
+				{
+					name: 'Juice',
+					onClick: () => updatePet({ needs: { thirst: pet.needs.thirst + 40 } }, PetAnimation.DRINK),
+				},
 			],
 		},
 		{
-			categoryName: 'Wash',
+			categoryName: PetActionCategory.WASH,
 			actions: [
-				{ name: 'Bath', onClick: () => handleSet({ hygiene: 100 }, PetAnimation.BATH) },
-				{ name: 'Shower', onClick: () => handleSet({ hygiene: Math.min(pet.hygiene + 50, 100) }, PetAnimation.BATH) },
+				{ name: 'Bath', onClick: () => updatePet({ needs: { hygiene: 100 } }, PetAnimation.BATH) },
+				{
+					name: 'Shower',
+					onClick: () => updatePet({ needs: { hygiene: pet.needs.hygiene + 50 } }, PetAnimation.BATH),
+				},
 			],
 		},
 		{
-			categoryName: 'Care',
+			categoryName: PetActionCategory.CARE,
 			actions: [
-				{ name: 'Toilet', onClick: () => handleSet({ toilet: 100 }, PetAnimation.TOILET) },
-				{ name: 'Sleep', onClick: () => handleSet({ energy: 100 }, PetAnimation.SLEEP) },
+				{ name: 'Toilet', onClick: () => updatePet({ needs: { toilet: 100 } }, PetAnimation.TOILET) },
+				{ name: 'Sleep', onClick: () => updatePet({ needs: { energy: 100 } }, PetAnimation.SLEEP) },
 			],
 		},
 	];
@@ -174,24 +79,68 @@ const PetPage = () => {
 					<Triangle strokeWidth={2} size={25} color="var(--primary)" className="rotate-270" />
 				</Button>
 
-				<InputTextHidden
-					id={`pet-name-${pet._id}`}
-					inputStyles="font-bold text-3xl text-foreground justify-self-center px-2"
-					placeholder={pet.name}
-					value={pet.name}
-					onChange={(e) => {
-						handleSet({ name: e.target.value });
-					}}
-				/>
+				<div className="flex flex-col items-center gap-1">
+					<InputTextHidden
+						id={`pet-name-${pet._id}`}
+						inputStyles="font-bold text-3xl text-foreground justify-self-center px-2"
+						placeholder={pet.name}
+						value={pet.name}
+						onChange={(e) => {
+							updatePet({ name: e.target.value });
+						}}
+					/>
+					{parentNames.length > 0 && (
+						<div className="flex items-center justify-center gap-1 text-secondary text-xs">
+							<Users size={12} />
+							{parentNames.join(', ')}
+						</div>
+					)}
+				</div>
 
-				<Button
-					style={`aspect-square w-fit justify-self-end`}
-					variant="danger"
-					size="sm"
-					onClick={() => handleDelete(pet._id)}
-				>
-					<CircleX strokeWidth={2} size={25} color="var(--danger)" />
-				</Button>
+				<div className="flex items-center gap-2 justify-self-end">
+					<Dropdown
+						isOpen={showShareDropdown}
+						onClose={() => setShowShareDropdown(false)}
+						trigger={
+							<Button
+								style={`aspect-square w-fit`}
+								variant="ghost"
+								size="sm"
+								onClick={() => setShowShareDropdown(!showShareDropdown)}
+							>
+								<UserPlus strokeWidth={2} size={25} color="var(--primary)" />
+							</Button>
+						}
+						items={availableFriends.map((friend: any) => ({
+							id: friend._id!,
+							disabled: friend.hasPendingRequest,
+							content: (
+								<div className={friend.hasPendingRequest ? 'opacity-50 cursor-not-allowed' : ''}>
+									<UserCard
+										user={friend}
+										variant="nested"
+										actions={
+											friend.hasPendingRequest && (
+												<Clock strokeWidth={2} size={20} className="text-secondary" />
+											)
+										}
+									/>
+								</div>
+							),
+							onClick: () => {
+								if (!friend.hasPendingRequest) {
+									sendCoparentingRequest(friend._id!);
+								}
+							},
+						}))}
+						emptyMessage="No friends available"
+						className="w-80"
+					/>
+
+					<Button style={`aspect-square w-fit`} variant="danger" size="sm" onClick={() => deletePet()}>
+						<CircleX strokeWidth={2} size={25} color="var(--danger)" />
+					</Button>
+				</div>
 			</div>
 
 			<div className="flex-1 flex flex-col gap-5 items-center justify-center">
@@ -200,7 +149,7 @@ const PetPage = () => {
 						<>
 							{/* Bubble */}
 							<div className="bg-white border-2 border-primary rounded-xl px-4 py-2 text-base whitespace-nowrap">
-								{getMessage(pet)}
+								{getMessage()}
 							</div>
 
 							{/* Tail */}
@@ -223,7 +172,7 @@ const PetPage = () => {
 				</div>
 
 				<div className="relative">
-					<PetSprite height={300} pet={pet} animation={currentAnimation} onAnimationEnd={() => setCurrentAnimation(undefined)} />
+					<PetSprite height={300} pet={pet} animation={currentAnimation} onAnimationEnd={clearAnimation} />
 				</div>
 			</div>
 
@@ -232,10 +181,11 @@ const PetPage = () => {
 					{actionCategories.map((category) => (
 						<div
 							key={category.categoryName}
-							className={`px-4 py-2 cursor-pointer font-semibold ${selectedCategory === category.categoryName
-								? 'text-primary border-b-2 border-primary'
-								: 'text-secondary'
-								}`}
+							className={`px-4 py-2 cursor-pointer font-semibold ${
+								selectedCategory === category.categoryName
+									? 'text-primary border-b-2 border-primary'
+									: 'text-secondary'
+							}`}
 							onClick={() => setSelectedCategory(category.categoryName)}
 						>
 							{category.categoryName}

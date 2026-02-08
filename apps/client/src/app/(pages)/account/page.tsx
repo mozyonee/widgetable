@@ -3,9 +3,9 @@
 import { Button, InputTextHidden } from '@/components/ui/Button';
 import { Skeleton } from '@/components/ui/Skeleton';
 import api from '@/lib/api';
-import { useAuth } from '@/lib/auth';
 import { callError, callSuccess } from '@/lib/functions';
 import { useAppDispatch, useAppSelector } from '@/store';
+import { useAuth } from '@/store/hooks/useAuth';
 import { setUserData } from '@/store/slices/userSlice';
 import { Camera, CircleUserRound, Power } from 'lucide-react';
 import Image from 'next/image';
@@ -36,16 +36,16 @@ const Account = () => {
 	const [username, setUsername] = useState(user?.name || '');
 
 	const handleNameUpdate = async () => {
-		if (!user?._id || !username.trim() || username === user.name) return;
+		if (!username.trim() || username === user?.name) return;
 
 		try {
 			setLoading(true);
-			const response = await api.patch(`/users/${user._id}/name`, { name: username.trim() });
+			const response = await api.patch('/users/name', { name: username.trim() });
 			dispatch(setUserData(response.data));
 			callSuccess('Username updated');
 		} catch {
 			callError('Failed to update name');
-			setUsername(user.name || '');
+			setUsername(user?.name || '');
 		} finally {
 			setLoading(false);
 		}
@@ -68,7 +68,7 @@ const Account = () => {
 			const formData = new FormData();
 			formData.append('picture', file);
 
-			const response = await api.patch(`/users/${user?._id}/picture`, formData, {
+			const response = await api.patch('/users/picture', formData, {
 				headers: { 'Content-Type': 'multipart/form-data' },
 			});
 
@@ -114,7 +114,7 @@ const Account = () => {
 					<div className="relative">
 						<button className="relative" onClick={() => fileInputRef.current?.click()} disabled={loading}>
 							<div className="w-24 h-24 rounded-full bg-background flex items-center justify-center">
-								{!imageError && user._id ? (
+								{user.picture && !imageError ? (
 									<Image
 										src={`${process.env.NEXT_PUBLIC_SERVER_URL}/users/${user._id}/picture?t=${imageTimestamp}`}
 										alt="Profile picture"
@@ -136,7 +136,13 @@ const Account = () => {
 								<Camera strokeWidth={2} size={15} color="var(--background)" />
 							</div>
 						</button>
-						<input ref={fileInputRef} type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
+						<input
+							ref={fileInputRef}
+							type="file"
+							accept="image/*"
+							onChange={handleImageUpload}
+							className="hidden"
+						/>
 					</div>
 
 					<div className="text-center">

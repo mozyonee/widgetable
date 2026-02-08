@@ -1,14 +1,14 @@
 'use client';
 
+import { persistor, store } from '@/store';
 import { Provider } from 'react-redux';
 import { PersistGate } from 'redux-persist/integration/react';
-import { persistor, store } from '@/store';
 
 interface ReduxProviderProps {
 	children: React.ReactNode;
 }
 
-export default function ReduxProvider({ children }: ReduxProviderProps) {
+const ReduxProvider = ({ children }: ReduxProviderProps) => {
 	return (
 		<Provider store={store}>
 			<PersistGate loading={null} persistor={persistor}>
@@ -16,4 +16,6 @@ export default function ReduxProvider({ children }: ReduxProviderProps) {
 			</PersistGate>
 		</Provider>
 	);
-}
+};
+
+export default ReduxProvider;

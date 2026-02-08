@@ -1,10 +1,10 @@
-import { ValidationPipe } from '@nestjs/common';
+import { BadRequestException, UnauthorizedException, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import * as cookieParser from 'cookie-parser';
 import * as cors from 'cors';
 import mongoose from 'mongoose';
-import { AppModule } from './app.module';
 import { LoggingInterceptor } from 'src/common/interceptors/logging.interceptor';
+import { AppModule } from './app.module';
 
 async function bootstrap() {
 	const app = await NestFactory.create(AppModule);
@@ -21,7 +21,7 @@ async function bootstrap() {
 				try {
 					hostname = new URL(origin).hostname;
 				} catch {
-					return callback(new Error('Invalid origin'));
+					return callback(new BadRequestException());
 				}
 
 				const isLocal =
@@ -39,7 +39,7 @@ async function bootstrap() {
 				if (isLocal) {
 					callback(null, true);
 				} else {
-					callback(new Error(`${origin} Not allowed by CORS`));
+					callback(new UnauthorizedException());
 				}
 			},
 			credentials: true,

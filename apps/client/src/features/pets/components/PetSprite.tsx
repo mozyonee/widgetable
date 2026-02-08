@@ -11,14 +11,17 @@ interface PetSpriteProps {
 	onAnimationEnd?: () => void;
 }
 
-export default function PetSprite({ pet, height = 500, width = 200, animation, onAnimationEnd }: PetSpriteProps) {
+const PetSprite = ({ pet, height = 500, width = 200, animation, onAnimationEnd }: PetSpriteProps) => {
 	const getPetSprite = () => {
 		const petSprites = spriteData[pet.type as keyof typeof spriteData];
 
-		if (pet.hygiene < 30) return petSprites.idle.dirty;
-		if (pet.toilet < 30) return petSprites.idle.sad;
-		if (pet.hunger < 30 || pet.thirst < 30) return petSprites.idle.sad;
-		if (pet.energy < 30) return petSprites.idle.sleepy;
+		// Fallback to happy sprite if needs are not available
+		if (!pet.needs) return petSprites.idle.happy;
+
+		if (pet.needs.hygiene < 30) return petSprites.idle.dirty;
+		if (pet.needs.toilet < 30) return petSprites.idle.sad;
+		if (pet.needs.hunger < 30 || pet.needs.thirst < 30) return petSprites.idle.sad;
+		if (pet.needs.energy < 30) return petSprites.idle.sleepy;
 
 		return petSprites.idle.happy;
 	};
@@ -52,9 +55,17 @@ export default function PetSprite({ pet, height = 500, width = 200, animation, o
 		if (!isAnimating) {
 			setCurrentSprite(getPetSprite());
 		}
-	}, [pet.hygiene, pet.toilet, pet.hunger, pet.thirst, pet.energy, isAnimating]);
+	}, [pet.needs?.hygiene, pet.needs?.toilet, pet.needs?.hunger, pet.needs?.thirst, pet.needs?.energy, isAnimating]);
 
 	return (
-		<Image src={currentSprite} alt={pet.name} height={height} width={width} style={{ width: 'auto', height: `${height}px` }} />
+		<Image
+			src={currentSprite}
+			alt={pet.name}
+			height={height}
+			width={width}
+			style={{ width: 'auto', height: `${height}px` }}
+		/>
 	);
-}
+};
+
+export default PetSprite;

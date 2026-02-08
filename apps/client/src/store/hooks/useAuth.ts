@@ -1,10 +1,10 @@
 'use client';
 
 import api from '@/lib/api';
+import { useAppDispatch, useAppSelector } from '@/store';
+import { logout, setAuthenticated, setUserData } from '@/store/slices/userSlice';
 import { useRouter } from 'next/navigation';
 import { useCallback, useState } from 'react';
-import { logout, setAuthenticated, setUserData } from '@/store/slices/userSlice';
-import { useAppDispatch, useAppSelector } from '@/store';
 
 export const useAuth = () => {
 	const router = useRouter();

@@ -21,7 +21,7 @@ export const metadata: Metadata = {
 	generator: 'Next.js',
 	manifest: '/manifest.json',
 	keywords: ['nextjs', 'next14', 'pwa', 'next-pwa'],
-	icons: [	
+	icons: [
 		{ rel: 'apple-touch-icon', url: 'icon-192x192.png' },
 		{ rel: 'icon', url: 'icon-192x192.png' },
 	],
@@ -37,10 +37,8 @@ export const viewport: Viewport = {
 
 const RootLayout = ({ children }: Readonly<{ children: React.ReactNode }>) => {
 	return (
-		<html lang="en" className={`${geistSans.variable} ${geistMono.variable}`} >
-			<body
-				className="antialiased h-dvh! overflow-hidden flex flex-col max-w-[450px] m-auto border-x border-secondary"
-			>
+		<html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
+			<body className="antialiased h-dvh! overflow-hidden flex flex-col max-w-[450px] m-auto border-x border-secondary">
 				<ReduxProvider>
 					<AuthRoute>
 						<Toaster position="top-center" reverseOrder={false} />

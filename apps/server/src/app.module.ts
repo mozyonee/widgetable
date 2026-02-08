@@ -6,6 +6,8 @@ import { diskStorage } from 'multer';
 import { tmpdir } from 'os';
 import { extname } from 'path';
 import { AuthModule } from 'src/auth/auth.module';
+import { CoparentingModule } from 'src/coparenting/coparenting.module';
+import { FriendsModule } from 'src/friends/friends.module';
 import { PetsModule } from 'src/pets/pets.module';
 import { StorageModule } from 'src/storage/storage.module';
 import { UsersModule } from 'src/users/users.module';
@@ -16,7 +18,7 @@ import { v4 as uuidv4 } from 'uuid';
 		ConfigModule.forRoot({
 			isGlobal: true,
 			envFilePath: ['.env.local', '.env'],
-			expandVariables: true
+			expandVariables: true,
 		}),
 		MulterModule.register({
 			storage: diskStorage({
@@ -37,10 +39,12 @@ import { v4 as uuidv4 } from 'uuid';
 		}),
 		StorageModule,
 		UsersModule,
+		FriendsModule,
+		CoparentingModule,
 		PetsModule,
 		AuthModule,
 	],
 	controllers: [],
 	providers: [],
 })
-export class AppModule { }
+export class AppModule {}

@@ -66,7 +66,16 @@
       "Bash(head:*)",
       "mcp__next-devtools__browser_eval",
       "Bash(npm run build:packages:*)",
-      "Bash(npm run:*)"
+      "Bash(npm run:*)",
+      "Bash(git mv:*)",
+      "mcp__postman__getWorkspaces",
+      "mcp__postman__getCollections",
+      "mcp__postman__getCollection",
+      "mcp__postman__createCollection",
+      "mcp__postman__createCollectionRequest",
+      "mcp__postman__runCollection",
+      "Bash(netstat:*)",
+      "Bash(git diff:*)"
     ],
     "deny": [],
     "ask": []
@@ -75,6 +84,8 @@
   "enabledMcpjsonServers": [
     "context7",
     "next-devtools",
-    "github"
+    "github",
+    "mongodb",
+	"postman"
   ]
 }

@@ -28,7 +28,10 @@ export const Button = ({
 	};
 
 	return (
-		<button {...props} className={`${baseClasses} ${variantClasses[variant]} ${sizeClasses[size]} ${style}`}>
+		<button
+			{...props}
+			className={`${baseClasses} ${variantClasses[variant]} ${sizeClasses[size]} ${props.disabled ? 'opacity-50 pointer-events-none' : ''} ${style}`}
+		>
 			{children}
 		</button>
 	);

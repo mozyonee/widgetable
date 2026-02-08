@@ -1,13 +1,23 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { PetType } from '@widgetable/types';
 import { HydratedDocument, Types } from 'mongoose';
 import { TimeStamps } from 'src/common/interfaces/app.interface';
 
-export enum PetType {
-	FOX = 'fox',
-	/* CAT = 'cat',
-	DOG = 'dog',
-	RABBIT = 'rabbit', */
+@Schema()
+export class PetNeeds {
+	@Prop({ required: true, default: 100 })
+	hunger: number;
+	@Prop({ required: true, default: 100 })
+	thirst: number;
+	@Prop({ required: true, default: 100 })
+	energy: number;
+	@Prop({ required: true, default: 100 })
+	hygiene: number;
+	@Prop({ required: true, default: 100 })
+	toilet: number;
 }
+
+const PetNeedsSchema = SchemaFactory.createForClass(PetNeeds);
 
 @Schema({ timestamps: true })
 export class Pet {
@@ -21,16 +31,8 @@ export class Pet {
 	name: string;
 	@Prop({ type: [Types.ObjectId], ref: 'User', required: true })
 	parents: Types.ObjectId[];
-	@Prop({ required: true, default: 100 })
-	hunger: number;
-	@Prop({ required: true, default: 100 })
-	thirst: number;
-	@Prop({ required: true, default: 100 })
-	energy: number;
-	@Prop({ required: true, default: 100 })
-	hygiene: number;
-	@Prop({ required: true, default: 100 })
-	toilet: number;
+	@Prop({ type: PetNeedsSchema, required: true, default: () => ({}) })
+	needs: PetNeeds;
 }
 
 export const PetSchema = SchemaFactory.createForClass(Pet);

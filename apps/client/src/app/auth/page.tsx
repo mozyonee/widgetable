@@ -1,10 +1,10 @@
 'use client';
 import { Button } from '@/components/ui/Button';
-import { useState } from 'react';
 import api from '@/lib/api';
 import { callError } from '@/lib/functions';
-import { useRouter } from 'next/navigation';
 import { Eye, EyeOff } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 
 export default function AuthPage() {
 	const [isLogin, setIsLogin] = useState(true);
@@ -24,7 +24,7 @@ export default function AuthPage() {
 			await api.post(endpoint, data);
 			router.push('/');
 		} catch (error: any) {
-			callError(error.response?.data?.message || error.message);
+			callError(error.message);
 		}
 	};
 

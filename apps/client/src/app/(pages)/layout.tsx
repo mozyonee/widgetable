@@ -1,6 +1,6 @@
 'use client';
 
-import Footer from '@/components/ui/Footer';
+import Footer from '@/components/layout/Footer';
 import { PetContext } from '@/features/pets/context/PetContext';
 import { Pet } from '@widgetable/types';
 import { useState } from 'react';

@@ -10,7 +10,7 @@ interface AuthRouteProps {
 	children: ReactNode;
 }
 
-export default function AuthRoute({ children }: AuthRouteProps) {
+const AuthRoute = ({ children }: AuthRouteProps) => {
 	const router = useRouter();
 	const pathname = usePathname();
 	const { checkAuth } = useAuth();
@@ -41,4 +41,6 @@ export default function AuthRoute({ children }: AuthRouteProps) {
 	}, [pathname, checkAuth, router]);
 
 	return <div className="flex flex-col min-h-screen">{children}</div>;
-}
+};
+
+export default AuthRoute;

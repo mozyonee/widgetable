@@ -17,7 +17,6 @@ export class AuthService {
 		const existingUser = await this.usersService.findByEmail(email);
 		if (existingUser) throw new BadRequestException();
 
-
 		const hashedPassword = await this.hashPassword(password);
 		const user = await this.usersService.create(email, hashedPassword);
 
