@@ -2,7 +2,15 @@ import api from '@/lib/api';
 import { callError, callSuccess } from '@/lib/functions';
 import { useAppDispatch, useAppSelector } from '@/store';
 import { addCoparentingRequestSent, setUserData } from '@/store/slices/userSlice';
-import { PetActionCategory, PetAnimation, PetUpdate, User, PET_NEED_KEYS, STAT_THRESHOLD } from '@widgetable/types';
+import {
+	PetActionCategory,
+	PetAnimation,
+	PetUpdate,
+	User,
+	PET_NEED_KEYS,
+	STAT_THRESHOLD,
+	PET_ACTIONS_BY_CATEGORY,
+} from '@widgetable/types';
 import { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { PetContext } from '../context/PetContext';
 import { PET_POLLING_INTERVAL } from '../utils/constants';
@@ -86,10 +94,15 @@ export const usePet = () => {
 				const response = await api.patch(`/pets/${pet?._id}`, payload);
 				setPet(response.data);
 
-				// If action was performed, refetch user data to update inventory
+				// If action consumed inventory, refetch user data to update inventory count
 				if (actionName) {
-					const userResponse = await api.get('/auth/me');
-					dispatch(setUserData(userResponse.data));
+					const action = Object.values(PET_ACTIONS_BY_CATEGORY)
+						.flat()
+						.find((a) => a.name === actionName);
+					if (action?.inventoryCost) {
+						const userResponse = await api.get('/auth/me');
+						dispatch(setUserData(userResponse.data));
+					}
 				}
 			} catch (error: any) {
 				callError(error.message);

@@ -59,7 +59,7 @@ const PetPage = () => {
 						onClick: () => updatePet(
 							{ needs: { [action.needKey]: newValue } },
 							needConfig.animation,
-							action.inventoryCost !== undefined ? action.name : undefined
+							action.name
 						),
 					};
 				}),
