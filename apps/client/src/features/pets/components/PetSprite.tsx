@@ -1,7 +1,7 @@
 import spriteData from '@/data/pets.json';
 import { Pet, PetAnimation } from '@widgetable/types';
 import Image from 'next/image';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 interface PetSpriteProps {
 	pet: Pet;
@@ -11,51 +11,59 @@ interface PetSpriteProps {
 	onAnimationEnd?: () => void;
 }
 
+const getPetIdleSprite = (pet: Pet): string => {
+	// Show egg sprite if pet is still an egg
+	if (pet.isEgg) return spriteData.egg as string;
+
+	const petSprites = spriteData[pet.type as keyof typeof spriteData];
+	if (typeof petSprites === 'string') return petSprites;
+
+	if (!pet.needs) return petSprites.idle.happy;
+
+	if (pet.needs.hygiene < 30) return petSprites.idle.dirty;
+	if (pet.needs.toilet < 30) return petSprites.idle.sad;
+	if (pet.needs.hunger < 30 || pet.needs.thirst < 30) return petSprites.idle.sad;
+	if (pet.needs.energy < 30) return petSprites.idle.sleepy;
+
+	return petSprites.idle.happy;
+};
+
 const PetSprite = ({ pet, height = 500, width = 200, animation, onAnimationEnd }: PetSpriteProps) => {
-	const getPetSprite = () => {
-		const petSprites = spriteData[pet.type as keyof typeof spriteData];
-
-		// Fallback to happy sprite if needs are not available
-		if (!pet.needs) return petSprites.idle.happy;
-
-		if (pet.needs.hygiene < 30) return petSprites.idle.dirty;
-		if (pet.needs.toilet < 30) return petSprites.idle.sad;
-		if (pet.needs.hunger < 30 || pet.needs.thirst < 30) return petSprites.idle.sad;
-		if (pet.needs.energy < 30) return petSprites.idle.sleepy;
-
-		return petSprites.idle.happy;
-	};
-
-	const [currentSprite, setCurrentSprite] = useState<string>(getPetSprite());
+	const idleSprite = useMemo(() => getPetIdleSprite(pet), [pet.isEgg, pet.type, pet.needs]);
+	const [currentSprite, setCurrentSprite] = useState<string>(idleSprite);
 	const [isAnimating, setIsAnimating] = useState(false);
 
 	useEffect(() => {
-		if (animation) {
-			const petSprites = spriteData[pet.type as keyof typeof spriteData];
-			const animationData = petSprites.animations[animation];
-
-			if (animationData) {
-				setIsAnimating(true);
-				setCurrentSprite(animationData.sprite);
-
-				const timer = setTimeout(() => {
-					setIsAnimating(false);
-					setCurrentSprite(getPetSprite());
-					onAnimationEnd?.();
-				}, animationData.duration);
-
-				return () => clearTimeout(timer);
-			}
-		} else {
-			setCurrentSprite(getPetSprite());
+		// Don't animate eggs
+		if (pet.isEgg || !animation) {
+			setCurrentSprite(idleSprite);
+			return;
 		}
-	}, [animation, pet]);
+
+		const petSprites = spriteData[pet.type as keyof typeof spriteData];
+		if (typeof petSprites === 'string') return;
+
+		const animationData = petSprites.animations[animation];
+
+		if (animationData) {
+			setIsAnimating(true);
+			setCurrentSprite(animationData.sprite);
+
+			const timer = setTimeout(() => {
+				setIsAnimating(false);
+				setCurrentSprite(idleSprite);
+				onAnimationEnd?.();
+			}, animationData.duration);
+
+			return () => clearTimeout(timer);
+		}
+	}, [animation, idleSprite, pet.isEgg, pet.type, onAnimationEnd]);
 
 	useEffect(() => {
 		if (!isAnimating) {
-			setCurrentSprite(getPetSprite());
+			setCurrentSprite(idleSprite);
 		}
-	}, [pet.needs?.hygiene, pet.needs?.toilet, pet.needs?.hunger, pet.needs?.thirst, pet.needs?.energy, isAnimating]);
+	}, [idleSprite, isAnimating]);
 
 	return (
 		<Image

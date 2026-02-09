@@ -2,8 +2,9 @@ import { Skeleton } from '@/components/ui/Skeleton';
 import PetSprite from '@/features/pets/components/PetSprite';
 import { PetContext } from '@/features/pets/context/PetContext';
 import { useAppSelector } from '@/store';
+import { HATCH_DURATION } from '@widgetable/types';
 import { Plus, Users } from 'lucide-react';
-import { useContext } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { usePets } from '../hooks/usePets';
 import { getParentNames } from '../utils/functions';
 
@@ -34,13 +35,15 @@ const PetsPage = () => {
 								onClick={() => setPet(pet)}
 							>
 								<PetSprite pet={pet} height={100} />
-								<p className="text-2xl font-bold text-foreground text-center">{pet.name}</p>
-								{parentNames.length > 0 && (
+								<p className="text-2xl font-bold text-foreground text-center">{pet.isEgg ? 'Egg' : pet.name}</p>
+								{pet.isEgg ? (
+									<EggTimer hatchTime={pet.hatchTime} />
+								) : parentNames.length > 0 ? (
 									<div className="flex items-center justify-center gap-1 text-secondary text-xs">
 										<Users size={12} />
 										{parentNames.join(', ')}
 									</div>
-								)}
+								) : null}
 							</div>
 						);
 					})}
@@ -53,6 +56,72 @@ const PetsPage = () => {
 					<AddPetButton onClick={addPet} variant="centered" />
 				</div>
 			)}
+		</div>
+	);
+};
+
+const EggTimer = ({ hatchTime }: { hatchTime?: Date }) => {
+	const [timeLeft, setTimeLeft] = useState<string>('');
+	const [progress, setProgress] = useState<number>(0);
+	const [isHatching, setIsHatching] = useState<boolean>(false);
+
+	useEffect(() => {
+		if (!hatchTime) return;
+
+		const hatchTimeMs = new Date(hatchTime).getTime();
+		const creationTime = hatchTimeMs - HATCH_DURATION;
+
+		const formatTime = (milliseconds: number): string => {
+			const seconds = Math.floor(milliseconds / 1000);
+			const minutes = Math.floor(seconds / 60);
+			const remainingSeconds = seconds % 60;
+
+			if (minutes > 0) {
+				return `${minutes}m ${remainingSeconds}s`;
+			}
+			return `${remainingSeconds}s`;
+		};
+
+		const updateTimer = () => {
+			const now = Date.now();
+			const diff = hatchTimeMs - now;
+
+			if (diff <= 0) {
+				setIsHatching(true);
+				return;
+			}
+
+			setTimeLeft(formatTime(diff));
+
+			// Calculate progress (how much time has passed)
+			const elapsed = now - creationTime;
+			const progressPercent = Math.min(100, Math.max(0, (elapsed / HATCH_DURATION) * 100));
+			setProgress(progressPercent);
+		};
+
+		updateTimer();
+		const interval = setInterval(updateTimer, 1000);
+
+		return () => clearInterval(interval);
+	}, [hatchTime]);
+
+	if (isHatching) {
+		return (
+			<div className="flex items-center justify-center gap-1 text-primary text-xs font-semibold">
+				Hatching...
+			</div>
+		);
+	}
+
+	return (
+		<div className="flex items-center justify-center gap-2 w-full">
+			<div className="flex-1 bg-secondary/20 rounded-full h-1.5 overflow-hidden">
+				<div
+					className="bg-primary h-full rounded-full transition-all duration-1000 ease-linear"
+					style={{ width: `${progress}%` }}
+				/>
+			</div>
+			<div className="text-primary text-xs font-semibold whitespace-nowrap">{timeLeft || 'Calculating...'}</div>
 		</div>
 	);
 };

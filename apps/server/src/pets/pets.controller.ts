@@ -36,8 +36,10 @@ export class PetsController {
 	}
 
 	@Delete(':id')
-	remove(@Param('id') id: string) {
+	@UseGuards(JwtAuthGuard)
+	remove(@Param('id') id: string, @Request() req: UserRequest) {
 		const petId = new Types.ObjectId(id);
-		return this.petsService.remove(petId);
+		const userId = req.user._id;
+		return this.petsService.remove(petId, userId);
 	}
 }

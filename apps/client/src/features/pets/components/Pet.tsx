@@ -5,8 +5,9 @@ import { Dropdown } from '@/components/ui/Dropdown';
 import UserCard from '@/features/friends/components/UserCard';
 import PetSprite from '@/features/pets/components/PetSprite';
 import { PetContext } from '@/features/pets/context/PetContext';
-import { PetActionCategory, PET_NEEDS_CONFIG, PET_ACTIONS_BY_CATEGORY } from '@widgetable/types';
+import { PET_ACTIONS_BY_CATEGORY, PET_NEEDS_CONFIG, PetActionCategory } from '@widgetable/types';
 import { CircleX, Clock, Triangle, UserPlus, Users } from 'lucide-react';
+import Link from 'next/link';
 import { useContext, useMemo } from 'react';
 import { usePet } from '../hooks/usePet';
 
@@ -29,6 +30,9 @@ const PetPage = () => {
 	} = usePet();
 
 	if (!pet) return null;
+
+	// If pet is an egg, show egg-specific UI
+	const isEgg = pet.isEgg;
 
 	// Generate action categories dynamically from configuration
 	const actionCategories = useMemo(
@@ -57,16 +61,20 @@ const PetPage = () => {
 				</Button>
 
 				<div className="flex flex-col items-center gap-1">
-					<InputTextHidden
-						id={`pet-name-${pet._id}`}
-						inputStyles="font-bold text-3xl text-foreground justify-self-center px-2"
-						placeholder={pet.name}
-						value={pet.name}
-						onChange={(e) => {
-							updatePet({ name: e.target.value });
-						}}
-					/>
-					{parentNames.length > 0 && (
+					{isEgg ? (
+						<h2 className="font-bold text-3xl text-foreground px-2">Egg</h2>
+					) : (
+						<InputTextHidden
+							id={`pet-name-${pet._id}`}
+							inputStyles="font-bold text-3xl text-foreground justify-self-center px-2"
+							placeholder={pet.name}
+							value={pet.name}
+							onChange={(e) => {
+								updatePet({ name: e.target.value });
+							}}
+						/>
+					)}
+					{!isEgg && parentNames.length > 0 && (
 						<div className="flex items-center justify-center gap-1 text-secondary text-xs">
 							<Users size={12} />
 							{parentNames.join(', ')}
@@ -110,7 +118,14 @@ const PetPage = () => {
 								}
 							},
 						}))}
-						emptyMessage="No friends available"
+						emptyMessage={
+							<div className="flex flex-col items-center gap-2">
+								<span className="text-secondary">No friends can be invited</span>
+								<Link href="/friends" className="text-primary font-semibold hover:underline">
+									Find more friends
+								</Link>
+							</div>
+						}
 						className="w-80"
 					/>
 
@@ -121,69 +136,79 @@ const PetPage = () => {
 			</div>
 
 			<div className="flex-1 flex flex-col gap-5 items-center justify-center">
-				<div className="relative inline-block max-w-[80vw] sm:max-w-md" style={{ minHeight: '44px' }}>
-					{!currentAnimation && (
-						<>
-							{/* Bubble */}
-							<div className="bg-white border-2 border-primary rounded-xl px-4 py-2 text-base whitespace-nowrap">
-								{getMessage()}
-							</div>
+				{isEgg ? (
+					<div className="flex flex-col items-center gap-4">
+						<div className="text-center">
+							<p className="text-2xl font-bold text-primary mb-2">🥚 Egg Incubating...</p>
+							<p className="text-secondary">Your pet will hatch soon!</p>
+						</div>
+					</div>
+				) : (
+					<div className="relative inline-block max-w-[80vw] sm:max-w-md" style={{ minHeight: '44px' }}>
+						{!currentAnimation && (
+							<>
+								{/* Bubble */}
+								<div className="bg-white border-2 border-primary rounded-xl px-4 py-2 text-base whitespace-nowrap">
+									{getMessage()}
+								</div>
 
-							{/* Tail */}
-							<svg
-								width="24"
-								height="14"
-								viewBox="0 0 24 14"
-								className="absolute left-1/2 -translate-x-1/2 -bottom-[12px]"
-							>
-								<path
-									d="M2 0 L12 10 L22 0"
-									fill="white"
-									stroke="var(--primary)"
-									strokeWidth="2"
-									strokeLinejoin="round"
-								/>
-							</svg>
-						</>
-					)}
-				</div>
+								{/* Tail */}
+								<svg
+									width="24"
+									height="14"
+									viewBox="0 0 24 14"
+									className="absolute left-1/2 -translate-x-1/2 -bottom-[12px]"
+								>
+									<path
+										d="M2 0 L12 10 L22 0"
+										fill="white"
+										stroke="var(--primary)"
+										strokeWidth="2"
+										strokeLinejoin="round"
+									/>
+								</svg>
+							</>
+						)}
+					</div>
+				)}
 
 				<div className="relative">
 					<PetSprite height={300} pet={pet} animation={currentAnimation} onAnimationEnd={clearAnimation} />
 				</div>
 			</div>
 
-			<div className="w-full bg-white rounded-2xl p-4 shadow-md border border-secondary/20">
-				<div className="flex justify-center border-b border-secondary/20 mb-4">
-					{actionCategories.map((category) => (
-						<div
-							key={category.categoryName}
-							className={`px-4 py-2 cursor-pointer font-semibold ${
-								selectedCategory === category.categoryName
+			{!isEgg && (
+				<div className="w-full bg-white rounded-2xl p-4 shadow-md border border-secondary/20">
+					<div className="flex justify-center border-b border-secondary/20 mb-4">
+						{actionCategories.map((category) => (
+							<div
+								key={category.categoryName}
+								className={`px-4 py-2 cursor-pointer font-semibold ${selectedCategory === category.categoryName
 									? 'text-primary border-b-2 border-primary'
 									: 'text-secondary'
-							}`}
-							onClick={() => setSelectedCategory(category.categoryName)}
-						>
-							{category.categoryName}
-						</div>
-					))}
+									}`}
+								onClick={() => setSelectedCategory(category.categoryName)}
+							>
+								{category.categoryName}
+							</div>
+						))}
+					</div>
+					<div className="grid grid-cols-2 gap-2">
+						{selectedActions.map((action) => (
+							<Button
+								key={action.name}
+								onClick={action.onClick}
+								variant="ghost"
+								size="sm"
+								disabled={!!currentAnimation}
+								style={`${currentAnimation ? 'opacity-30 pointer-events-none' : ''}`}
+							>
+								{action.name}
+							</Button>
+						))}
+					</div>
 				</div>
-				<div className="grid grid-cols-2 gap-2">
-					{selectedActions.map((action) => (
-						<Button
-							key={action.name}
-							onClick={action.onClick}
-							variant="ghost"
-							size="sm"
-							disabled={!!currentAnimation}
-							style={`${currentAnimation ? 'opacity-30 pointer-events-none' : ''}`}
-						>
-							{action.name}
-						</Button>
-					))}
-				</div>
-			</div>
+			)}
 		</div>
 	);
 };

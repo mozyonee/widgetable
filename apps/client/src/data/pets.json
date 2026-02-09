@@ -1,4 +1,5 @@
 {
+	"egg": "/pets/egg.png",
 	"fox": {
 		"idle": {
 			"happy": "/pets/fox/happy.png",

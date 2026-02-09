@@ -14,22 +14,25 @@ export const usePets = () => {
 
 	// Fetches
 
-	const loadPets = useCallback(async () => {
-		if (!user?._id) return;
-		setLoading(true);
-		try {
-			const response = await api.get(`/pets/user`);
-			setPets(response.data);
-		} catch (error: any) {
-			callError(error.message);
-		} finally {
-			setLoading(false);
-		}
-	}, [user?._id]);
+	const loadPets = useCallback(
+		async (isInitialLoad = false) => {
+			if (!user?._id) return;
+			if (isInitialLoad) setLoading(true);
+			try {
+				const response = await api.get(`/pets/user`);
+				setPets(response.data);
+			} catch (error: any) {
+				callError(error.message);
+			} finally {
+				if (isInitialLoad) setLoading(false);
+			}
+		},
+		[user?._id]
+	);
 
 	// Initial load
 	useEffect(() => {
-		loadPets();
+		loadPets(true);
 	}, [loadPets]);
 
 	// Polling mechanism to keep pets stats synced with server

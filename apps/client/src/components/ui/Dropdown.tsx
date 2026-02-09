@@ -13,7 +13,7 @@ interface DropdownProps {
 	onClose: () => void;
 	trigger: ReactNode;
 	items: DropdownItem[];
-	emptyMessage?: string;
+	emptyMessage?: ReactNode;
 	align?: 'left' | 'right';
 	className?: string;
 }

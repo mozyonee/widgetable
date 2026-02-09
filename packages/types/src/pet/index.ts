@@ -89,7 +89,17 @@ export const PET_NEED_KEYS = Object.keys(PET_NEEDS_CONFIG) as PetNeedKey[];
 export type PetNeeds = Record<PetNeedKey, number>;
 
 export const STAT_THRESHOLD = 30; // When a need drops below this value, show urgency message
-export const HAPPY_MESSAGE = "I'm happy!";
+export const HAPPY_MESSAGES = [
+	"I'm happy!",
+	"Life is good!",
+	"I'm feeling great!",
+	"This is awesome!",
+	"I love you!",
+	"You're the best!",
+	"I'm so content!",
+	"Everything is perfect!",
+];
+export const HATCH_DURATION = 30 * 1000; // Time for egg to hatch in milliseconds (30 seconds)
 
 // ============================================================================
 // ACTIONS CONFIGURATION
@@ -130,6 +140,8 @@ export interface PetData {
 	name: string;
 	parents: string[];
 	needs: PetNeeds;
+	isEgg: boolean;
+	hatchTime?: Date;
 }
 
 export type PetUpdate = Partial<Omit<PetData, 'needs'>> & {

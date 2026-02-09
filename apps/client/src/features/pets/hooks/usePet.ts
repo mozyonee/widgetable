@@ -2,7 +2,7 @@ import api from '@/lib/api';
 import { callError, callSuccess } from '@/lib/functions';
 import { useAppDispatch, useAppSelector } from '@/store';
 import { addCoparentingRequestSent } from '@/store/slices/userSlice';
-import { PetActionCategory, PetAnimation, PetUpdate, User } from '@widgetable/types';
+import { PetActionCategory, PetAnimation, PetUpdate, User, PET_NEED_KEYS, STAT_THRESHOLD } from '@widgetable/types';
 import { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { PetContext } from '../context/PetContext';
 import { PET_POLLING_INTERVAL } from '../utils/constants';
@@ -16,6 +16,7 @@ export const usePet = () => {
 	const coparentingRequests = useAppSelector((state) => state.user.coparentingRequests ?? { sent: [], received: [] });
 
 	const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null);
+	const cachedMessageRef = useRef({ message: '', urgentNeeds: '' });
 
 	const [friends, setFriends] = useState<User[]>([]);
 	const [showShareDropdown, setShowShareDropdown] = useState(false);
@@ -94,7 +95,12 @@ export const usePet = () => {
 		if (!pet?._id) return;
 
 		try {
-			await api.delete(`/pets/${pet._id}`);
+			const response = await api.delete(`/pets/${pet._id}`);
+
+			if (response.data && response.data.parents && response.data.parents.length > 0) {
+				callSuccess(`You no longer parent ${pet.name}`);
+			}
+
 			setPet(undefined);
 		} catch (error: any) {
 			callError(error.message);
@@ -155,8 +161,20 @@ export const usePet = () => {
 
 	const getMessage = useCallback(() => {
 		if (!pet) return '';
-		return getPetMessage(pet);
-	}, [pet]);
+
+		const urgentNeeds = PET_NEED_KEYS.filter((key) => pet.needs[key] < STAT_THRESHOLD)
+			.sort()
+			.join(',');
+
+		if (urgentNeeds !== cachedMessageRef.current.urgentNeeds || !cachedMessageRef.current.message) {
+			cachedMessageRef.current = {
+				urgentNeeds,
+				message: getPetMessage(pet, user?.name),
+			};
+		}
+
+		return cachedMessageRef.current.message;
+	}, [pet, user?.name]);
 
 	const clearAnimation = useCallback(() => {
 		setCurrentAnimation(undefined);

@@ -33,6 +33,10 @@ export class Pet {
 	parents: Types.ObjectId[];
 	@Prop({ type: PetNeedsSchema, required: true, default: () => ({}) })
 	needs: PetNeeds;
+	@Prop({ required: true, default: false })
+	isEgg: boolean;
+	@Prop({ required: false })
+	hatchTime?: Date;
 }
 
 export const PetSchema = SchemaFactory.createForClass(Pet);
