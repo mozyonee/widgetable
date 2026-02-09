@@ -7,9 +7,10 @@ import { callError, callSuccess } from '@/lib/functions';
 import { useAppDispatch, useAppSelector } from '@/store';
 import { useAuth } from '@/store/hooks/useAuth';
 import { setUserData } from '@/store/slices/userSlice';
-import { Camera, CircleUserRound, Power } from 'lucide-react';
+import { PET_ACTIONS_BY_CATEGORY } from '@widgetable/types';
+import { Camera, CircleUserRound, Plus, Power } from 'lucide-react';
 import Image from 'next/image';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 const ProfileSkeleton = () => (
 	<div className="flex flex-col gap-6 items-center bg-white shadow-lg border border-secondary/20 rounded-2xl p-8 w-full">
@@ -34,6 +35,29 @@ const Account = () => {
 	const [imageError, setImageError] = useState(false);
 	const [imageTimestamp, setImageTimestamp] = useState(Date.now());
 	const [username, setUsername] = useState(user?.name || '');
+	const [addingInventory, setAddingInventory] = useState<string | null>(null);
+
+	// Get all actions that require inventory
+	const inventoryActions = useMemo(
+		() =>
+			Object.values(PET_ACTIONS_BY_CATEGORY)
+				.flat()
+				.filter((action) => action.inventoryCost !== undefined),
+		[],
+	);
+
+	const handleAddInventory = async (actionName: string) => {
+		try {
+			setAddingInventory(actionName);
+			const response = await api.patch('/users/inventory/add', { actionName, amount: 1 });
+			dispatch(setUserData(response.data));
+			callSuccess(`Added 1 ${actionName} to inventory`);
+		} catch {
+			callError(`Failed to add ${actionName}`);
+		} finally {
+			setAddingInventory(null);
+		}
+	};
 
 	const handleNameUpdate = async () => {
 		if (!username.trim() || username === user?.name) return;
@@ -109,7 +133,7 @@ const Account = () => {
 			<h1 className="font-bold text-3xl text-center text-foreground">Profile</h1>
 			{!user ? (
 				<ProfileSkeleton />
-			) : (
+			) : (<>
 				<div className="flex flex-col gap-6 items-center bg-white shadow-lg border border-secondary/20 rounded-2xl p-8">
 					<div className="relative">
 						<button className="relative" onClick={() => fileInputRef.current?.click()} disabled={loading}>
@@ -157,11 +181,39 @@ const Account = () => {
 						<p className="text-secondary">{user.email}</p>
 					</div>
 				</div>
-			)}
-			<Button variant="danger" size="lg" onClick={logout} style="flex justify-center items-center gap-2">
-				Log Out
-				<Power strokeWidth={3} size={20} color="var(--danger)" />
-			</Button>
+
+				<div className="flex flex-col gap-4 bg-white shadow-lg border border-secondary/20 rounded-2xl p-6">
+					<h2 className="font-bold text-xl text-foreground">Inventory Management</h2>
+					<p className="text-secondary text-sm">Add items to your inventory</p>
+					<div className="grid grid-cols-2 gap-2">
+						{inventoryActions.map((action) => {
+							const currentCount = user.inventory?.[action.name] ?? 0;
+							const isAdding = addingInventory === action.name;
+							return (
+								<Button
+									key={action.name}
+									onClick={() => handleAddInventory(action.name)}
+									variant="ghost"
+									size="sm"
+									disabled={isAdding}
+									style={`flex items-center justify-between ${isAdding ? 'opacity-50' : ''}`}
+								>
+									<span className="flex items-center gap-2">
+										{action.name}
+										<span className="text-xs text-secondary">({currentCount})</span>
+									</span>
+									<Plus strokeWidth={2} size={16} color="var(--primary)" />
+								</Button>
+							);
+						})}
+					</div>
+				</div>
+
+				<Button variant="danger" size="lg" onClick={logout} style="flex justify-center items-center gap-2">
+					Log Out
+					<Power strokeWidth={3} size={20} color="var(--danger)" />
+				</Button>
+			</>)}
 		</main>
 	);
 };

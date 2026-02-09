@@ -110,24 +110,25 @@ export interface PetAction {
 	needKey: PetNeedKey;
 	value: number | 'increment';
 	amount: number;
+	inventoryCost?: number; // How many inventory items this action consumes (undefined = unlimited)
 }
 
 export const PET_ACTIONS_BY_CATEGORY = {
 	[PetActionCategory.FEED]: [
-		{ name: 'Meal', needKey: PetNeed.HUNGER, value: 100, amount: 100 },
-		{ name: 'Snack', needKey: PetNeed.HUNGER, value: 'increment', amount: 30 },
+		{ name: 'Meal', needKey: PetNeed.HUNGER, value: 100, amount: 100, inventoryCost: 1 },
+		{ name: 'Snack', needKey: PetNeed.HUNGER, value: 'increment', amount: 30, inventoryCost: 1 },
 	] as PetAction[],
 	[PetActionCategory.DRINK]: [
-		{ name: 'Water', needKey: PetNeed.THIRST, value: 100, amount: 100 },
-		{ name: 'Juice', needKey: PetNeed.THIRST, value: 'increment', amount: 40 },
+		{ name: 'Water', needKey: PetNeed.THIRST, value: 100, amount: 100, inventoryCost: 1 },
+		{ name: 'Juice', needKey: PetNeed.THIRST, value: 'increment', amount: 40, inventoryCost: 1 },
 	] as PetAction[],
 	[PetActionCategory.WASH]: [
-		{ name: 'Bath', needKey: PetNeed.HYGIENE, value: 100, amount: 100 },
-		{ name: 'Shower', needKey: PetNeed.HYGIENE, value: 'increment', amount: 50 },
+		{ name: 'Bath', needKey: PetNeed.HYGIENE, value: 100, amount: 100, inventoryCost: 1 },
+		{ name: 'Shower', needKey: PetNeed.HYGIENE, value: 'increment', amount: 50, inventoryCost: 1 },
 	] as PetAction[],
 	[PetActionCategory.CARE]: [
-		{ name: 'Toilet', needKey: PetNeed.TOILET, value: 100, amount: 100 },
-		{ name: 'Sleep', needKey: PetNeed.ENERGY, value: 100, amount: 100 },
+		{ name: 'Toilet', needKey: PetNeed.TOILET, value: 100, amount: 100, inventoryCost: 1 },
+		{ name: 'Sleep', needKey: PetNeed.ENERGY, value: 100, amount: 100 }, // No inventoryCost = unlimited
 	] as PetAction[],
 };
 
@@ -149,3 +150,9 @@ export type PetUpdate = Partial<Omit<PetData, 'needs'>> & {
 };
 
 export type Pet = PetData & Database;
+
+// ============================================================================
+// INVENTORY CONFIGURATION
+// ============================================================================
+
+export type UserInventory = Record<string, number>;

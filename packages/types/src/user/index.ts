@@ -1,4 +1,5 @@
 import { Database } from "../database";
+import { UserInventory } from "../pet";
 
 export enum FriendshipStatus {
 	NONE = "none",
@@ -17,6 +18,7 @@ export interface UserData {
 	name: string;
 	email: string;
 	password: string;
+	inventory?: UserInventory;
 }
 
 export type User = UserData & Database;

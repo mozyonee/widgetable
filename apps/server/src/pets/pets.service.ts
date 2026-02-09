@@ -49,12 +49,12 @@ export class PetsService {
 			parents: updateData.parents?.map((p) => new Types.ObjectId(p)),
 		};
 
-		// Clamp needs values to valid range [0, 100]
+		// Use dot notation for needs to merge instead of replace
 		if (updateData.needs) {
-			newData.needs = {};
+			delete newData.needs;
 			PET_NEED_KEYS.forEach((key) => {
 				if (updateData.needs?.[key] !== undefined) {
-					newData.needs[key] = clamp(updateData.needs[key], 0, 100);
+					newData[`needs.${key}`] = clamp(updateData.needs[key], 0, 100);
 				}
 			});
 		}

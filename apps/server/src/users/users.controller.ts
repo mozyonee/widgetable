@@ -55,4 +55,11 @@ export class UsersController {
 		if (!query || query.trim().length === 0) throw new BadRequestException();
 		return this.usersService.searchUsers(query.trim());
 	}
+
+	@Patch('inventory/add')
+	addInventory(@Request() req: UserRequest, @Body('actionName') actionName: string, @Body('amount') amount?: number) {
+		if (!actionName || actionName.trim().length === 0) throw new BadRequestException();
+		const userId = req.user._id.toString();
+		return this.usersService.addInventory(userId, actionName.trim(), amount || 1);
+	}
 }

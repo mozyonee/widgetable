@@ -5,6 +5,7 @@ import { Dropdown } from '@/components/ui/Dropdown';
 import UserCard from '@/features/friends/components/UserCard';
 import PetSprite from '@/features/pets/components/PetSprite';
 import { PetContext } from '@/features/pets/context/PetContext';
+import { useAppSelector } from '@/store';
 import { PET_ACTIONS_BY_CATEGORY, PET_NEEDS_CONFIG, PetActionCategory } from '@widgetable/types';
 import { CircleX, Clock, Triangle, UserPlus, Users } from 'lucide-react';
 import Link from 'next/link';
@@ -13,6 +14,7 @@ import { usePet } from '../hooks/usePet';
 
 const PetPage = () => {
 	const { pet, setPet } = useContext(PetContext);
+	const user = useAppSelector((state) => state.user.userData);
 
 	const {
 		availableFriends,
@@ -31,7 +33,6 @@ const PetPage = () => {
 
 	if (!pet) return null;
 
-	// If pet is an egg, show egg-specific UI
 	const isEgg = pet.isEgg;
 
 	// Generate action categories dynamically from configuration
@@ -42,13 +43,22 @@ const PetPage = () => {
 				actions: PET_ACTIONS_BY_CATEGORY[category].map((action) => {
 					const needConfig = PET_NEEDS_CONFIG[action.needKey];
 					const newValue = action.value === 'increment' ? pet.needs[action.needKey] + action.amount : action.value;
+					const inventoryCount = action.inventoryCost !== undefined ? user?.inventory?.[action.name] ?? 0 : Infinity;
+					const isDisabled = inventoryCount === 0;
 					return {
 						name: action.name,
-						onClick: () => updatePet({ needs: { [action.needKey]: newValue } }, needConfig.animation),
+						inventoryCost: action.inventoryCost,
+						inventoryCount,
+						isDisabled,
+						onClick: () => updatePet(
+							{ needs: { [action.needKey]: newValue } },
+							needConfig.animation,
+							action.inventoryCost !== undefined ? action.name : undefined
+						),
 					};
 				}),
 			})),
-		[pet.needs, updatePet],
+		[pet.needs, user?.inventory, updatePet],
 	);
 
 	const selectedActions = actionCategories.find((cat) => cat.categoryName === selectedCategory)?.actions || [];
@@ -139,7 +149,7 @@ const PetPage = () => {
 				{isEgg ? (
 					<div className="flex flex-col items-center gap-4">
 						<div className="text-center">
-							<p className="text-2xl font-bold text-primary mb-2">🥚 Egg Incubating...</p>
+							<p className="text-2xl font-bold text-primary mb-2">Egg Incubating...</p>
 							<p className="text-secondary">Your pet will hatch soon!</p>
 						</div>
 					</div>
@@ -200,10 +210,15 @@ const PetPage = () => {
 								onClick={action.onClick}
 								variant="ghost"
 								size="sm"
-								disabled={!!currentAnimation}
-								style={`${currentAnimation ? 'opacity-30 pointer-events-none' : ''}`}
+								disabled={!!currentAnimation || action.isDisabled}
+								style={`${currentAnimation || action.isDisabled ? 'opacity-30 pointer-events-none' : ''}`}
 							>
-								{action.name}
+								<span className="flex items-center gap-2 justify-center w-full">
+									{action.name}
+									{action.inventoryCost !== undefined && (
+										<span className="text-secondary">({action.inventoryCount})</span>
+									)}
+								</span>
 							</Button>
 						))}
 					</div>

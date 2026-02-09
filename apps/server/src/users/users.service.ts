@@ -1,4 +1,4 @@
-import { Inject, Injectable, NotFoundException, StreamableFile } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable, NotFoundException, StreamableFile } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import * as Minio from 'minio';
 import { Model } from 'mongoose';
@@ -79,5 +79,53 @@ export class UsersService {
 			.exec();
 
 		return users;
+	}
+
+	// ============================================================================
+	// INVENTORY MANAGEMENT
+	// ============================================================================
+
+	async getInventory(userId: string) {
+		const user = await this.userModel.findById(userId).select('inventory').exec();
+		if (!user) throw new NotFoundException();
+
+		return user.inventory || {};
+	}
+
+	async consumeInventory(userId: string, actionName: string, amount: number = 1) {
+		const user = await this.userModel.findById(userId).exec();
+		if (!user) throw new NotFoundException();
+
+		const inventory = user.inventory || {};
+
+		const currentAmount = inventory[actionName] ?? 0;
+		if (currentAmount < amount) throw new BadRequestException();
+
+		inventory[actionName] = currentAmount - amount;
+
+		const updatedUser = await this.userModel.findByIdAndUpdate(userId, { inventory }, { new: true }).exec();
+		if (!updatedUser) throw new NotFoundException();
+
+		return updatedUser.inventory!;
+	}
+
+	async hasInventory(userId: string, actionName: string, amount: number = 1) {
+		const inventory = await this.getInventory(userId);
+		const currentAmount = inventory[actionName] ?? 0;
+		return currentAmount >= amount;
+	}
+
+	async addInventory(userId: string, actionName: string, amount: number = 1) {
+		const user = await this.userModel.findById(userId).exec();
+		if (!user) throw new NotFoundException();
+
+		const inventory = user.inventory || {};
+		const currentAmount = inventory[actionName] ?? 0;
+		inventory[actionName] = currentAmount + amount;
+
+		const updatedUser = await this.userModel.findByIdAndUpdate(userId, { inventory }, { new: true }).exec();
+		if (!updatedUser) throw new NotFoundException();
+
+		return updatedUser;
 	}
 }

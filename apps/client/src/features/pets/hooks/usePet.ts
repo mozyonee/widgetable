@@ -1,7 +1,7 @@
 import api from '@/lib/api';
 import { callError, callSuccess } from '@/lib/functions';
 import { useAppDispatch, useAppSelector } from '@/store';
-import { addCoparentingRequestSent } from '@/store/slices/userSlice';
+import { addCoparentingRequestSent, setUserData } from '@/store/slices/userSlice';
 import { PetActionCategory, PetAnimation, PetUpdate, User, PET_NEED_KEYS, STAT_THRESHOLD } from '@widgetable/types';
 import { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { PetContext } from '../context/PetContext';
@@ -16,7 +16,7 @@ export const usePet = () => {
 	const coparentingRequests = useAppSelector((state) => state.user.coparentingRequests ?? { sent: [], received: [] });
 
 	const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null);
-	const cachedMessageRef = useRef({ message: '', urgentNeeds: '' });
+	const cachedMessageRef = useRef({ message: '', urgentNeeds: '', petId: '' });
 
 	const [friends, setFriends] = useState<User[]>([]);
 	const [showShareDropdown, setShowShareDropdown] = useState(false);
@@ -71,7 +71,7 @@ export const usePet = () => {
 	// Actions
 
 	const updatePet = useCallback(
-		async (data: PetUpdate, animation?: PetAnimation) => {
+		async (data: PetUpdate, animation?: PetAnimation, actionName?: string) => {
 			if (currentAnimation) {
 				callError(`${pet?.name} is busy`);
 				return;
@@ -82,13 +82,20 @@ export const usePet = () => {
 			}
 
 			try {
-				const response = await api.patch(`/pets/${pet?._id}`, data);
+				const payload = actionName ? { ...data, actionName } : data;
+				const response = await api.patch(`/pets/${pet?._id}`, payload);
 				setPet(response.data);
+
+				// If action was performed, refetch user data to update inventory
+				if (actionName) {
+					const userResponse = await api.get('/auth/me');
+					dispatch(setUserData(userResponse.data));
+				}
 			} catch (error: any) {
 				callError(error.message);
 			}
 		},
-		[pet, currentAnimation, setPet],
+		[pet, currentAnimation, setPet, dispatch],
 	);
 
 	const deletePet = useCallback(async () => {
@@ -166,9 +173,13 @@ export const usePet = () => {
 			.sort()
 			.join(',');
 
-		if (urgentNeeds !== cachedMessageRef.current.urgentNeeds || !cachedMessageRef.current.message) {
+		const petIdChanged = (pet._id ?? '') !== cachedMessageRef.current.petId;
+		const needsChanged = urgentNeeds !== cachedMessageRef.current.urgentNeeds;
+
+		if (petIdChanged || needsChanged || !cachedMessageRef.current.message) {
 			cachedMessageRef.current = {
 				urgentNeeds,
+				petId: pet._id ?? '',
 				message: getPetMessage(pet, user?.name),
 			};
 		}

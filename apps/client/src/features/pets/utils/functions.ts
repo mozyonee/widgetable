@@ -15,7 +15,7 @@ function addUsernameToMessage(message: string, username: string | undefined, see
 	const variations = [
 		`Hey ${username}, ${message.toLowerCase()}`,
 		`${username}, ${message.toLowerCase()}`,
-		`${message} ${username}!`,
+		`${message.replace("!", ",")} ${username}!`,
 		`${username}! ${message}`,
 	];
 
@@ -27,11 +27,13 @@ export function getPetMessage(pet: Pet, username?: string): string {
 
 	for (const needKey of PET_NEED_KEYS) {
 		if (pet.needs[needKey] < STAT_THRESHOLD) {
-			return addUsernameToMessage(PET_NEEDS_CONFIG[needKey].urgencyMessage, username, seed);
+			const message = PET_NEEDS_CONFIG[needKey].urgencyMessage;
+			return addUsernameToMessage(message, username, seed);
 		}
 	}
 
-	return addUsernameToMessage(HAPPY_MESSAGES[seed % HAPPY_MESSAGES.length], username, seed);
+	const happyMessage = HAPPY_MESSAGES[seed % HAPPY_MESSAGES.length];
+	return addUsernameToMessage(happyMessage, username, seed);
 }
 
 export function getParentId(parent: string | { _id: string }): string {

@@ -1,4 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { UserInventory } from '@widgetable/types';
 import { Request } from 'express';
 import { HydratedDocument, Schema as MongooseSchema } from 'mongoose';
 import { Cookies, TimeStamps } from 'src/common/interfaces/app.interface';
@@ -19,6 +20,9 @@ export class User {
 
 	@Prop({ type: [{ type: MongooseSchema.Types.ObjectId, ref: 'User' }], default: [] })
 	friends?: MongooseSchema.Types.ObjectId[];
+
+	@Prop({ type: Object, default: {} })
+	inventory?: UserInventory;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
