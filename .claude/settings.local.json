@@ -75,7 +75,9 @@
       "mcp__postman__createCollectionRequest",
       "mcp__postman__runCollection",
       "Bash(netstat:*)",
-      "Bash(git diff:*)"
+      "Bash(git diff:*)",
+      "Bash(git add:*)",
+      "Bash(git push:*)"
     ],
     "deny": [],
     "ask": []
@@ -86,6 +88,6 @@
     "next-devtools",
     "github",
     "mongodb",
-	"postman"
+    "postman"
   ]
 }
