@@ -1,10 +1,23 @@
 import { HAPPY_MESSAGES, Pet, PET_NEED_KEYS, PET_NEEDS_CONFIG, STAT_THRESHOLD } from '@widgetable/types';
+import { USERNAME_INCLUSION_CHANCE } from './constants';
 
-const USERNAME_INCLUSION_CHANCE = 0.2;
 
-// Sums pet needs in 10-point buckets to create a stable value for deterministic message/variation selection
+// Sums pet needs in 10-point buckets and incorporates pet ID to create a stable, pet-specific seed
 function getPetStateSeed(pet: Pet): number {
-	return PET_NEED_KEYS.reduce((seed, key) => seed + Math.floor(pet.needs[key] / 10) * 10, 0);
+	const stateSeed = PET_NEED_KEYS.reduce((seed, key) => seed + Math.floor(pet.needs[key] / 10) * 10, 0);
+	const petIdHash = pet._id ? hashString(pet._id) : 0;
+	return stateSeed + petIdHash;
+}
+
+// Simple string hash function for consistent pet-specific seeding
+function hashString(str: string): number {
+	let hash = 0;
+	for (let i = 0; i < str.length; i++) {
+		const char = str.charCodeAt(i);
+		hash = ((hash << 5) - hash) + char;
+		hash = hash & hash; // Convert to 32-bit integer
+	}
+	return Math.abs(hash);
 }
 
 function addUsernameToMessage(message: string, username: string | undefined, seed: number): string {

@@ -1,4 +1,5 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post, Request, UseGuards } from '@nestjs/common';
+import { PET_ACTIONS_BY_CATEGORY } from '@widgetable/types';
 import { Types } from 'mongoose';
 import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
 import { UsersService } from 'src/users/users.service';
@@ -41,10 +42,16 @@ export class PetsController {
 
 		// If actionName is provided, this is a pet action that requires inventory
 		if (body.actionName) {
-			await this.usersService.consumeInventory(userId, body.actionName, 1);
+			const action = Object.values(PET_ACTIONS_BY_CATEGORY)
+				.flat()
+				.find((a) => a.name === body.actionName);
+
+			if (action?.inventoryCost) {
+				await this.usersService.consumeInventory(userId, body.actionName, 1);
+			}
 
 			const { actionName, ...petBody } = body;
-			return this.petsService.update(petId, petBody);
+			return this.petsService.update(petId, petBody, action?.experience);
 		}
 
 		return this.petsService.update(petId, body);

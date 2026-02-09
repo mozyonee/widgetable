@@ -37,6 +37,10 @@ export class Pet {
 	isEgg: boolean;
 	@Prop({ required: false })
 	hatchTime?: Date;
+	@Prop({ required: true, default: 0 })
+	experience: number;
+	@Prop({ required: true, default: 1 })
+	level: number;
 }
 
 export const PetSchema = SchemaFactory.createForClass(Pet);

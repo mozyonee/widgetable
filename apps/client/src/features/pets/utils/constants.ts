@@ -1,1 +1,2 @@
 export const PET_POLLING_INTERVAL = 5 * 1000;
+export const USERNAME_INCLUSION_CHANCE = 0.3;

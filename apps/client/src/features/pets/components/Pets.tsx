@@ -38,12 +38,17 @@ const PetsPage = () => {
 								<p className="text-2xl font-bold text-foreground text-center">{pet.isEgg ? 'Egg' : pet.name}</p>
 								{pet.isEgg ? (
 									<EggTimer hatchTime={pet.hatchTime} />
-								) : parentNames.length > 0 ? (
-									<div className="flex items-center justify-center gap-1 text-secondary text-xs">
-										<Users size={12} />
-										{parentNames.join(', ')}
-									</div>
-								) : null}
+								) : (
+									<>
+										<div className="text-sm text-secondary font-semibold">Level {pet.level}</div>
+										{parentNames.length > 0 && (
+											<div className="flex items-center justify-center gap-1 text-secondary text-xs">
+												<Users size={12} />
+												{parentNames.join(', ')}
+											</div>
+										)}
+									</>
+								)}
 							</div>
 						);
 					})}

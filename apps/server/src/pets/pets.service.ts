@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { HATCH_DURATION, PET_NEEDS_CONFIG, PET_NEED_KEYS, PetType } from '@widgetable/types';
+import { calculateLevel, HATCH_DURATION, PET_NEEDS_CONFIG, PET_NEED_KEYS, PetType } from '@widgetable/types';
 import { clamp, random } from 'lodash';
 import { Model, Types } from 'mongoose';
 import { UserDocument } from 'src/users/entities/user.entity';
@@ -43,7 +43,7 @@ export class PetsService {
 		return populatedPet;
 	}
 
-	async update(id: PetDocument['_id'], updateData: Partial<Pet>) {
+	async update(id: PetDocument['_id'], updateData: Partial<Pet>, experienceGain?: number) {
 		const newData: any = {
 			...updateData,
 			parents: updateData.parents?.map((p) => new Types.ObjectId(p)),
@@ -57,6 +57,16 @@ export class PetsService {
 					newData[`needs.${key}`] = clamp(updateData.needs[key], 0, 100);
 				}
 			});
+		}
+
+		if (experienceGain) {
+			const currentPet = await this.petModel.findById(id);
+			if (currentPet && !currentPet.isEgg) {
+				const newExperience = currentPet.experience + experienceGain;
+				const newLevel = calculateLevel(newExperience);
+				newData.experience = newExperience;
+				newData.level = newLevel;
+			}
 		}
 
 		const pet = await this.petModel.findByIdAndUpdate(id, newData, { new: true }).populate('parents', this.PARENT_FIELDS);

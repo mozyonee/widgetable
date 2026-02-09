@@ -111,24 +111,25 @@ export interface PetAction {
 	value: number | 'increment';
 	amount: number;
 	inventoryCost?: number; // How many inventory items this action consumes (undefined = unlimited)
+	experience: number;
 }
 
 export const PET_ACTIONS_BY_CATEGORY = {
 	[PetActionCategory.FEED]: [
-		{ name: 'Meal', needKey: PetNeed.HUNGER, value: 100, amount: 100, inventoryCost: 1 },
-		{ name: 'Snack', needKey: PetNeed.HUNGER, value: 'increment', amount: 30, inventoryCost: 1 },
+		{ name: 'Meal', needKey: PetNeed.HUNGER, value: 100, amount: 100, inventoryCost: 1, experience: 15 },
+		{ name: 'Snack', needKey: PetNeed.HUNGER, value: 'increment', amount: 30, inventoryCost: 1, experience: 8 },
 	] as PetAction[],
 	[PetActionCategory.DRINK]: [
-		{ name: 'Water', needKey: PetNeed.THIRST, value: 100, amount: 100, inventoryCost: 1 },
-		{ name: 'Juice', needKey: PetNeed.THIRST, value: 'increment', amount: 40, inventoryCost: 1 },
+		{ name: 'Water', needKey: PetNeed.THIRST, value: 100, amount: 100, inventoryCost: 1, experience: 15 },
+		{ name: 'Juice', needKey: PetNeed.THIRST, value: 'increment', amount: 40, inventoryCost: 1, experience: 10 },
 	] as PetAction[],
 	[PetActionCategory.WASH]: [
-		{ name: 'Bath', needKey: PetNeed.HYGIENE, value: 100, amount: 100, inventoryCost: 1 },
-		{ name: 'Shower', needKey: PetNeed.HYGIENE, value: 'increment', amount: 50, inventoryCost: 1 },
+		{ name: 'Bath', needKey: PetNeed.HYGIENE, value: 100, amount: 100, inventoryCost: 1, experience: 15 },
+		{ name: 'Shower', needKey: PetNeed.HYGIENE, value: 'increment', amount: 50, inventoryCost: 1, experience: 10 },
 	] as PetAction[],
 	[PetActionCategory.CARE]: [
-		{ name: 'Toilet', needKey: PetNeed.TOILET, value: 100, amount: 100, inventoryCost: 1 },
-		{ name: 'Sleep', needKey: PetNeed.ENERGY, value: 100, amount: 100 }, // No inventoryCost = unlimited
+		{ name: 'Toilet', needKey: PetNeed.TOILET, value: 100, amount: 100, inventoryCost: 1, experience: 12 },
+		{ name: 'Sleep', needKey: PetNeed.ENERGY, value: 100, amount: 100, experience: 5 },
 	] as PetAction[],
 };
 
@@ -143,6 +144,8 @@ export interface PetData {
 	needs: PetNeeds;
 	isEgg: boolean;
 	hatchTime?: Date;
+	experience: number;
+	level: number;
 }
 
 export type PetUpdate = Partial<Omit<PetData, 'needs'>> & {
@@ -150,6 +153,42 @@ export type PetUpdate = Partial<Omit<PetData, 'needs'>> & {
 };
 
 export type Pet = PetData & Database;
+
+// ============================================================================
+// LEVEL SYSTEM
+// ============================================================================
+
+const BASE_EXP = 50;
+const EXP_MULTIPLIER = 1.5;
+
+export const calculateLevel = (experience: number): number => {
+	let level = 1;
+	let expNeeded = BASE_EXP;
+	let totalExpForLevel = 0;
+
+	while (experience >= totalExpForLevel + expNeeded) {
+		totalExpForLevel += expNeeded;
+		level++;
+		expNeeded = Math.floor(BASE_EXP * Math.pow(level, EXP_MULTIPLIER));
+	}
+
+	return level;
+};
+
+export const getExpForNextLevel = (level: number): number => {
+	if (level === 1) return BASE_EXP;
+	return Math.floor(BASE_EXP * Math.pow(level, EXP_MULTIPLIER));
+};
+
+export const getExpForCurrentLevel = (level: number): number => {
+	if (level === 1) return 0;
+
+	let totalExp = BASE_EXP;
+	for (let i = 2; i < level; i++) {
+		totalExp += Math.floor(BASE_EXP * Math.pow(i, EXP_MULTIPLIER));
+	}
+	return totalExp;
+};
 
 // ============================================================================
 // INVENTORY CONFIGURATION

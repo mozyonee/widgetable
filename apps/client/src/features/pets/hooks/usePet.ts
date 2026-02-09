@@ -16,7 +16,7 @@ export const usePet = () => {
 	const coparentingRequests = useAppSelector((state) => state.user.coparentingRequests ?? { sent: [], received: [] });
 
 	const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null);
-	const cachedMessageRef = useRef({ message: '', urgentNeeds: '', petId: '' });
+	const cachedMessageRef = useRef({ message: '', urgentNeeds: '' });
 
 	const [friends, setFriends] = useState<User[]>([]);
 	const [showShareDropdown, setShowShareDropdown] = useState(false);
@@ -173,13 +173,11 @@ export const usePet = () => {
 			.sort()
 			.join(',');
 
-		const petIdChanged = (pet._id ?? '') !== cachedMessageRef.current.petId;
 		const needsChanged = urgentNeeds !== cachedMessageRef.current.urgentNeeds;
 
-		if (petIdChanged || needsChanged || !cachedMessageRef.current.message) {
+		if (needsChanged || !cachedMessageRef.current.message) {
 			cachedMessageRef.current = {
 				urgentNeeds,
-				petId: pet._id ?? '',
 				message: getPetMessage(pet, user?.name),
 			};
 		}

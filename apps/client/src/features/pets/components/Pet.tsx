@@ -6,7 +6,13 @@ import UserCard from '@/features/friends/components/UserCard';
 import PetSprite from '@/features/pets/components/PetSprite';
 import { PetContext } from '@/features/pets/context/PetContext';
 import { useAppSelector } from '@/store';
-import { PET_ACTIONS_BY_CATEGORY, PET_NEEDS_CONFIG, PetActionCategory } from '@widgetable/types';
+import {
+	getExpForCurrentLevel,
+	getExpForNextLevel,
+	PET_ACTIONS_BY_CATEGORY,
+	PET_NEEDS_CONFIG,
+	PetActionCategory,
+} from '@widgetable/types';
 import { CircleX, Clock, Triangle, UserPlus, Users } from 'lucide-react';
 import Link from 'next/link';
 import { useContext, useMemo } from 'react';
@@ -74,15 +80,24 @@ const PetPage = () => {
 					{isEgg ? (
 						<h2 className="font-bold text-3xl text-foreground px-2">Egg</h2>
 					) : (
-						<InputTextHidden
-							id={`pet-name-${pet._id}`}
-							inputStyles="font-bold text-3xl text-foreground justify-self-center px-2"
-							placeholder={pet.name}
-							value={pet.name}
-							onChange={(e) => {
-								updatePet({ name: e.target.value });
-							}}
-						/>
+						<>
+							<InputTextHidden
+								id={`pet-name-${pet._id}`}
+								inputStyles="font-bold text-3xl text-foreground justify-self-center px-2"
+								placeholder={pet.name}
+								value={pet.name}
+								onChange={(e) => {
+									updatePet({ name: e.target.value });
+								}}
+							/>
+							<div className="flex items-center gap-2 text-sm text-secondary">
+								<span className="font-semibold">Level {pet.level}</span>
+								<span>•</span>
+								<span>
+									{pet.experience - getExpForCurrentLevel(pet.level)}/{getExpForNextLevel(pet.level)} XP
+								</span>
+							</div>
+						</>
 					)}
 					{!isEgg && parentNames.length > 0 && (
 						<div className="flex items-center justify-center gap-1 text-secondary text-xs">
