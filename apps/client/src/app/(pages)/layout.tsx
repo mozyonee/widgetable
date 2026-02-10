@@ -11,7 +11,7 @@ const PagesLayout = ({ children }: Readonly<{ children: React.ReactNode }>) => {
 	return (
 		<PetContext.Provider value={{ pet, setPet }}>
 			{children}
-			<Footer />
+			{!pet && <Footer />}
 		</PetContext.Provider>
 	);
 };

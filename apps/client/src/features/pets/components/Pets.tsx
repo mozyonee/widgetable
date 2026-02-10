@@ -1,9 +1,10 @@
 import { Skeleton } from '@/components/ui/Skeleton';
 import PetSprite from '@/features/pets/components/PetSprite';
 import { PetContext } from '@/features/pets/context/PetContext';
+import { callError } from '@/lib/functions';
 import { useAppSelector } from '@/store';
-import { HATCH_DURATION } from '@widgetable/types';
-import { Plus, Users } from 'lucide-react';
+import { EGG_ITEM_NAME, HATCH_DURATION } from '@widgetable/types';
+import { Egg, Plus, Users } from 'lucide-react';
 import { useContext, useEffect, useState } from 'react';
 import { usePets } from '../hooks/usePets';
 import { getParentNames } from '../utils/functions';
@@ -13,9 +14,26 @@ const PetsPage = () => {
 	const { setPet } = useContext(PetContext);
 	const { pets, loading, addPet } = usePets();
 
+	const eggCount = user?.inventory?.[EGG_ITEM_NAME] ?? 0;
+	const canAddPet = eggCount > 0;
+
+	const handleAddPet = () => {
+		if (!canAddPet) {
+			callError('You need eggs to add a pet!');
+			return;
+		}
+		addPet();
+	};
+
 	return (
 		<div className="flex flex-col gap-6 h-full">
-			<h1 className="font-bold text-3xl text-foreground text-center">Pets</h1>
+			<div className="flex items-center justify-between">
+				<h1 className="font-bold text-3xl text-foreground flex-1 text-center">Pets</h1>
+				<div className="flex items-center gap-2 bg-white rounded-full px-4 py-2 shadow-md border border-secondary/20">
+					<Egg className="stroke-primary" size={20} />
+					<span className="font-bold text-foreground">{eggCount}</span>
+				</div>
+			</div>
 
 			{loading ? (
 				<div className="grid gap-6 [grid-template-columns:repeat(auto-fit,minmax(100px,1fr))]">
@@ -53,12 +71,14 @@ const PetsPage = () => {
 						);
 					})}
 
-					<AddPetButton onClick={addPet} />
+					<AddPetButton onClick={handleAddPet} />
 				</div>
 			) : (
 				<div className="flex-1 flex flex-col items-center justify-center">
-					<p className="text-secondary text-center text-lg mb-4">Click the button below to add a pet!</p>
-					<AddPetButton onClick={addPet} variant="centered" />
+					<p className="text-secondary text-center text-lg mb-4">
+						{canAddPet ? 'Click the button below to add a pet!' : 'You need eggs to add a pet!'}
+					</p>
+					<AddPetButton onClick={handleAddPet} variant="centered" />
 				</div>
 			)}
 		</div>
@@ -140,12 +160,22 @@ const PetCardSkeleton = () => {
 	);
 };
 
-const AddPetButton = ({ onClick, variant = 'grid' }: { onClick: () => void; variant?: 'grid' | 'centered' }) => {
+const AddPetButton = ({
+	onClick,
+	variant = 'grid',
+	disabled = false,
+}: {
+	onClick: () => void;
+	variant?: 'grid' | 'centered';
+	disabled?: boolean;
+}) => {
 	if (variant === 'centered') {
 		return (
 			<button
-				className="bg-primary text-white font-bold rounded-lg py-3 px-6 hover:bg-opacity-90 transition-colors"
+				className={`bg-primary text-white font-bold rounded-lg py-3 px-6 transition-colors ${disabled ? 'opacity-50 cursor-not-allowed' : 'hover:bg-opacity-90'
+					}`}
 				onClick={onClick}
+				disabled={disabled}
 			>
 				Add Pet
 			</button>
@@ -154,8 +184,10 @@ const AddPetButton = ({ onClick, variant = 'grid' }: { onClick: () => void; vari
 
 	return (
 		<button
-			className="bg-white/50 border-2 border-dashed border-secondary/50 rounded-2xl p-4 flex flex-col items-center justify-center gap-2 cursor-pointer hover:scale-105 transition-transform duration-300 hover:bg-white"
+			className={`bg-white/50 border-2 border-dashed border-secondary/50 rounded-2xl p-4 flex flex-col items-center justify-center gap-2 transition-transform duration-300 ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:scale-105 hover:bg-white'
+				}`}
 			onClick={onClick}
+			disabled={disabled}
 		>
 			<Plus className="stroke-primary h-8 w-8" />
 			<p className="text-lg font-semibold text-primary">Add Pet</p>

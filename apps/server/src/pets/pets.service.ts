@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { calculateLevel, HATCH_DURATION, PET_NEEDS_CONFIG, PET_NEED_KEYS, PetType } from '@widgetable/types';
+import { calculateLevel, HATCH_DURATION, PET_NEED_KEYS, PET_NEEDS_CONFIG, PET_UPDATE_INTERVAL, PetType } from '@widgetable/types';
 import { clamp, random } from 'lodash';
 import { Model, Types } from 'mongoose';
 import { UserDocument } from 'src/users/entities/user.entity';
@@ -109,15 +109,17 @@ export class PetsService {
 
 		// Calculate stat decay
 		const timeDiff = Date.now() - (pet.updatedAt?.getTime() || 0);
-		const intervals = Math.floor(timeDiff / 5000); // 5 second intervals
+		const intervals = Math.floor(timeDiff / PET_UPDATE_INTERVAL);
 
 		if (intervals <= 0) return pet;
 
-		// Decrease needs based on configuration
+		// Decay rates are per DECAY_TIME_UNIT, so convert to per-interval rate
+		const DECAY_TIME_UNIT = 60 * 1000;
 		const updatedNeeds = {} as any;
+
 		PET_NEED_KEYS.forEach((key) => {
 			const config = PET_NEEDS_CONFIG[key];
-			const decrease = intervals * config.decayRate;
+			const decrease = intervals * (config.decayRate / DECAY_TIME_UNIT / PET_UPDATE_INTERVAL);
 			updatedNeeds[key] = clamp(pet.needs[key] - decrease, 0, 100);
 		});
 

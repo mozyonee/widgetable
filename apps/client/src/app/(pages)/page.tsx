@@ -8,5 +8,9 @@ import { useContext } from 'react';
 export default function Home() {
 	const { pet } = useContext(PetContext);
 
-	return <main className="p-4 grow overflow-y-auto overscroll-contain">{pet ? <PetPage /> : <PetsPage />}</main>;
+	return (
+		<main className={`${pet ? '' : 'p-4'} grow overflow-y-auto overscroll-contain`}>
+			{pet ? <PetPage /> : <PetsPage />}
+		</main>
+	);
 }

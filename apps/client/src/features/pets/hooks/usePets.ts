@@ -1,18 +1,17 @@
 import api from '@/lib/api';
 import { callError } from '@/lib/functions';
-import { useAppSelector } from '@/store';
-import { Pet } from '@widgetable/types';
+import { useAppDispatch, useAppSelector } from '@/store';
+import { setUserData } from '@/store/slices/userSlice';
+import { Pet, PET_UPDATE_INTERVAL } from '@widgetable/types';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { PET_POLLING_INTERVAL } from '../utils/constants';
 
 export const usePets = () => {
+	const dispatch = useAppDispatch();
 	const user = useAppSelector((state) => state.user.userData);
 	const [pets, setPets] = useState<Pet[]>([]);
 	const [loading, setLoading] = useState(true);
 
 	const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null);
-
-	// Fetches
 
 	const loadPets = useCallback(
 		async (isInitialLoad = false) => {
@@ -30,18 +29,16 @@ export const usePets = () => {
 		[user?._id]
 	);
 
-	// Initial load
 	useEffect(() => {
 		loadPets(true);
 	}, [loadPets]);
 
-	// Polling mechanism to keep pets stats synced with server
 	useEffect(() => {
 		if (!user?._id) return;
 
 		pollingIntervalRef.current = setInterval(() => {
 			loadPets();
-		}, PET_POLLING_INTERVAL);
+		}, PET_UPDATE_INTERVAL);
 
 		return () => {
 			if (pollingIntervalRef.current) {
@@ -50,23 +47,22 @@ export const usePets = () => {
 		};
 	}, [user?._id, loadPets]);
 
-	// Actions
-
 	const addPet = useCallback(async () => {
 		try {
 			const response = await api.post('/pets');
 			setPets((prev) => [...prev, response.data]);
+
+			const userResponse = await api.get('/auth/me');
+			dispatch(setUserData(userResponse.data));
 		} catch (error: any) {
-			callError(error.message);
+			const message = error.response?.data?.message;
+			if (message?.includes('No eggs available')) {
+				callError('You need eggs to add a pet!');
+			} else {
+				callError(error.message);
+			}
 		}
-	}, []);
+	}, [dispatch]);
 
-	return {
-		// State
-		pets,
-		loading,
-
-		// Actions
-		addPet,
-	};
+	return { pets, loading, addPet };
 };

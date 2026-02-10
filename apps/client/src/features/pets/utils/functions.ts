@@ -1,6 +1,4 @@
-import { HAPPY_MESSAGES, Pet, PET_NEED_KEYS, PET_NEEDS_CONFIG, STAT_THRESHOLD } from '@widgetable/types';
-import { USERNAME_INCLUSION_CHANCE } from './constants';
-
+import { HAPPY_MESSAGES, Pet, PET_NEED_KEYS, PET_NEEDS_CONFIG, STAT_THRESHOLD, USERNAME_INCLUSION_CHANCE } from '@widgetable/types';
 
 // Sums pet needs in 10-point buckets and incorporates pet ID to create a stable, pet-specific seed
 function getPetStateSeed(pet: Pet): number {

@@ -79,7 +79,17 @@
       "Bash(git add:*)",
       "Bash(git push:*)",
       "mcp__github__push_files",
-      "Bash(git rebase:*)"
+      "Bash(git rebase:*)",
+      "Bash(for:*)",
+      "Bash(done)",
+      "Bash(node analyze-sprites.mjs:*)",
+      "Bash(node analyze-fox-sprites.mjs:*)",
+      "Bash(ls:*)",
+      "Bash(xargs:*)",
+      "Bash(node analyze-all-sprites.mjs:*)",
+      "Bash(node analyze-bunny.mjs:*)",
+      "Bash(node:*)",
+      "Bash(git status:*)"
     ],
     "deny": [],
     "ask": []

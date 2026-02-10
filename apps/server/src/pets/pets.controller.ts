@@ -1,5 +1,5 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Request, UseGuards } from '@nestjs/common';
-import { PET_ACTIONS_BY_CATEGORY } from '@widgetable/types';
+import { BadRequestException, Body, Controller, Delete, Get, Param, Patch, Post, Request, UseGuards } from '@nestjs/common';
+import { EGG_ITEM_NAME, PET_ACTIONS_BY_CATEGORY } from '@widgetable/types';
 import { Types } from 'mongoose';
 import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
 import { UsersService } from 'src/users/users.service';
@@ -28,9 +28,15 @@ export class PetsController {
 
 	@Post()
 	@UseGuards(JwtAuthGuard)
-	create(@Request() req: UserRequest) {
+	async create(@Request() req: UserRequest) {
 		const userId = req.user._id;
 
+		const hasEgg = await this.usersService.hasInventory(userId.toString(), EGG_ITEM_NAME, 1);
+		if (!hasEgg) {
+			throw new BadRequestException('No eggs available in inventory');
+		}
+
+		await this.usersService.consumeInventory(userId.toString(), EGG_ITEM_NAME, 1);
 		return this.petsService.create(userId);
 	}
 
@@ -40,7 +46,6 @@ export class PetsController {
 		const petId = new Types.ObjectId(id);
 		const userId = req.user._id.toString();
 
-		// If actionName is provided, this is a pet action that requires inventory
 		if (body.actionName) {
 			const action = Object.values(PET_ACTIONS_BY_CATEGORY)
 				.flat()

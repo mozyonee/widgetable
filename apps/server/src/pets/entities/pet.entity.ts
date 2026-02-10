@@ -41,6 +41,8 @@ export class Pet {
 	experience: number;
 	@Prop({ required: true, default: 1 })
 	level: number;
+	@Prop({ required: false })
+	background?: number;
 }
 
 export const PetSchema = SchemaFactory.createForClass(Pet);

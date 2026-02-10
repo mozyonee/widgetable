@@ -10,10 +10,10 @@ import {
 	PET_NEED_KEYS,
 	STAT_THRESHOLD,
 	PET_ACTIONS_BY_CATEGORY,
+	PET_UPDATE_INTERVAL,
 } from '@widgetable/types';
 import { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { PetContext } from '../context/PetContext';
-import { PET_POLLING_INTERVAL } from '../utils/constants';
 import { getParentId, getParentNames, getPetMessage } from '../utils/functions';
 
 export const usePet = () => {
@@ -67,7 +67,7 @@ export const usePet = () => {
 
 		pollingIntervalRef.current = setInterval(() => {
 			loadPet();
-		}, PET_POLLING_INTERVAL);
+		}, PET_UPDATE_INTERVAL);
 
 		return () => {
 			if (pollingIntervalRef.current) {

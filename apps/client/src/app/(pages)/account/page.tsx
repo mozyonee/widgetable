@@ -7,7 +7,7 @@ import { callError, callSuccess } from '@/lib/functions';
 import { useAppDispatch, useAppSelector } from '@/store';
 import { useAuth } from '@/store/hooks/useAuth';
 import { setUserData } from '@/store/slices/userSlice';
-import { PET_ACTIONS_BY_CATEGORY } from '@widgetable/types';
+import { EGG_ITEM_NAME, PET_ACTIONS_BY_CATEGORY } from '@widgetable/types';
 import { Camera, CircleUserRound, Plus, Power } from 'lucide-react';
 import Image from 'next/image';
 import { useEffect, useMemo, useRef, useState } from 'react';
@@ -37,14 +37,14 @@ const Account = () => {
 	const [username, setUsername] = useState(user?.name || '');
 	const [addingInventory, setAddingInventory] = useState<string | null>(null);
 
-	// Get all actions that require inventory
-	const inventoryActions = useMemo(
-		() =>
-			Object.values(PET_ACTIONS_BY_CATEGORY)
-				.flat()
-				.filter((action) => action.inventoryCost !== undefined),
-		[],
-	);
+	const inventoryItems = useMemo(() => {
+		const actionItems = Object.values(PET_ACTIONS_BY_CATEGORY)
+			.flat()
+			.filter((action) => action.inventoryCost !== undefined)
+			.map((action) => action.name);
+
+		return Array.from(new Set([EGG_ITEM_NAME, ...actionItems]));
+	}, []);
 
 	const handleAddInventory = async (actionName: string) => {
 		try {
@@ -186,20 +186,20 @@ const Account = () => {
 					<h2 className="font-bold text-xl text-foreground">Inventory Management</h2>
 					<p className="text-secondary text-sm">Add items to your inventory</p>
 					<div className="grid grid-cols-2 gap-2">
-						{inventoryActions.map((action) => {
-							const currentCount = user.inventory?.[action.name] ?? 0;
-							const isAdding = addingInventory === action.name;
+						{inventoryItems.map((itemName, index) => {
+							const currentCount = user.inventory?.[itemName] ?? 0;
+							const isAdding = addingInventory === itemName;
 							return (
 								<Button
-									key={action.name}
-									onClick={() => handleAddInventory(action.name)}
+									key={`inventory-${itemName}-${index}`}
+									onClick={() => handleAddInventory(itemName)}
 									variant="ghost"
 									size="sm"
 									disabled={isAdding}
 									style={`flex items-center justify-between ${isAdding ? 'opacity-50' : ''}`}
 								>
 									<span className="flex items-center gap-2">
-										{action.name}
+										{itemName}
 										<span className="text-xs text-secondary">({currentCount})</span>
 									</span>
 									<Plus strokeWidth={2} size={16} color="var(--primary)" />
