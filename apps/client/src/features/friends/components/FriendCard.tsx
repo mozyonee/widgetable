@@ -2,7 +2,7 @@
 
 import { Button } from '@/components/ui/Button';
 import { FriendshipStatus, User } from '@widgetable/types';
-import { Check, Clock, UserPlus, UserX, X } from 'lucide-react';
+import { Check, Clock, UserPlus, UserMinus, Close } from '@nsmr/pixelart-react';
 import UserCard from './UserCard';
 
 interface FriendCardProps {
@@ -22,33 +22,33 @@ const FriendCard = ({ user, status, onAdd, onCancel, onAccept, onDecline, onRemo
 	const actionConfig: Record<FriendshipStatus, React.ReactNode> = {
 		[FriendshipStatus.NONE]: (
 			<Button variant="primary" onClick={() => onAdd?.(user._id!)} className="!p-2">
-				<UserPlus size={20} />
+				<UserPlus width={20} height={20} />
 			</Button>
 		),
 		[FriendshipStatus.SENT]: (
 			<div className="flex flex-col items-center gap-2">
 				<div className="flex items-center gap-1 text-secondary text-sm">
-					<Clock size={16} />
+					<Clock width={16} height={16} />
 					<span>Pending</span>
 				</div>
 				<Button variant="secondary" onClick={() => onCancel?.(user._id!)} className="!p-2">
-					<X size={20} />
+					<Close width={20} height={20} />
 				</Button>
 			</div>
 		),
 		[FriendshipStatus.RECEIVED]: (
 			<div className="flex flex-col items-center gap-2">
 				<Button variant="primary" onClick={() => onAccept?.(user._id!)} className="!p-2">
-					<Check size={20} />
+					<Check width={20} height={20} />
 				</Button>
 				<Button variant="secondary" onClick={() => onDecline?.(user._id!)} className="!p-2">
-					<X size={20} />
+					<Close width={20} height={20} />
 				</Button>
 			</div>
 		),
 		[FriendshipStatus.FRIENDS]: (
 			<Button variant="secondary" onClick={() => onRemove?.(user._id!)} className="!p-2">
-				<UserX size={20} />
+				<UserMinus width={20} height={20} />
 			</Button>
 		),
 	};

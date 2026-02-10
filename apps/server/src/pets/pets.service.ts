@@ -119,7 +119,7 @@ export class PetsService {
 
 		PET_NEED_KEYS.forEach((key) => {
 			const config = PET_NEEDS_CONFIG[key];
-			const decrease = intervals * (config.decayRate / DECAY_TIME_UNIT / PET_UPDATE_INTERVAL);
+			const decrease = intervals * config.decayRate * (PET_UPDATE_INTERVAL / DECAY_TIME_UNIT);
 			updatedNeeds[key] = clamp(pet.needs[key] - decrease, 0, 100);
 		});
 

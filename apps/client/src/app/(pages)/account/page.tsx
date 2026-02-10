@@ -7,8 +7,8 @@ import { callError, callSuccess } from '@/lib/functions';
 import { useAppDispatch, useAppSelector } from '@/store';
 import { useAuth } from '@/store/hooks/useAuth';
 import { setUserData } from '@/store/slices/userSlice';
+import { Camera, Plus, Power, User } from '@nsmr/pixelart-react';
 import { EGG_ITEM_NAME, PET_ACTIONS_BY_CATEGORY } from '@widgetable/types';
-import { Camera, CircleUserRound, Plus, Power } from 'lucide-react';
 import Image from 'next/image';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
@@ -129,7 +129,7 @@ const Account = () => {
 	}, [username, user?.name]);
 
 	return (
-		<main className="p-4 grow h-full flex flex-col gap-6">
+		<main className="p-4 grow flex flex-col gap-6 border-x border-secondary">
 			<h1 className="font-bold text-3xl text-center text-foreground">Profile</h1>
 			{!user ? (
 				<ProfileSkeleton />
@@ -148,7 +148,7 @@ const Account = () => {
 										onError={() => setImageError(true)}
 									/>
 								) : (
-									<CircleUserRound strokeWidth={2} size={75} color="var(--secondary)" />
+									<User width={75} height={75} className="text-secondary" />
 								)}
 							</div>
 							{loading && (
@@ -157,7 +157,7 @@ const Account = () => {
 								</div>
 							)}
 							<div className="absolute bottom-0 right-0 bg-primary/75 p-2 rounded-full cursor-pointer">
-								<Camera strokeWidth={2} size={15} color="var(--background)" />
+								<Camera width={15} height={15} className="text-background" />
 							</div>
 						</button>
 						<input
@@ -175,6 +175,7 @@ const Account = () => {
 							value={username}
 							placeholder="User Name"
 							inputStyles="text-2xl font-bold text-foreground"
+							maxLength={16}
 							onChange={(e) => setUsername(e.target.value)}
 							onBlur={handleBlur}
 						/>
@@ -182,9 +183,9 @@ const Account = () => {
 					</div>
 				</div>
 
-				<div className="flex flex-col gap-4 bg-white shadow-lg border border-secondary/20 rounded-2xl p-6">
+				<div className="flex flex-col gap-2 bg-white shadow-lg border border-secondary/20 rounded-2xl p-6">
 					<h2 className="font-bold text-xl text-foreground">Inventory Management</h2>
-					<p className="text-secondary text-sm">Add items to your inventory</p>
+					<p className="text-secondary text-base mb-4">Add items to your inventory</p>
 					<div className="grid grid-cols-2 gap-2">
 						{inventoryItems.map((itemName, index) => {
 							const currentCount = user.inventory?.[itemName] ?? 0;
@@ -198,11 +199,12 @@ const Account = () => {
 									disabled={isAdding}
 									style={`flex items-center justify-between ${isAdding ? 'opacity-50' : ''}`}
 								>
-									<span className="flex items-center gap-2">
+									<span className="flex text-left gap-2 text-lg">
 										{itemName}
-										<span className="text-xs text-secondary">({currentCount})</span>
+										{" "}
+										({currentCount})
 									</span>
-									<Plus strokeWidth={2} size={16} color="var(--primary)" />
+									<Plus width={16} height={16} className="text-primary" />
 								</Button>
 							);
 						})}
@@ -211,7 +213,7 @@ const Account = () => {
 
 				<Button variant="danger" size="lg" onClick={logout} style="flex justify-center items-center gap-2">
 					Log Out
-					<Power strokeWidth={3} size={20} color="var(--danger)" />
+					<Power width={20} height={20} className="text-danger" />
 				</Button>
 			</>)}
 		</main>

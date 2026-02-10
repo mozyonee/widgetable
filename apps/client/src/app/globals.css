@@ -1,5 +1,21 @@
 @import "tailwindcss";
 
+@font-face {
+	font-family: 'Basis33';
+	font-style: normal;
+	font-weight: 400;
+	font-display: swap;
+	src: url(/fonts/basis33.ttf) format('truetype');
+}
+
+@font-face {
+	font-family: 'PixelFont7';
+	font-style: normal;
+	font-weight: 400;
+	font-display: swap;
+	src: url(/fonts/pixel-font7.ttf) format('truetype');
+}
+
 :root {
 	--background: #FFFBF7;
 	--foreground: #5C3D2E;
@@ -23,8 +39,28 @@
 	--color-accent: var(--accent);
 	--color-danger: var(--danger);
 
-	--font-sans: var(--font-geist-sans);
-	--font-mono: var(--font-geist-mono);
+	--font-sans: 'Basis33', ui-sans-serif, system-ui, sans-serif;
+	--font-mono: 'Basis33', ui-monospace, monospace;
+	--font-pixel: 'PixelFont7', monospace;
+
+	--leading-none: 0.8;
+	--leading-tight: 0.85;
+	--leading-snug: 0.9;
+	--leading-normal: 0.9;
+	--leading-relaxed: 0.9;
+	--leading-loose: 0.9;
+
+	/* Text size line heights */
+	--text-xs--line-height: 0.9;
+	--text-sm--line-height: 0.9;
+	--text-base--line-height: 0.9;
+	--text-lg--line-height: 0.9;
+	--text-xl--line-height: 0.9;
+	--text-2xl--line-height: 0.9;
+	--text-3xl--line-height: 0.9;
+	--text-4xl--line-height: 0.9;
+	--text-5xl--line-height: 0.9;
+	--text-6xl--line-height: 0.9;
 }
 
 /* @media (prefers-color-scheme: dark) {
@@ -38,7 +74,9 @@ body,
 html {
 	background: var(--background);
 	color: var(--foreground);
-	font-family: Arial, Helvetica, sans-serif;
+	font-family: 'Basis33', ui-monospace, monospace, ui-sans-serif, system-ui, sans-serif;
+	font-size: 20px;
+	line-height: 1;
 }
 
 button,

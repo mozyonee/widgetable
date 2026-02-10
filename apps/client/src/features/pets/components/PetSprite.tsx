@@ -1,4 +1,5 @@
 import spriteData from '@/data/pets.json';
+import { getPetScale } from '@/data/petScales';
 import { ANIMATION_DURATIONS, Pet, PetAnimation } from '@widgetable/types';
 import Image from 'next/image';
 import { useEffect, useMemo, useState } from 'react';
@@ -114,16 +115,22 @@ const PetSprite = ({ pet, height = 500, width = 200, animation, onAnimationEnd }
 		}
 	}, [idleSpriteConfig, isAnimating]);
 
+	// Get scale for this pet type
+	const petType = pet.isEgg ? 'egg' : pet.type;
+	const scale = getPetScale(petType as any);
+
 	// If sprite has fps, it's an animated sprite
 	if (currentSpriteConfig.fps) {
 		return (
-			<AnimatedSprite
-				sprite={currentSpriteConfig.sprite}
-				fps={currentSpriteConfig.fps}
-				loop={true}
-				height={height}
-				alt={pet.name}
-			/>
+			<div style={{ transform: `scale(${scale})`, transformOrigin: 'center bottom' }}>
+				<AnimatedSprite
+					sprite={currentSpriteConfig.sprite}
+					fps={currentSpriteConfig.fps}
+					loop={true}
+					height={height}
+					alt={pet.name}
+				/>
+			</div>
 		);
 	}
 
@@ -133,13 +140,15 @@ const PetSprite = ({ pet, height = 500, width = 200, animation, onAnimationEnd }
 	const heightStyle = typeof height === 'number' ? `${height}px` : height;
 
 	return (
-		<Image
-			src={currentSpriteConfig.sprite}
-			alt={pet.name}
-			height={heightNum}
-			width={widthNum}
-			style={{ width: 'auto', height: heightStyle }}
-		/>
+		<div style={{ transform: `scale(${scale})`, transformOrigin: 'center bottom' }}>
+			<Image
+				src={currentSpriteConfig.sprite}
+				alt={pet.name}
+				height={heightNum}
+				width={widthNum}
+				style={{ width: 'auto', height: heightStyle }}
+			/>
+		</div>
 	);
 };
 

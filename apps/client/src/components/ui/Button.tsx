@@ -44,6 +44,7 @@ export const InputTextHidden = ({
 	onChange,
 	onBlur,
 	readOnly,
+	maxLength,
 	inputStyles = '',
 }: InputTextHiddenProps) => {
 	return (
@@ -54,6 +55,7 @@ export const InputTextHidden = ({
 			onChange={onChange}
 			onBlur={onBlur}
 			readOnly={readOnly}
+			maxLength={maxLength}
 			size={Math.max(value.length, placeholder.length, 1)}
 			className={`bg-transparent text-center outline-none w-fit ${inputStyles}`}
 		/>

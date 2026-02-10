@@ -3,7 +3,7 @@
 import { Skeleton } from '@/components/ui/Skeleton';
 import { useAppSelector } from '@/store';
 import { RequestDirection } from '@widgetable/types';
-import { Search } from 'lucide-react';
+import { Search } from '@nsmr/pixelart-react';
 import { useCoparenting } from '../hooks/useCoparenting';
 import { useFriends } from '../hooks/useFriends';
 import CoparentingCard from './CoparentingCard';
@@ -45,7 +45,7 @@ const Friends = () => {
 
 			<div className="bg-white rounded-2xl shadow-md border border-secondary/20">
 				<label className="relative p-4 flex items-center cursor-text">
-					<Search className="absolute left-[23px] text-secondary pointer-events-none" size={25} />
+					<Search className="absolute left-[23px] text-secondary pointer-events-none" width={25} height={25} />
 					<input
 						type="text"
 						placeholder="Search users..."

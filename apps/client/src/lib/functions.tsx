@@ -4,7 +4,7 @@ export const callSuccess = (text: string) => {
 	toast.success(
 		(t) => (
 			<div onClick={() => toast.dismiss(t.id)}>
-				<p>{text}</p>
+				<p className='text-lg'>{text}</p>
 			</div>
 		),
 		{
@@ -28,7 +28,7 @@ export const callError = (text: string) => {
 					toast.dismiss(t.id);
 				}}
 			>
-				<p>{text}</p>
+				<p className='text-lg'>{text}</p>
 			</div>
 		),
 		{

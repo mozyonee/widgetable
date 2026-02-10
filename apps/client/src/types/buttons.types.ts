@@ -68,6 +68,7 @@ export interface InputTextHiddenProps extends BaseInputProps {
 	onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
 	onBlur?: (e: React.FocusEvent<HTMLInputElement>) => void;
 	readOnly?: boolean;
+	maxLength?: number;
 }
 
 export interface InputPasswordProps extends BaseInputProps {

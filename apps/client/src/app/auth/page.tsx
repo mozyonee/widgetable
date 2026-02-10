@@ -2,7 +2,7 @@
 import { Button } from '@/components/ui/Button';
 import api from '@/lib/api';
 import { callError } from '@/lib/functions';
-import { Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeClosed } from '@nsmr/pixelart-react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
@@ -56,7 +56,7 @@ export default function AuthPage() {
 							onClick={() => setShowPassword(!showPassword)}
 							className="absolute inset-y-0 right-0 pr-3 flex items-center text-sm leading-5"
 						>
-							{showPassword ? <Eye /> : <EyeOff />}
+							{showPassword ? <Eye width={20} height={20} /> : <EyeClosed width={20} height={20} />}
 						</button>
 					</div>
 					<Button type="submit" size="lg" style="mt-2 w-full">

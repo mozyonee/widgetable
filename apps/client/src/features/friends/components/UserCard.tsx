@@ -1,7 +1,7 @@
 'use client';
 
 import type { User } from '@widgetable/types';
-import { CircleUserRound } from 'lucide-react';
+import { User as UserIcon } from '@nsmr/pixelart-react';
 import Image from 'next/image';
 import { ReactNode, useState } from 'react';
 
@@ -34,13 +34,13 @@ const UserCard = ({ user, actions, variant = 'default' }: UserCardProps) => {
 						onError={() => setImageError(true)}
 					/>
 				) : (
-					<CircleUserRound strokeWidth={2} size={35} color="var(--secondary)" />
+					<UserIcon width={35} height={35} className="text-secondary" />
 				)}
 			</div>
 
 			<div className="flex-1 min-w-0">
 				<p className="text-lg font-bold text-foreground truncate">{user.name}</p>
-				<p className="text-sm text-secondary truncate">{user.email}</p>
+				<p className=" text-secondary truncate mt-1">{user.email}</p>
 			</div>
 
 			{actions}

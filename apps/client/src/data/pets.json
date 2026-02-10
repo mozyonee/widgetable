@@ -1,34 +1,34 @@
 {
-	"egg": "/pets/egg.png",
+	"egg": "/assets/egg_white.png",
 	"fox": {
 		"happy": [
 			{
 				"sprite": "/pets/fox/FoxSitting.png",
-				"fps": 3
+				"fps": 1
 			},
 			{
 				"sprite": "/pets/fox/FoxIdle.png",
-				"fps": 4
+				"fps": 1
 			}
 		],
 		"sad": [
 			{
 				"sprite": "/pets/fox/FoxHurt.png",
-				"fps": 5
+				"fps": 1
 			},
 			{
 				"sprite": "/pets/fox/FoxDie.png",
-				"fps": 3
+				"fps": 1
 			}
 		],
 		"dirty": {
 			"sprite": "/pets/fox/FoxHurt.png",
-			"fps": 5
+			"fps": 1
 		},
 		"sleepy": [
 			{
 				"sprite": "/pets/fox/FoxSitting.png",
-				"fps": 2
+				"fps": 1
 			},
 			{
 				"sprite": "/pets/fox/FoxSleep.png",
@@ -38,143 +38,143 @@
 		"eat": [
 			{
 				"sprite": "/pets/fox/FoxAttack.png",
-				"fps": 8
+				"fps": 1
 			},
 			{
 				"sprite": "/pets/fox/FoxWalking.png",
-				"fps": 6
+				"fps": 1
 			}
 		],
 		"drink": {
 			"sprite": "/pets/fox/FoxWalking.png",
-			"fps": 6
+			"fps": 1
 		},
 		"toilet": {
 			"sprite": "/pets/fox/FoxSitting.png",
-			"fps": 2
+			"fps": 1
 		},
 		"bath": [
 			{
 				"sprite": "/pets/fox/FoxJump.png",
-				"fps": 8
+				"fps": 1
 			},
 			{
 				"sprite": "/pets/fox/FoxWalking.png",
-				"fps": 6
+				"fps": 1
 			}
 		],
 		"sleep": {
 			"sprite": "/pets/fox/FoxSleep.png",
-			"fps": 2
+			"fps": 1
 		}
 	},
 	"cat": {
 		"happy": [
 			{
 				"sprite": "/pets/cat/Idle.png",
-				"fps": 8
+				"fps": 1
 			},
 			{
 				"sprite": "/pets/cat/Idle2.png",
-				"fps": 5
+				"fps": 1
 			},
 			{
 				"sprite": "/pets/cat/Waiting.png",
-				"fps": 6
+				"fps": 1
 			}
 		],
 		"sad": [
 			{
 				"sprite": "/pets/cat/Sad.png",
-				"fps": 6
+				"fps": 1
 			},
 			{
 				"sprite": "/pets/cat/Cry.png",
-				"fps": 4
+				"fps": 1
 			}
 		],
 		"dirty": {
 			"sprite": "/pets/cat/Cry.png",
-			"fps": 4
+			"fps": 1
 		},
 		"sleepy": [
 			{
 				"sprite": "/pets/cat/Sleepy.png",
-				"fps": 6
+				"fps": 1
 			},
 			{
 				"sprite": "/pets/cat/LayDown.png",
-				"fps": 4
+				"fps": 1
 			}
 		],
 		"eat": [
 			{
 				"sprite": "/pets/cat/Eating.png",
-				"fps": 10
+				"fps": 7
 			},
 			{
 				"sprite": "/pets/cat/Excited.png",
-				"fps": 8
+				"fps": 1
 			}
 		],
 		"drink": {
 			"sprite": "/pets/cat/Eating.png",
-			"fps": 12
+			"fps": 1
 		},
 		"toilet": [
 			{
 				"sprite": "/pets/cat/Idle2.png",
-				"fps": 3
+				"fps": 1
 			},
 			{
 				"sprite": "/pets/cat/Waiting.png",
-				"fps": 3
+				"fps": 1
 			}
 		],
 		"bath": [
 			{
 				"sprite": "/pets/cat/Dance.png",
-				"fps": 4
+				"fps": 1
 			},
 			{
 				"sprite": "/pets/cat/Surprised.png",
-				"fps": 6
+				"fps": 1
 			}
 		],
 		"sleep": {
 			"sprite": "/pets/cat/Sleep.png",
-			"fps": 2
+			"fps": 1
 		}
 	},
 	"bunny": {
 		"happy": [
 			{
 				"sprite": "/pets/bunny/BunnyIdle-Sheet.png",
-				"fps": 8
+				"fps": 1
 			},
 			{
 				"sprite": "/pets/bunny/BunnySitting-Sheet.png",
-				"fps": 3
+				"fps": 1
 			}
 		],
 		"sad": [
 			{
 				"sprite": "/pets/bunny/BunnyHurt-Sheet.png",
-				"fps": 5
+				"fps": 1
 			},
 			{
 				"sprite": "/pets/bunny/BunnyDead-Sheet.png",
-				"fps": 4
+				"fps": 1
 			}
 		],
 		"dirty": {
 			"sprite": "/pets/bunny/BunnyHurt-Sheet.png",
-			"fps": 5
+			"fps": 1
 		},
 		"sleepy": [
 			{
 				"sprite": "/pets/bunny/BunnyLieDown-Sheet.png",
-				"fps": 2
+				"fps": 1
 			},
 			{
 				"sprite": "/pets/bunny/BunnySleep-Sheet.png",
@@ -184,20 +184,20 @@
 		"eat": [
 			{
 				"sprite": "/pets/bunny/BunnyCarrotSkill-Sheet.png",
-				"fps": 10
+				"fps": 7
 			},
 			{
 				"sprite": "/pets/bunny/BunnyAttack-Sheet.png",
-				"fps": 8
+				"fps": 1
 			}
 		],
 		"drink": {
 			"sprite": "/pets/bunny/BunnyRun-Sheet.png",
-			"fps": 8
+			"fps": 1
 		},
 		"toilet": {
 			"sprite": "/pets/bunny/BunnySitting-Sheet.png",
-			"fps": 3
+			"fps": 1
 		},
 		"bath": [
 			{
@@ -206,37 +206,37 @@
 			},
 			{
 				"sprite": "/pets/bunny/BunnyRun-Sheet.png",
-				"fps": 8
+				"fps": 1
 			}
 		],
 		"sleep": {
 			"sprite": "/pets/bunny/BunnySleep-Sheet.png",
-			"fps": 2
+			"fps": 1
 		}
 	},
 	"chicken": {
 		"happy": [
 			{
 				"sprite": "/pets/chicken/WhiteChickenIdle-Sheet.png",
-				"fps": 3
+				"fps": 1
 			},
 			{
 				"sprite": "/pets/chicken/WhiteChickenWalking-Sheet.png",
-				"fps": 4
+				"fps": 1
 			}
 		],
 		"sad": {
 			"sprite": "/pets/chicken/ChikenHurtWhite.png",
-			"fps": 6
+			"fps": 1
 		},
 		"dirty": {
 			"sprite": "/pets/chicken/ChikenHurtWhite.png",
-			"fps": 6
+			"fps": 1
 		},
 		"sleepy": [
 			{
 				"sprite": "/pets/chicken/SittingWhite.png",
-				"fps": 3
+				"fps": 1
 			},
 			{
 				"sprite": "/pets/chicken/WhiteChickenSleeping.png",
@@ -246,29 +246,29 @@
 		"eat": [
 			{
 				"sprite": "/pets/chicken/WhiteChickenEating-Sheet.png",
-				"fps": 8
+				"fps": 1
 			},
 			{
 				"sprite": "/pets/chicken/SittingWhite.png",
-				"fps": 4
+				"fps": 1
 			}
 		],
 		"drink": {
 			"sprite": "/pets/chicken/WhiteChickenWalking-Sheet.png",
-			"fps": 6
+			"fps": 1
 		},
 		"toilet": {
 			"sprite": "/pets/chicken/SittingWhite.png",
-			"fps": 3
+			"fps": 1
 		},
 		"bath": [
 			{
 				"sprite": "/pets/chicken/WhiteChickenWalking-Sheet.png",
-				"fps": 6
+				"fps": 1
 			},
 			{
 				"sprite": "/pets/chicken/ChikenHurtWhite.png",
-				"fps": 8
+				"fps": 1
 			}
 		],
 		"sleep": {
@@ -280,287 +280,287 @@
 		"happy": [
 			{
 				"sprite": "/pets/dog/IdleDog.png",
-				"fps": 6
+				"fps": 1
 			},
 			{
 				"sprite": "/pets/dog/Sitting.png",
-				"fps": 5
+				"fps": 1
 			}
 		],
 		"sad": [
 			{
 				"sprite": "/pets/dog/HurtDog.png",
-				"fps": 5
+				"fps": 1
 			},
 			{
 				"sprite": "/pets/dog/DieDog.png",
-				"fps": 3
+				"fps": 1
 			}
 		],
 		"dirty": {
 			"sprite": "/pets/dog/HurtDog.png",
-			"fps": 5
+			"fps": 3
 		},
 		"sleepy": [
 			{
 				"sprite": "/pets/dog/LieDown.png",
-				"fps": 4
+				"fps": 1
 			},
 			{
 				"sprite": "/pets/dog/SleepDog.png",
-				"fps": 2
+				"fps": 1
 			}
 		],
 		"eat": [
 			{
 				"sprite": "/pets/dog/SniffDog.png",
-				"fps": 10
+				"fps": 7
 			},
 			{
 				"sprite": "/pets/dog/BarkingDog.png",
-				"fps": 8
+				"fps": 1
 			},
 			{
 				"sprite": "/pets/dog/AttackDog.png",
-				"fps": 12
+				"fps": 1
 			}
 		],
 		"drink": [
 			{
 				"sprite": "/pets/dog/RunDog.png",
-				"fps": 8
+				"fps": 1
 			},
 			{
 				"sprite": "/pets/dog/SniffDog.png",
-				"fps": 8
+				"fps": 1
 			}
 		],
 		"toilet": {
 			"sprite": "/pets/dog/Sitting.png",
-			"fps": 4
+			"fps": 3
 		},
 		"bath": [
 			{
 				"sprite": "/pets/dog/BarkingDog.png",
-				"fps": 8
+				"fps": 1
 			},
 			{
 				"sprite": "/pets/dog/RunDog.png",
-				"fps": 10
+				"fps": 7
 			}
 		],
 		"sleep": {
 			"sprite": "/pets/dog/SleepDog.png",
-			"fps": 2
+			"fps": 1
 		}
 	},
 	"panda": {
 		"happy": [
 			{
 				"sprite": "/pets/panda/PandaThinking.png",
-				"fps": 6
+				"fps": 1
 			},
 			{
 				"sprite": "/pets/panda/PandaIdle.png",
-				"fps": 4
+				"fps": 1
 			},
 			{
 				"sprite": "/pets/panda/Happy.png",
-				"fps": 3
+				"fps": 1
 			},
 			{
 				"sprite": "/pets/panda/PandaIdleBlinking.png",
-				"fps": 4
+				"fps": 1
 			}
 		],
 		"sad": [
 			{
 				"sprite": "/pets/panda/PandaCry.png",
-				"fps": 5
+				"fps": 1
 			},
 			{
 				"sprite": "/pets/panda/PandaTalkingSitting.png",
-				"fps": 4
+				"fps": 1
 			}
 		],
 		"dirty": {
 			"sprite": "/pets/panda/PandaCry.png",
-			"fps": 5
+			"fps": 1
 		},
 		"sleepy": [
 			{
 				"sprite": "/pets/panda/PandaResting.png",
-				"fps": 4
+				"fps": 1
 			},
 			{
 				"sprite": "/pets/panda/PandaSleep.png",
-				"fps": 2
+				"fps": 1
 			}
 		],
 		"eat": [
 			{
 				"sprite": "/pets/panda/PandaEating.png",
-				"fps": 10
+				"fps": 7
 			},
 			{
 				"sprite": "/pets/panda/Bambu.png",
-				"fps": 8
+				"fps": 1
 			},
 			{
 				"sprite": "/pets/panda/PandaSoFull.png",
-				"fps": 6
+				"fps": 1
 			}
 		],
 		"drink": {
 			"sprite": "/pets/panda/PandaEating.png",
-			"fps": 12
+			"fps": 1
 		},
 		"toilet": [
 			{
 				"sprite": "/pets/panda/PandaSitting.png",
-				"fps": 3
+				"fps": 1
 			},
 			{
 				"sprite": "/pets/panda/PandaYoga1.png",
-				"fps": 3
+				"fps": 1
 			},
 			{
 				"sprite": "/pets/panda/PandaYoga2.png",
-				"fps": 3
+				"fps": 1
 			},
 			{
 				"sprite": "/pets/panda/PandaYoga3.png",
-				"fps": 3
+				"fps": 1
 			}
 		],
 		"bath": [
 			{
 				"sprite": "/pets/panda/PandaWave.png",
-				"fps": 8
+				"fps": 1
 			},
 			{
 				"sprite": "/pets/panda/Happy.png",
-				"fps": 6
+				"fps": 1
 			}
 		],
 		"sleep": {
 			"sprite": "/pets/panda/PandaSleep.png",
-			"fps": 2
+			"fps": 1
 		}
 	},
 	"turtle": {
 		"happy": [
 			{
 				"sprite": "/pets/turtle/Idle.png",
-				"fps": 6
+				"fps": 1
 			},
 			{
 				"sprite": "/pets/turtle/Walking.png",
-				"fps": 5
+				"fps": 1
 			}
 		],
 		"sad": [
 			{
 				"sprite": "/pets/turtle/Hurt.png",
-				"fps": 6
+				"fps": 1
 			},
 			{
 				"sprite": "/pets/turtle/Die.png",
-				"fps": 4
+				"fps": 1
 			}
 		],
 		"dirty": [
 			{
 				"sprite": "/pets/turtle/Hurt.png",
-				"fps": 6
+				"fps": 1
 			},
 			{
 				"sprite": "/pets/turtle/Hide.png",
-				"fps": 4
+				"fps": 1
 			}
 		],
 		"sleepy": [
 			{
 				"sprite": "/pets/turtle/Sit.png",
-				"fps": 4
+				"fps": 1
 			},
 			{
 				"sprite": "/pets/turtle/LieDown.png",
-				"fps": 3
+				"fps": 1
 			}
 		],
 		"eat": [
 			{
 				"sprite": "/pets/turtle/Walking.png",
-				"fps": 8
+				"fps": 1
 			},
 			{
 				"sprite": "/pets/turtle/Attack.png",
-				"fps": 10
+				"fps": 7
 			}
 		],
 		"drink": {
 			"sprite": "/pets/turtle/Walking.png",
-			"fps": 10
+			"fps": 7
 		},
 		"toilet": [
 			{
 				"sprite": "/pets/turtle/Sit.png",
-				"fps": 4
+				"fps": 1
 			},
 			{
 				"sprite": "/pets/turtle/Hide.png",
-				"fps": 3
+				"fps": 1
 			}
 		],
 		"bath": [
 			{
 				"sprite": "/pets/turtle/Jump.png",
-				"fps": 8
+				"fps": 1
 			},
 			{
 				"sprite": "/pets/turtle/Walking.png",
-				"fps": 6
+				"fps": 1
 			}
 		],
 		"sleep": {
 			"sprite": "/pets/turtle/Sleep.png",
-			"fps": 3
+			"fps": 1
 		}
 	},
 	"parrot": {
 		"happy": [
 			{
 				"sprite": "/pets/parrot/Idle.png",
-				"fps": 6
+				"fps": 1
 			},
 			{
 				"sprite": "/pets/parrot/Fly.png",
-				"fps": 8
+				"fps": 1
 			},
 			{
 				"sprite": "/pets/parrot/Walk.png",
-				"fps": 5
+				"fps": 1
 			}
 		],
 		"sad": [
 			{
 				"sprite": "/pets/parrot/Hurt.png",
-				"fps": 5
+				"fps": 1
 			},
 			{
 				"sprite": "/pets/parrot/Die.png",
-				"fps": 3
+				"fps": 1
 			}
 		],
 		"dirty": {
 			"sprite": "/pets/parrot/Hurt.png",
-			"fps": 5
+			"fps": 1
 		},
 		"sleepy": [
 			{
 				"sprite": "/pets/parrot/Sitting.png",
-				"fps": 3
+				"fps": 1
 			},
 			{
 				"sprite": "/pets/parrot/Sleeping.png",
@@ -570,34 +570,34 @@
 		"eat": [
 			{
 				"sprite": "/pets/parrot/Attack.png",
-				"fps": 10
+				"fps": 7
 			},
 			{
 				"sprite": "/pets/parrot/FlyAttack.png",
-				"fps": 8
+				"fps": 1
 			}
 		],
 		"drink": {
 			"sprite": "/pets/parrot/Walk.png",
-			"fps": 6
+			"fps": 1
 		},
 		"toilet": {
 			"sprite": "/pets/parrot/Sitting.png",
-			"fps": 3
+			"fps": 1
 		},
 		"bath": [
 			{
 				"sprite": "/pets/parrot/Fly.png",
-				"fps": 8
+				"fps": 1
 			},
 			{
 				"sprite": "/pets/parrot/Dash.png",
-				"fps": 10
+				"fps": 7
 			}
 		],
 		"sleep": {
 			"sprite": "/pets/parrot/Sleeping.png",
-			"fps": 2
+			"fps": 1
 		}
 	}
 }

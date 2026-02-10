@@ -3,8 +3,8 @@ import PetSprite from '@/features/pets/components/PetSprite';
 import { PetContext } from '@/features/pets/context/PetContext';
 import { callError } from '@/lib/functions';
 import { useAppSelector } from '@/store';
+import { Plus, Users } from '@nsmr/pixelart-react';
 import { EGG_ITEM_NAME, HATCH_DURATION } from '@widgetable/types';
-import { Egg, Plus, Users } from 'lucide-react';
 import { useContext, useEffect, useState } from 'react';
 import { usePets } from '../hooks/usePets';
 import { getParentNames } from '../utils/functions';
@@ -27,60 +27,65 @@ const PetsPage = () => {
 
 	return (
 		<div className="flex flex-col gap-6 h-full">
-			<div className="flex items-center justify-between">
-				<h1 className="font-bold text-3xl text-foreground flex-1 text-center">Pets</h1>
-				<div className="flex items-center gap-2 bg-white rounded-full px-4 py-2 shadow-md border border-secondary/20">
-					<Egg className="stroke-primary" size={20} />
-					<span className="font-bold text-foreground">{eggCount}</span>
+			<div className="grid grid-cols-[1fr_auto_1fr] items-center flex-shrink-0">
+				<div></div>
+				<h1 className="font-bold text-3xl text-foreground text-center">Pets</h1>
+				<div className="flex items-center gap-2 bg-white rounded-full px-4 py-2 shadow-md border border-secondary/20 justify-self-end">
+					<img src="/assets/egg_white.png" alt="Egg" className="w-5 h-5 object-contain" />
+					<span className="font-bold text-foreground text-xl">{eggCount}</span>
 				</div>
 			</div>
 
-			{loading ? (
-				<div className="grid gap-6 [grid-template-columns:repeat(auto-fit,minmax(100px,1fr))]">
-					<PetCardSkeleton />
-					<PetCardSkeleton />
-					<PetCardSkeleton />
-				</div>
-			) : pets.length > 0 ? (
-				<div className="grid gap-6 [grid-template-columns:repeat(auto-fit,minmax(100px,1fr))]">
-					{pets.map((pet) => {
-						const parentNames = getParentNames(pet, user?.name);
+			<div className="pb-4">
+				{loading ? (
+					<div className="grid gap-6 [grid-template-columns:repeat(auto-fit,minmax(100px,1fr))]">
+						<PetCardSkeleton />
+						<PetCardSkeleton />
+						<PetCardSkeleton />
+					</div>
+				) : pets.length > 0 ? (
+					<div className="grid gap-6 [grid-template-columns:repeat(auto-fit,minmax(100px,1fr))]">
+						{pets.map((pet) => {
+							const parentNames = getParentNames(pet, user?.name);
 
-						return (
-							<div
-								key={pet._id}
-								className="bg-white rounded-2xl p-4 flex flex-col items-center justify-between gap-2 cursor-pointer relative shadow-md border border-secondary/20 hover:scale-105 transition-transform duration-300"
-								onClick={() => setPet(pet)}
-							>
-								<PetSprite pet={pet} height={100} />
-								<p className="text-2xl font-bold text-foreground text-center">{pet.isEgg ? 'Egg' : pet.name}</p>
-								{pet.isEgg ? (
-									<EggTimer hatchTime={pet.hatchTime} />
-								) : (
-									<>
-										<div className="text-sm text-secondary font-semibold">Level {pet.level}</div>
-										{parentNames.length > 0 && (
-											<div className="flex items-center justify-center gap-1 text-secondary text-xs">
-												<Users size={12} />
-												{parentNames.join(', ')}
-											</div>
-										)}
-									</>
-								)}
-							</div>
-						);
-					})}
+							return (
+								<div
+									key={pet._id}
+									className="bg-white rounded-2xl p-4 flex flex-col items-center justify-between gap-1 cursor-pointer relative shadow-md border border-secondary/20 hover:scale-105 transition-transform duration-300"
+									onClick={() => setPet(pet)}
+								>
+									<div className="h-[100px] flex items-end justify-center overflow-hidden">
+										<PetSprite pet={pet} height={100} />
+									</div>
+									<p className="text-2xl font-bold text-foreground text-center mt-2">{pet.isEgg ? 'Egg' : pet.name}</p>
+									{pet.isEgg ? (
+										<EggTimer hatchTime={pet.hatchTime} />
+									) : (
+										<>
+											<div className="text-sm text-secondary font-semibold">Level {pet.level}</div>
+											{parentNames.length > 0 && (
+												<div className="flex items-center justify-center gap-1 text-secondary text-xs">
+													<Users width={12} height={12} />
+													{parentNames.join(', ')}
+												</div>
+											)}
+										</>
+									)}
+								</div>
+							);
+						})}
 
-					<AddPetButton onClick={handleAddPet} />
-				</div>
-			) : (
-				<div className="flex-1 flex flex-col items-center justify-center">
-					<p className="text-secondary text-center text-lg mb-4">
-						{canAddPet ? 'Click the button below to add a pet!' : 'You need eggs to add a pet!'}
-					</p>
-					<AddPetButton onClick={handleAddPet} variant="centered" />
-				</div>
-			)}
+						<AddPetButton onClick={handleAddPet} />
+					</div>
+				) : (
+					<div className="flex flex-col items-center justify-center py-12">
+						<p className="text-secondary text-center text-lg mb-4">
+							{canAddPet ? 'Click the button below to add a pet!' : 'You need eggs to add a pet!'}
+						</p>
+						<AddPetButton onClick={handleAddPet} variant="centered" />
+					</div>
+				)}
+			</div>
 		</div>
 	);
 };
@@ -189,7 +194,7 @@ const AddPetButton = ({
 			onClick={onClick}
 			disabled={disabled}
 		>
-			<Plus className="stroke-primary h-8 w-8" />
+			<Plus width={32} height={32} className="text-primary" />
 			<p className="text-lg font-semibold text-primary">Add Pet</p>
 		</button>
 	);
