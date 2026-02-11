@@ -1,5 +1,6 @@
 import { BadRequestException, Inject, Injectable, NotFoundException, StreamableFile } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
+import { EGG_ITEM_NAME } from '@widgetable/types';
 import * as Minio from 'minio';
 import { Model } from 'mongoose';
 import * as path from 'path';
@@ -29,7 +30,12 @@ export class UsersService {
 			password: hashedPassword,
 			name: defaultName,
 		});
-		return newUser.save();
+		const savedUser = await newUser.save();
+
+		// Give new users 1 starter egg
+		await this.addInventory(savedUser._id.toString(), EGG_ITEM_NAME, 1);
+
+		return savedUser;
 	}
 
 	async getImage(userId: string) {
