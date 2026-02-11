@@ -29,7 +29,7 @@ const Account = () => {
 	const { logout } = useAuth();
 	const dispatch = useAppDispatch();
 	const user = useAppSelector((state) => state.user.userData);
-	const { claimStatus, claiming, lastRewards, claimDaily, claimQuick, claimDebug, closeRewardsModal } = useClaims();
+	const { claimStatus, claimingType, lastRewards, claimDaily, claimQuick, claimDebug, closeRewardsModal } = useClaims();
 
 	const fileInputRef = useRef<HTMLInputElement>(null);
 	const updateTimerRef = useRef<NodeJS.Timeout | null>(null);
@@ -172,7 +172,7 @@ const Account = () => {
 							<ClaimButton
 								type="daily"
 								available={claimStatus.dailyAvailable}
-								claiming={claiming}
+								claimingType={claimingType}
 								nextClaimTime={claimStatus.nextDailyTime}
 								petCount={claimStatus.petCount}
 								onClaim={claimDaily}
@@ -180,7 +180,7 @@ const Account = () => {
 							<ClaimButton
 								type="quick"
 								available={claimStatus.quickAvailable}
-								claiming={claiming}
+								claimingType={claimingType}
 								nextClaimTime={claimStatus.nextQuickTime}
 								petCount={claimStatus.petCount}
 								onClaim={claimQuick}
@@ -189,7 +189,7 @@ const Account = () => {
 								<ClaimButton
 									type="debug"
 									available={true}
-									claiming={claiming}
+									claimingType={claimingType}
 									petCount={claimStatus.petCount}
 									onClaim={claimDebug}
 								/>

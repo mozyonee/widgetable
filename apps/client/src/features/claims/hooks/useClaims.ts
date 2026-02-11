@@ -40,7 +40,7 @@ export interface ClaimResult {
 export const useClaims = () => {
 	const dispatch = useAppDispatch();
 	const [claimStatus, setClaimStatus] = useState<ClaimStatus | null>(null);
-	const [claiming, setClaiming] = useState(false);
+	const [claimingType, setClaimingType] = useState<'daily' | 'quick' | 'debug' | null>(null);
 	const [lastRewards, setLastRewards] = useState<ClaimResult | null>(null);
 	const [loading, setLoading] = useState(true);
 
@@ -55,10 +55,10 @@ export const useClaims = () => {
 		}
 	}, []);
 
-	const executeClaim = async (endpoint: string, toastMessage: string) => {
-		if (claiming) return;
+	const executeClaim = async (endpoint: string, toastMessage: string, type: 'daily' | 'quick' | 'debug') => {
+		if (claimingType) return;
 
-		setClaiming(true);
+		setClaimingType(type);
 		callSuccess('Collecting care package...');
 
 		try {
@@ -83,21 +83,21 @@ export const useClaims = () => {
 				callError('Failed to claim rewards. Please try again.');
 			}
 		} finally {
-			setClaiming(false);
+			setClaimingType(null);
 		}
 	};
 
 	const claimDaily = useCallback(async () => {
-		await executeClaim('/claims/daily', 'Collected');
-	}, []);
+		await executeClaim('/claims/daily', 'Collected', 'daily');
+	}, [claimingType, loadClaimStatus, dispatch]);
 
 	const claimQuick = useCallback(async () => {
-		await executeClaim('/claims/quick', 'Collected');
-	}, []);
+		await executeClaim('/claims/quick', 'Collected', 'quick');
+	}, [claimingType, loadClaimStatus, dispatch]);
 
 	const claimDebug = useCallback(async () => {
-		await executeClaim('/claims/debug', 'Debug claim:');
-	}, []);
+		await executeClaim('/claims/debug', 'Debug claim:', 'debug');
+	}, [claimingType, loadClaimStatus, dispatch]);
 
 	useEffect(() => {
 		loadClaimStatus();
@@ -107,7 +107,7 @@ export const useClaims = () => {
 
 	return {
 		claimStatus,
-		claiming,
+		claimingType,
 		lastRewards,
 		loading,
 		claimDaily,
