@@ -62,35 +62,35 @@ export interface PetNeedConfig {
 export const PET_NEEDS_CONFIG = {
 	[PetNeed.HYGIENE]: {
 		label: 'Hygiene',
-		decayRate: 80, // depletes in ~1.25 minutes
+		decayRate: 8, // depletes in ~1.25 minutes
 		urgencyMessage: 'I need a bath!',
 		category: PetActionCategory.WASH,
 		animation: PetAnimation.BATH,
 	},
 	[PetNeed.TOILET]: {
 		label: 'Toilet',
-		decayRate: 500, // depletes in ~12 seconds
+		decayRate: 50, // depletes in ~12 seconds
 		urgencyMessage: 'I need to go to the toilet!',
 		category: PetActionCategory.CARE,
 		animation: PetAnimation.TOILET,
 	},
 	[PetNeed.HUNGER]: {
 		label: 'Hunger',
-		decayRate: 300, // depletes in ~20 seconds
+		decayRate: 30, // depletes in ~20 seconds
 		urgencyMessage: "I'm hungry!",
 		category: PetActionCategory.FEED,
 		animation: PetAnimation.EAT,
 	},
 	[PetNeed.THIRST]: {
 		label: 'Thirst',
-		decayRate: 600, // depletes in ~10 seconds
+		decayRate: 60, // depletes in ~10 seconds
 		urgencyMessage: "I'm thirsty!",
 		category: PetActionCategory.DRINK,
 		animation: PetAnimation.DRINK,
 	},
 	[PetNeed.ENERGY]: {
 		label: 'Energy',
-		decayRate: 150, // depletes in ~40 seconds
+		decayRate: 15, // depletes in ~40 seconds
 		urgencyMessage: "I'm tired!",
 		category: PetActionCategory.CARE,
 		animation: PetAnimation.SLEEP,
@@ -215,6 +215,19 @@ export const PET_ACTIONS_BY_CATEGORY = {
 // PET DATA TYPES
 // ============================================================================
 
+export enum ItemTier {
+	BASIC = 1,
+	COMMON = 2,
+	PREMIUM = 3,
+	LEGENDARY = 4,
+}
+
+export interface ItemReward {
+	name: string;
+	quantity: number;
+	tier: ItemTier;
+}
+
 export interface PetData {
 	type: PetType;
 	name: string;
@@ -225,6 +238,14 @@ export interface PetData {
 	experience: number;
 	level: number;
 	background?: number | null;
+	isOnExpedition: boolean;
+	expeditionReturnTime?: Date;
+	expeditionRewards?: {
+		food: ItemReward[];
+		drinks: ItemReward[];
+		hygiene: ItemReward[];
+		eggs: number;
+	};
 }
 
 export type PetUpdate = Partial<Omit<PetData, 'needs'>> & {
@@ -276,3 +297,10 @@ export const getExpForCurrentLevel = (level: number): number => {
 export const EGG_ITEM_NAME = 'Egg';
 
 export type UserInventory = Record<string, number>;
+
+// ============================================================================
+// EXPEDITION CONFIGURATION
+// ============================================================================
+
+export const EXPEDITION_BASE_DURATION = 60 * 60 * 1000; // 1 hour
+export const EXPEDITION_LEVEL_MULTIPLIER = 0.1; // +10% per level

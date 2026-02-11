@@ -1,16 +1,44 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { calculateLevel, HATCH_DURATION, PET_NEED_KEYS, PET_NEEDS_CONFIG, PET_UPDATE_INTERVAL, PetType } from '@widgetable/types';
+import {
+	calculateLevel,
+	EGG_ITEM_NAME,
+	EXPEDITION_BASE_DURATION,
+	EXPEDITION_LEVEL_MULTIPLIER,
+	HATCH_DURATION,
+	ItemReward,
+	ItemTier,
+	PET_ACTIONS_BY_CATEGORY,
+	PET_NEED_KEYS,
+	PET_NEEDS_CONFIG,
+	PET_UPDATE_INTERVAL,
+	PetAction,
+	PetActionCategory,
+	PetType,
+} from '@widgetable/types';
 import { clamp, random } from 'lodash';
 import { Model, Types } from 'mongoose';
+import { ClaimResult } from 'src/claims/interfaces/claim.interface';
 import { UserDocument } from 'src/users/entities/user.entity';
+import { UsersService } from 'src/users/users.service';
 import { Pet, PetDocument } from './entities/pet.entity';
 
 @Injectable()
 export class PetsService {
 	private readonly PARENT_FIELDS = '_id name email picture';
 
-	constructor(@InjectModel(Pet.name) private petModel: Model<PetDocument>) {}
+	// Tier weights for reward generation (must sum to 100)
+	private readonly TIER_WEIGHTS = {
+		[ItemTier.BASIC]: 60,
+		[ItemTier.COMMON]: 25,
+		[ItemTier.PREMIUM]: 10,
+		[ItemTier.LEGENDARY]: 5,
+	};
+
+	constructor(
+		@InjectModel(Pet.name) private petModel: Model<PetDocument>,
+		private readonly usersService: UsersService,
+	) {}
 
 	async getPet(petId: PetDocument['_id']) {
 		const pet = await this.petModel.findById(petId).populate('parents', this.PARENT_FIELDS);
@@ -128,5 +156,190 @@ export class PetsService {
 			.populate('parents', this.PARENT_FIELDS);
 
 		return updatedPet || pet;
+	}
+
+	// ============================================================================
+	// EXPEDITION METHODS
+	// ============================================================================
+
+	async startExpedition(petId: Types.ObjectId, userId: Types.ObjectId): Promise<PetDocument> {
+		const pet = await this.getPet(petId);
+
+		// Validations
+		if (pet.isEgg) throw new BadRequestException('Eggs cannot go on expeditions');
+		if (pet.isOnExpedition) throw new BadRequestException('Pet is already on expedition');
+
+		// Check for urgent needs (any need below 30)
+		if (pet.needs) {
+			const urgentNeeds: string[] = [];
+			if (pet.needs.hunger < 30) urgentNeeds.push('hunger');
+			if (pet.needs.thirst < 30) urgentNeeds.push('thirst');
+			if (pet.needs.hygiene < 30) urgentNeeds.push('hygiene');
+			if (pet.needs.energy < 30) urgentNeeds.push('energy');
+			if (pet.needs.toilet < 30) urgentNeeds.push('toilet');
+
+			if (urgentNeeds.length > 0) {
+				throw new BadRequestException(
+					`${pet.name} has urgent needs! Take care of ${urgentNeeds.join(', ')} first.`,
+				);
+			}
+		}
+
+		// Check expedition slots
+		const allPets = await this.getPetsForUser(userId);
+		const activePets = allPets.filter((p) => !p.isEgg);
+		const maxSlots = Math.ceil(activePets.length * 0.3);
+		const usedSlots = allPets.filter((p) => p.isOnExpedition).length;
+
+		if (usedSlots >= maxSlots) {
+			throw new BadRequestException(`Maximum ${maxSlots} pets can be on expedition at once`);
+		}
+
+		// Calculate duration (1 hour + 10% per level)
+		const baseDuration = EXPEDITION_BASE_DURATION;
+		const levelMultiplier = 1 + pet.level * EXPEDITION_LEVEL_MULTIPLIER;
+		const duration = baseDuration * levelMultiplier;
+		const returnTime = new Date(Date.now() + duration);
+
+		// Generate rewards
+		const rewards = this.calculateExpeditionRewards(pet);
+
+		// Update pet
+		const updatedPet = await this.petModel
+			.findByIdAndUpdate(
+				petId,
+				{
+					isOnExpedition: true,
+					expeditionReturnTime: returnTime,
+					expeditionRewards: rewards.rewards,
+				},
+				{ new: true },
+			)
+			.populate('parents', this.PARENT_FIELDS);
+
+		if (!updatedPet) throw new NotFoundException();
+		return updatedPet;
+	}
+
+	async claimExpedition(petId: Types.ObjectId, userId: Types.ObjectId): Promise<ClaimResult> {
+		const pet = await this.getPet(petId);
+
+		// Validations
+		if (!pet.isOnExpedition) throw new BadRequestException('Pet is not on expedition');
+		if (!pet.expeditionReturnTime) throw new BadRequestException('No return time set');
+		if (new Date() < pet.expeditionReturnTime) {
+			throw new BadRequestException('Expedition not yet complete');
+		}
+		if (!pet.expeditionRewards) throw new BadRequestException('No rewards to claim');
+
+		// Transfer rewards to user inventory
+		const rewards = pet.expeditionRewards;
+		for (const item of rewards.food) {
+			await this.usersService.addInventory(userId.toString(), item.name, item.quantity);
+		}
+		for (const item of rewards.drinks) {
+			await this.usersService.addInventory(userId.toString(), item.name, item.quantity);
+		}
+		for (const item of rewards.hygiene) {
+			await this.usersService.addInventory(userId.toString(), item.name, item.quantity);
+		}
+		if (rewards.eggs > 0) {
+			await this.usersService.addInventory(userId.toString(), EGG_ITEM_NAME, rewards.eggs);
+		}
+
+		// Clear expedition state
+		await this.petModel.findByIdAndUpdate(petId, {
+			isOnExpedition: false,
+			expeditionReturnTime: undefined,
+			expeditionRewards: undefined,
+		});
+
+		// Return ClaimResult format (compatible with RewardsModal)
+		const totalItems = [...rewards.food, ...rewards.drinks, ...rewards.hygiene].reduce((sum, item) => sum + item.quantity, rewards.eggs);
+
+		return {
+			success: true,
+			rewards,
+			totalItems,
+			nextClaimTime: new Date(), // Can restart immediately
+		};
+	}
+
+	private calculateExpeditionRewards(pet: PetDocument): ClaimResult {
+		// Base rewards for single pet (slightly less than global system)
+		const BASE_FOOD_ITEMS = 6; // 75% of global per-pet (8)
+		const BASE_DRINK_ITEMS = 4; // 67% of global per-pet (6)
+		const BASE_HYGIENE_ITEMS = 3; // 75% of global per-pet (4)
+		const BASE_EGG_CHANCE = 0.12; // 80% of global base (15%)
+
+		// Level scaling (+10% per level, capped at +100%)
+		const levelMultiplier = 1 + Math.min(pet.level * 0.1, 1.0);
+
+		const foodCount = Math.floor(BASE_FOOD_ITEMS * levelMultiplier);
+		const drinkCount = Math.floor(BASE_DRINK_ITEMS * levelMultiplier);
+		const hygieneCount = Math.floor(BASE_HYGIENE_ITEMS * levelMultiplier);
+
+		// Reuse weighted selection from ClaimsService
+		const foodItems = this.selectRandomItems(PetActionCategory.FEED, foodCount);
+		const drinkItems = this.selectRandomItems(PetActionCategory.DRINK, drinkCount);
+		const hygieneItems = this.selectRandomItems(PetActionCategory.WASH, hygieneCount);
+
+		// Egg chance (capped at 30%)
+		const eggChance = Math.min(BASE_EGG_CHANCE * levelMultiplier, 0.3);
+		const earnedEggs = Math.random() < eggChance ? 1 : 0;
+
+		return {
+			success: true,
+			rewards: { food: foodItems, drinks: drinkItems, hygiene: hygieneItems, eggs: earnedEggs },
+			totalItems: foodCount + drinkCount + hygieneCount + earnedEggs,
+			nextClaimTime: new Date(),
+		};
+	}
+
+	private selectRandomItems(category: PetActionCategory, count: number): ItemReward[] {
+		const actions = PET_ACTIONS_BY_CATEGORY[category].filter((a) => a.inventoryCost !== undefined);
+		const itemCounts = new Map<string, number>();
+
+		// Group items by tier
+		const itemsByTier = new Map<ItemTier, PetAction[]>();
+		actions.forEach((action) => {
+			const tier = (action.inventoryCost || 1) as ItemTier;
+			if (!itemsByTier.has(tier)) itemsByTier.set(tier, []);
+			itemsByTier.get(tier)!.push(action);
+		});
+
+		// Select items with weighted randomness
+		for (let i = 0; i < count; i++) {
+			const tier = this.selectWeightedTier();
+			const tierItems = itemsByTier.get(tier) || [];
+			if (tierItems.length === 0) continue;
+
+			// Pick random item from tier, avoiding too many duplicates
+			const availableItems = tierItems.filter((item) => (itemCounts.get(item.name) || 0) < 2);
+			const selectedItem =
+				availableItems.length > 0
+					? availableItems[Math.floor(Math.random() * availableItems.length)]
+					: tierItems[Math.floor(Math.random() * tierItems.length)];
+
+			itemCounts.set(selectedItem.name, (itemCounts.get(selectedItem.name) || 0) + 1);
+		}
+
+		// Convert to ItemReward format
+		const result: ItemReward[] = [];
+		itemCounts.forEach((quantity, name) => {
+			const action = actions.find((a) => a.name === name)!;
+			result.push({ name, quantity, tier: (action.inventoryCost || 1) as ItemTier });
+		});
+
+		return result;
+	}
+
+	private selectWeightedTier(): ItemTier {
+		const rand = Math.random() * 100;
+		if (rand < this.TIER_WEIGHTS[ItemTier.BASIC]) return ItemTier.BASIC;
+		if (rand < this.TIER_WEIGHTS[ItemTier.BASIC] + this.TIER_WEIGHTS[ItemTier.COMMON]) return ItemTier.COMMON;
+		if (rand < this.TIER_WEIGHTS[ItemTier.BASIC] + this.TIER_WEIGHTS[ItemTier.COMMON] + this.TIER_WEIGHTS[ItemTier.PREMIUM])
+			return ItemTier.PREMIUM;
+		return ItemTier.LEGENDARY;
 	}
 }

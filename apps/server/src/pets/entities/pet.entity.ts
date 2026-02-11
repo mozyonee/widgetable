@@ -43,6 +43,17 @@ export class Pet {
 	level: number;
 	@Prop({ required: false })
 	background?: number;
+	@Prop({ required: true, default: false })
+	isOnExpedition: boolean;
+	@Prop({ required: false })
+	expeditionReturnTime?: Date;
+	@Prop({ type: Object, required: false })
+	expeditionRewards?: {
+		food: Array<{ name: string; quantity: number; tier: number }>;
+		drinks: Array<{ name: string; quantity: number; tier: number }>;
+		hygiene: Array<{ name: string; quantity: number; tier: number }>;
+		eggs: number;
+	};
 }
 
 export const PetSchema = SchemaFactory.createForClass(Pet);

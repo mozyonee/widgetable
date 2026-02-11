@@ -6,6 +6,7 @@ import { diskStorage } from 'multer';
 import { tmpdir } from 'os';
 import { extname } from 'path';
 import { AuthModule } from 'src/auth/auth.module';
+import { ClaimsModule } from 'src/claims/claims.module';
 import { CoparentingModule } from 'src/coparenting/coparenting.module';
 import { FriendsModule } from 'src/friends/friends.module';
 import { PetsModule } from 'src/pets/pets.module';
@@ -43,6 +44,7 @@ import { v4 as uuidv4 } from 'uuid';
 		CoparentingModule,
 		PetsModule,
 		AuthModule,
+		ClaimsModule,
 	],
 	controllers: [],
 	providers: [],

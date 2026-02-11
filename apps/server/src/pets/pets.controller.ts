@@ -69,4 +69,18 @@ export class PetsController {
 		const userId = req.user._id;
 		return this.petsService.remove(petId, userId);
 	}
+
+	@Post(':id/expedition/start')
+	@UseGuards(JwtAuthGuard)
+	async startExpedition(@Param('id') id: string, @Request() req: UserRequest) {
+		const petId = new Types.ObjectId(id);
+		return this.petsService.startExpedition(petId, req.user._id);
+	}
+
+	@Post(':id/expedition/claim')
+	@UseGuards(JwtAuthGuard)
+	async claimExpedition(@Param('id') id: string, @Request() req: UserRequest) {
+		const petId = new Types.ObjectId(id);
+		return this.petsService.claimExpedition(petId, req.user._id);
+	}
 }

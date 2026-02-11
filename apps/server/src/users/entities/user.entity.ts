@@ -23,6 +23,12 @@ export class User {
 
 	@Prop({ type: Object, default: {} })
 	inventory?: UserInventory;
+
+	@Prop({ type: Date, required: false })
+	lastDailyClaimTime?: Date;
+
+	@Prop({ type: Date, required: false })
+	lastQuickClaimTime?: Date;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

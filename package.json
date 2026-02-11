@@ -10,9 +10,9 @@
 	"main": "index.js",
 	"scripts": {
 		"build:types": "npm run build --prefix packages/types",
-		"build:client": "npm run build --prefix apps/client",
-		"build:server": "npm run build --prefix apps/server",
-		"build": "npm run build:types && npm run build:client && npm run build:server",
+		"build:client": "npm run build:types && npm run build --prefix apps/client",
+		"build:server": "npm run build:types && npm run build --prefix apps/server",
+		"build": "npm run build:types && npm run build --prefix apps/client && npm run build --prefix apps/server",
 		"dev:client": "npm run dev --workspace=apps/client",
 		"dev:server": "npm run dev --workspace=apps/server",
 		"test": "npm run test --workspaces --if-present",

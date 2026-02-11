@@ -11,6 +11,7 @@ interface PetSpriteProps {
 	width?: number | string;
 	animation?: PetAnimation;
 	onAnimationEnd?: () => void;
+	forceShow?: boolean; // Show sprite even if on expedition
 }
 
 type SpriteConfig = {
@@ -49,7 +50,10 @@ const selectSpriteConfig = (
 	return spriteData;
 };
 
-const getPetIdleSprite = (pet: Pet): SpriteConfig => {
+const getPetIdleSprite = (pet: Pet, forceShow?: boolean): SpriteConfig => {
+	// Hide sprite if pet is on expedition (unless forced to show)
+	if (pet.isOnExpedition && !forceShow) return { sprite: '' };
+
 	// Show egg sprite if pet is still an egg
 	if (pet.isEgg) return { sprite: spriteData.egg as string };
 
@@ -73,14 +77,14 @@ const getPetIdleSprite = (pet: Pet): SpriteConfig => {
 	return selectSpriteConfig(idleSprite, seed);
 };
 
-const PetSprite = ({ pet, height = 500, width = 200, animation, onAnimationEnd }: PetSpriteProps) => {
-	const idleSpriteConfig = useMemo(() => getPetIdleSprite(pet), [pet.isEgg, pet.type, pet.needs]);
+const PetSprite = ({ pet, height = 500, width = 200, animation, onAnimationEnd, forceShow }: PetSpriteProps) => {
+	const idleSpriteConfig = useMemo(() => getPetIdleSprite(pet, forceShow), [pet.isEgg, pet.isOnExpedition, pet.type, pet.needs, forceShow]);
 	const [currentSpriteConfig, setCurrentSpriteConfig] = useState<SpriteConfig>(idleSpriteConfig);
 	const [isAnimating, setIsAnimating] = useState(false);
 
 	useEffect(() => {
-		// Don't animate eggs
-		if (pet.isEgg || !animation) {
+		// Don't animate eggs or pets on expedition
+		if (pet.isEgg || pet.isOnExpedition || !animation) {
 			setCurrentSpriteConfig(idleSpriteConfig);
 			return;
 		}
@@ -107,13 +111,18 @@ const PetSprite = ({ pet, height = 500, width = 200, animation, onAnimationEnd }
 
 			return () => clearTimeout(timer);
 		}
-	}, [animation, idleSpriteConfig, pet.isEgg, pet.type, onAnimationEnd]);
+	}, [animation, idleSpriteConfig, pet.isEgg, pet.isOnExpedition, pet.type, onAnimationEnd]);
 
 	useEffect(() => {
 		if (!isAnimating) {
 			setCurrentSpriteConfig(idleSpriteConfig);
 		}
 	}, [idleSpriteConfig, isAnimating]);
+
+	// Don't render anything if sprite is empty (pet on expedition)
+	if (!currentSpriteConfig.sprite) {
+		return null;
+	}
 
 	// Get scale for this pet type
 	const petType = pet.isEgg ? 'egg' : pet.type;

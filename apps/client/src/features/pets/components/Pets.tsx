@@ -3,15 +3,91 @@ import PetSprite from '@/features/pets/components/PetSprite';
 import { PetContext } from '@/features/pets/context/PetContext';
 import { callError } from '@/lib/functions';
 import { useAppSelector } from '@/store';
-import { Plus, Users } from '@nsmr/pixelart-react';
-import { EGG_ITEM_NAME, HATCH_DURATION } from '@widgetable/types';
+import { Clock, Plus, Users } from '@nsmr/pixelart-react';
+import {
+	EGG_ITEM_NAME,
+	EXPEDITION_BASE_DURATION,
+	EXPEDITION_LEVEL_MULTIPLIER,
+	HATCH_DURATION
+} from '@widgetable/types';
 import { useContext, useEffect, useState } from 'react';
 import { usePets } from '../hooks/usePets';
 import { getParentNames } from '../utils/functions';
 
+// Hook to check if expedition is ready (updates every second)
+const useExpeditionReady = (returnTime?: Date) => {
+	const [isReady, setIsReady] = useState(false);
+
+	useEffect(() => {
+		if (!returnTime) {
+			setIsReady(false);
+			return;
+		}
+
+		const checkReady = () => {
+			setIsReady(new Date(returnTime).getTime() <= Date.now());
+		};
+
+		checkReady();
+		const interval = setInterval(checkReady, 1000);
+		return () => clearInterval(interval);
+	}, [returnTime]);
+
+	return isReady;
+};
+
+const PetCard = ({ pet, userName }: { pet: any; userName?: string }) => {
+	const { setPet } = useContext(PetContext);
+	const parentNames = getParentNames(pet, userName);
+	const isExpeditionReady = useExpeditionReady(pet.isOnExpedition ? pet.expeditionReturnTime : undefined);
+
+	return (
+		<div
+			key={pet._id}
+			className="bg-white rounded-2xl p-4 flex flex-col items-center justify-between gap-1 cursor-pointer relative shadow-md border border-secondary/20 hover:scale-105 transition-transform duration-300"
+			onClick={() => setPet(pet)}
+		>
+			<div className="h-[100px] flex items-end justify-center overflow-hidden">
+				{pet.isOnExpedition && !isExpeditionReady ? (
+					<Clock width={64} height={64} className="text-primary" />
+				) : (
+					<PetSprite pet={pet} height={100} forceShow={isExpeditionReady} />
+				)}
+			</div>
+			{pet.isOnExpedition && !isExpeditionReady && (
+				<div className="w-full mt-2">
+					<ExpeditionProgressTimer returnTime={pet.expeditionReturnTime} petLevel={pet.level} />
+				</div>
+			)}
+			{isExpeditionReady && (
+				<div className="w-full mt-2">
+					<div className="text-center text-sm font-semibold text-green-600">
+						Ready!
+					</div>
+				</div>
+			)}
+			<p className={`text-2xl font-bold text-foreground text-center ${isExpeditionReady ? "" : "mt-2"}`}>
+				{pet.isEgg ? 'Egg' : pet.name}
+			</p>
+			{pet.isEgg ? (
+				<EggTimer hatchTime={pet.hatchTime} />
+			) : (
+				<>
+					<div className="text-sm text-secondary font-semibold">Level {pet.level}</div>
+					{!pet.isOnExpedition && parentNames.length > 0 && (
+						<div className="flex items-center justify-center gap-1 text-secondary text-xs">
+							<Users width={12} height={12} />
+							{parentNames.join(', ')}
+						</div>
+					)}
+				</>
+			)}
+		</div>
+	);
+};
+
 const PetsPage = () => {
 	const user = useAppSelector((state) => state.user.userData);
-	const { setPet } = useContext(PetContext);
 	const { pets, loading, addPet } = usePets();
 
 	const eggCount = user?.inventory?.[EGG_ITEM_NAME] ?? 0;
@@ -45,36 +121,9 @@ const PetsPage = () => {
 					</div>
 				) : pets.length > 0 ? (
 					<div className="grid gap-6 [grid-template-columns:repeat(auto-fit,minmax(100px,1fr))]">
-						{pets.map((pet) => {
-							const parentNames = getParentNames(pet, user?.name);
-
-							return (
-								<div
-									key={pet._id}
-									className="bg-white rounded-2xl p-4 flex flex-col items-center justify-between gap-1 cursor-pointer relative shadow-md border border-secondary/20 hover:scale-105 transition-transform duration-300"
-									onClick={() => setPet(pet)}
-								>
-									<div className="h-[100px] flex items-end justify-center overflow-hidden">
-										<PetSprite pet={pet} height={100} />
-									</div>
-									<p className="text-2xl font-bold text-foreground text-center mt-2">{pet.isEgg ? 'Egg' : pet.name}</p>
-									{pet.isEgg ? (
-										<EggTimer hatchTime={pet.hatchTime} />
-									) : (
-										<>
-											<div className="text-sm text-secondary font-semibold">Level {pet.level}</div>
-											{parentNames.length > 0 && (
-												<div className="flex items-center justify-center gap-1 text-secondary text-xs">
-													<Users width={12} height={12} />
-													{parentNames.join(', ')}
-												</div>
-											)}
-										</>
-									)}
-								</div>
-							);
-						})}
-
+						{pets.map((pet) => (
+							<PetCard key={pet._id} pet={pet} userName={user?.name} />
+						))}
 						<AddPetButton onClick={handleAddPet} />
 					</div>
 				) : (
@@ -152,6 +201,74 @@ const EggTimer = ({ hatchTime }: { hatchTime?: Date }) => {
 				/>
 			</div>
 			<div className="text-primary text-xs font-semibold whitespace-nowrap">{timeLeft || 'Calculating...'}</div>
+		</div>
+	);
+};
+
+const ExpeditionProgressTimer = ({ returnTime, petLevel }: { returnTime?: Date; petLevel: number }) => {
+	const [timeLeft, setTimeLeft] = useState<string>('');
+	const [progress, setProgress] = useState<number>(0);
+	const [isReady, setIsReady] = useState<boolean>(false);
+
+	useEffect(() => {
+		if (!returnTime) return;
+
+		const returnTimeMs = new Date(returnTime).getTime();
+		// Calculate expedition duration based on level
+		const baseDuration = EXPEDITION_BASE_DURATION;
+		const levelMultiplier = 1 + petLevel * EXPEDITION_LEVEL_MULTIPLIER;
+		const totalDuration = baseDuration * levelMultiplier;
+		const startTime = returnTimeMs - totalDuration;
+
+		const formatTime = (milliseconds: number): string => {
+			const seconds = Math.floor(milliseconds / 1000);
+			const minutes = Math.floor(seconds / 60);
+			const hours = Math.floor(minutes / 60);
+			const remainingMinutes = minutes % 60;
+
+			if (hours > 0) {
+				return `${hours}h ${remainingMinutes}m`;
+			}
+			return `${minutes}m`;
+		};
+
+		const updateTimer = () => {
+			const now = Date.now();
+			const diff = returnTimeMs - now;
+
+			if (diff <= 0) {
+				setIsReady(true);
+				setTimeLeft('Ready!');
+				setProgress(100);
+				return;
+			}
+
+			setTimeLeft(formatTime(diff));
+
+			// Calculate progress (how much time has passed)
+			const elapsed = now - startTime;
+			const progressPercent = Math.min(100, Math.max(0, (elapsed / totalDuration) * 100));
+			setProgress(progressPercent);
+		};
+
+		updateTimer();
+		const interval = setInterval(updateTimer, 1000);
+
+		return () => clearInterval(interval);
+	}, [returnTime, petLevel]);
+
+	return (
+		<div className="flex items-center justify-center gap-2 w-full">
+			<div className="flex-1 bg-secondary/20 rounded-full h-1.5 overflow-hidden">
+				<div
+					className={`h-full rounded-full transition-all duration-1000 ease-linear ${isReady ? 'bg-green-600' : 'bg-primary'
+						}`}
+					style={{ width: `${progress}%` }}
+				/>
+			</div>
+			<div className={`text-xs font-semibold whitespace-nowrap ${isReady ? 'text-green-600' : 'text-primary'}`}>
+				{timeLeft || 'Calculating...'}
+			</div>
 		</div>
 	);
 };

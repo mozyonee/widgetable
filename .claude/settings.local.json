@@ -89,7 +89,8 @@
       "Bash(node analyze-all-sprites.mjs:*)",
       "Bash(node analyze-bunny.mjs:*)",
       "Bash(node:*)",
-      "Bash(git status:*)"
+      "Bash(git status:*)",
+      "Bash(tsc:*)"
     ],
     "deny": [],
     "ask": []

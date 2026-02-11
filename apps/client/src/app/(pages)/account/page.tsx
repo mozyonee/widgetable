@@ -2,15 +2,17 @@
 
 import { Button, InputTextHidden } from '@/components/ui/Button';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { ClaimButton } from '@/features/claims/components/ClaimButton';
+import { RewardsModal } from '@/features/claims/components/RewardsModal';
+import { useClaims } from '@/features/claims/hooks/useClaims';
 import api from '@/lib/api';
 import { callError, callSuccess } from '@/lib/functions';
 import { useAppDispatch, useAppSelector } from '@/store';
 import { useAuth } from '@/store/hooks/useAuth';
 import { setUserData } from '@/store/slices/userSlice';
-import { Camera, Plus, Power, User } from '@nsmr/pixelart-react';
-import { EGG_ITEM_NAME, PET_ACTIONS_BY_CATEGORY } from '@widgetable/types';
+import { Camera, Power, User } from '@nsmr/pixelart-react';
 import Image from 'next/image';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 const ProfileSkeleton = () => (
 	<div className="flex flex-col gap-6 items-center bg-white shadow-lg border border-secondary/20 rounded-2xl p-8 w-full">
@@ -27,6 +29,7 @@ const Account = () => {
 	const { logout } = useAuth();
 	const dispatch = useAppDispatch();
 	const user = useAppSelector((state) => state.user.userData);
+	const { claimStatus, claiming, lastRewards, claimDaily, claimQuick, claimDebug, closeRewardsModal } = useClaims();
 
 	const fileInputRef = useRef<HTMLInputElement>(null);
 	const updateTimerRef = useRef<NodeJS.Timeout | null>(null);
@@ -35,29 +38,6 @@ const Account = () => {
 	const [imageError, setImageError] = useState(false);
 	const [imageTimestamp, setImageTimestamp] = useState(Date.now());
 	const [username, setUsername] = useState(user?.name || '');
-	const [addingInventory, setAddingInventory] = useState<string | null>(null);
-
-	const inventoryItems = useMemo(() => {
-		const actionItems = Object.values(PET_ACTIONS_BY_CATEGORY)
-			.flat()
-			.filter((action) => action.inventoryCost !== undefined)
-			.map((action) => action.name);
-
-		return Array.from(new Set([EGG_ITEM_NAME, ...actionItems]));
-	}, []);
-
-	const handleAddInventory = async (actionName: string) => {
-		try {
-			setAddingInventory(actionName);
-			const response = await api.patch('/users/inventory/add', { actionName, amount: 1 });
-			dispatch(setUserData(response.data));
-			callSuccess(`Added 1 ${actionName} to inventory`);
-		} catch {
-			callError(`Failed to add ${actionName}`);
-		} finally {
-			setAddingInventory(null);
-		}
-	};
 
 	const handleNameUpdate = async () => {
 		if (!username.trim() || username === user?.name) return;
@@ -183,32 +163,39 @@ const Account = () => {
 					</div>
 				</div>
 
-				<div className="flex flex-col gap-2 bg-white shadow-lg border border-secondary/20 rounded-2xl p-6">
-					<h2 className="font-bold text-xl text-foreground">Inventory Management</h2>
-					<p className="text-secondary text-base mb-4">Add items to your inventory</p>
-					<div className="grid grid-cols-2 gap-2">
-						{inventoryItems.map((itemName, index) => {
-							const currentCount = user.inventory?.[itemName] ?? 0;
-							const isAdding = addingInventory === itemName;
-							return (
-								<Button
-									key={`inventory-${itemName}-${index}`}
-									onClick={() => handleAddInventory(itemName)}
-									variant="ghost"
-									size="sm"
-									disabled={isAdding}
-									style={`flex items-center justify-between ${isAdding ? 'opacity-50' : ''}`}
-								>
-									<span className="flex text-left gap-2 text-lg">
-										{itemName}
-										{" "}
-										({currentCount})
-									</span>
-									<Plus width={16} height={16} className="text-primary" />
-								</Button>
-							);
-						})}
-					</div>
+				<div className="flex flex-col gap-4 bg-white shadow-lg border border-secondary/20 rounded-2xl p-6">
+					<h2 className="font-bold text-xl text-foreground">Care Packages</h2>
+					<p className="text-secondary text-sm">Collect supplies for your pets!</p>
+
+					{claimStatus && (
+						<div className="space-y-3">
+							<ClaimButton
+								type="daily"
+								available={claimStatus.dailyAvailable}
+								claiming={claiming}
+								nextClaimTime={claimStatus.nextDailyTime}
+								petCount={claimStatus.petCount}
+								onClaim={claimDaily}
+							/>
+							<ClaimButton
+								type="quick"
+								available={claimStatus.quickAvailable}
+								claiming={claiming}
+								nextClaimTime={claimStatus.nextQuickTime}
+								petCount={claimStatus.petCount}
+								onClaim={claimQuick}
+							/>
+							{process.env.NEXT_PUBLIC_ENABLE_DEBUG_CLAIMS === 'true' && (
+								<ClaimButton
+									type="debug"
+									available={true}
+									claiming={claiming}
+									petCount={claimStatus.petCount}
+									onClaim={claimDebug}
+								/>
+							)}
+						</div>
+					)}
 				</div>
 
 				<Button variant="danger" size="lg" onClick={logout} style="flex justify-center items-center gap-2">
@@ -216,6 +203,8 @@ const Account = () => {
 					<Power width={20} height={20} className="text-danger" />
 				</Button>
 			</>)}
+
+			{lastRewards && <RewardsModal rewards={lastRewards} onClose={closeRewardsModal} />}
 		</main>
 	);
 };
