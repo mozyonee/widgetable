@@ -129,7 +129,7 @@ const Account = () => {
 	}, [username, user?.name]);
 
 	return (
-		<main className="p-4 grow flex flex-col gap-6 border-x border-secondary">
+		<main className="p-4 grow flex flex-col gap-6">
 			<h1 className="font-bold text-3xl text-center text-foreground">Profile</h1>
 			{!user ? (
 				<ProfileSkeleton />

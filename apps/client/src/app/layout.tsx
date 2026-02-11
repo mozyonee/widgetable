@@ -38,7 +38,7 @@ export const viewport: Viewport = {
 const RootLayout = ({ children }: Readonly<{ children: React.ReactNode }>) => {
 	return (
 		<html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
-			<body className="antialiased h-dvh! overflow-y-auto flex flex-col max-w-[450px] m-auto border-x border-secondary">
+			<body className="antialiased h-dvh! overflow-y-auto flex flex-col lg:max-w-[450px] m-auto">
 				<ReduxProvider>
 					<AuthRoute>
 						<Toaster position="top-center" reverseOrder={false} />
