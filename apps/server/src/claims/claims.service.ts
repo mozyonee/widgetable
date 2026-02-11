@@ -76,10 +76,6 @@ export class ClaimsService {
 		const activePets = pets.filter((pet) => !pet.isEgg);
 		const petCount = activePets.length;
 
-		if (petCount === 0) {
-			throw new BadRequestException('You need at least one pet to claim resources');
-		}
-
 		const now = new Date();
 		const cooldownHours = claimType === 'daily' ? this.DAILY_COOLDOWN_HOURS : this.QUICK_COOLDOWN_HOURS;
 		const lastClaimTime = claimType === 'daily' ? user.lastDailyClaimTime : user.lastQuickClaimTime;
@@ -114,7 +110,8 @@ export class ClaimsService {
 
 	private calculateRewards(petCount: number, isQuick: boolean): ClaimResult {
 		const multiplier = isQuick ? this.QUICK_REWARD_MULTIPLIER : 1.0;
-		const petMultiplier = Math.sqrt(petCount);
+		// Ensure minimum rewards even with 0 pets
+		const petMultiplier = Math.max(1, Math.sqrt(petCount));
 
 		// Calculate base amounts
 		const foodCount = Math.floor(this.BASE_FOOD_ITEMS * petMultiplier * multiplier);

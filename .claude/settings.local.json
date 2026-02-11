@@ -90,7 +90,9 @@
       "Bash(node analyze-bunny.mjs:*)",
       "Bash(node:*)",
       "Bash(git status:*)",
-      "Bash(tsc:*)"
+      "Bash(tsc:*)",
+      "WebFetch(domain:docs.railway.com)",
+      "WebFetch(domain:station.railway.com)"
     ],
     "deny": [],
     "ask": []

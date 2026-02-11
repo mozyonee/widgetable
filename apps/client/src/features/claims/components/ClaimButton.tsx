@@ -9,16 +9,14 @@ interface ClaimButtonProps {
 	available: boolean;
 	claimingType: 'daily' | 'quick' | 'debug' | null;
 	nextClaimTime?: Date;
-	petCount: number;
 	onClaim: () => void;
 }
 
-export const ClaimButton = ({ type, available, claimingType, nextClaimTime, petCount, onClaim }: ClaimButtonProps) => {
+export const ClaimButton = ({ type, available, claimingType, nextClaimTime, onClaim }: ClaimButtonProps) => {
 	const isClaiming = claimingType === type;
 
 	const getButtonText = () => {
 		if (isClaiming) return 'Collecting...';
-		if (petCount === 0) return 'Need Pets First';
 
 		switch (type) {
 			case 'daily':
@@ -43,15 +41,15 @@ export const ClaimButton = ({ type, available, claimingType, nextClaimTime, petC
 		<div className="flex flex-col gap-1">
 			<Button
 				onClick={onClaim}
-				disabled={!available || isClaiming || petCount === 0}
-				className={` ${available && !isClaiming && petCount > 0 ? 'animate-pulse shadow-lg hover:shadow-xl' : ''}`}
+				disabled={!available || isClaiming}
+				className={` ${available && !isClaiming ? 'animate-pulse shadow-lg hover:shadow-xl' : ''}`}
 			>
 				<div className='flex items-center justify-center gap-2 w-full'>
 					<span>{getIcon()}</span>
 					<span>{getButtonText()}</span>
 				</div>
 			</Button>
-			{!available && !isClaiming && petCount > 0 && (
+			{!available && !isClaiming && (
 				<div className="flex items-center justify-between text-sm px-2">
 					<span className="text-muted-foreground">Next in:</span>
 					<ClaimTimer nextClaimTime={nextClaimTime} />

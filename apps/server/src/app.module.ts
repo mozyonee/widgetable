@@ -33,9 +33,13 @@ import { v4 as uuidv4 } from 'uuid';
 			limits: { fileSize: 10 * 1024 * 1024 }, // 10MB limit
 		}),
 		MongooseModule.forRootAsync({
-			useFactory: (configService: ConfigService) => ({
-				uri: configService.get<string>('MONGODB_URI'),
-			}),
+			useFactory: (configService: ConfigService) => {
+				const uri = configService.get<string>('MONGODB_URI');
+				return {
+					uri,
+					family: uri?.includes('.railway.internal') ? 6 : 4,
+				};
+			},
 			inject: [ConfigService],
 		}),
 		StorageModule,

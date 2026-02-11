@@ -174,7 +174,6 @@ const Account = () => {
 								available={claimStatus.dailyAvailable}
 								claimingType={claimingType}
 								nextClaimTime={claimStatus.nextDailyTime}
-								petCount={claimStatus.petCount}
 								onClaim={claimDaily}
 							/>
 							<ClaimButton
@@ -182,7 +181,6 @@ const Account = () => {
 								available={claimStatus.quickAvailable}
 								claimingType={claimingType}
 								nextClaimTime={claimStatus.nextQuickTime}
-								petCount={claimStatus.petCount}
 								onClaim={claimQuick}
 							/>
 							{process.env.NEXT_PUBLIC_ENABLE_DEBUG_CLAIMS === 'true' && (
@@ -190,7 +188,6 @@ const Account = () => {
 									type="debug"
 									available={true}
 									claimingType={claimingType}
-									petCount={claimStatus.petCount}
 									onClaim={claimDebug}
 								/>
 							)}
