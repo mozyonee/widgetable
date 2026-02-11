@@ -5,7 +5,7 @@ import { ClientOptions } from 'minio';
 export const STORAGE_CLIENT = 'STORAGE_CLIENT';
 
 export enum StorageBucket {
-	AVATARS = 'avatars',
+	AVATARS = 'creonix-previews',
 }
 
 @Injectable()
