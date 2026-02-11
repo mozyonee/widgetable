@@ -36,7 +36,10 @@ async function bootstrap() {
 							return secondOctet >= 16 && secondOctet <= 31;
 						})());
 
-				if (isLocal) {
+				const clientUrl = process.env.CLIENT_URL;
+				const isAllowedOrigin = isLocal || (clientUrl && origin === clientUrl);
+
+				if (isAllowedOrigin) {
 					callback(null, true);
 				} else {
 					callback(new UnauthorizedException());
