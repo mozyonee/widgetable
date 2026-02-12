@@ -1,8 +1,7 @@
-import api, { isAbortError } from '@/lib/api';
-import { callError, callSuccess } from '@/lib/functions';
-import { useAppDispatch, useAppSelector } from '@/store';
 import { setClaimStatus as setClaimStatusAction } from '@/features/claims/slices/claimsSlice';
-import type { ClaimStatus } from '@/features/claims/slices/claimsSlice';
+import api, { isAbortError } from '@/lib/api';
+import { callError } from '@/lib/functions';
+import { useAppDispatch, useAppSelector } from '@/store';
 import { setUserData } from '@/store/slices/userSlice';
 import { useCallback, useEffect, useState } from 'react';
 
@@ -54,7 +53,6 @@ export const useClaims = () => {
 		if (claimingType) return;
 
 		setClaimingType(type);
-		callSuccess('Collecting care package...');
 
 		try {
 			// Simulate collection animation (2.5 seconds)
@@ -67,16 +65,10 @@ export const useClaims = () => {
 			await loadClaimStatus();
 
 			// Refresh user data to update inventory
-			const userResponse = await api.get('/users/me');
+			const userResponse = await api.get('/auth/me');
 			dispatch(setUserData(userResponse.data));
-
-			callSuccess(`🎉 ${toastMessage} ${result.totalItems} items!`);
 		} catch (error: any) {
-			if (error.response?.status === 400) {
-				callError(error.response.data.message);
-			} else {
-				callError('Failed to claim rewards. Please try again.');
-			}
+			callError('Failed to claim rewards. Please try again.');
 		} finally {
 			setClaimingType(null);
 		}

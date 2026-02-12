@@ -179,7 +179,7 @@ const PetPage = () => {
 			setLastRewards(rewards.data);
 
 			// Refresh user inventory
-			const userResponse = await api.get('/users/me');
+			const userResponse = await api.get('/auth/me');
 			dispatch(setUserData(userResponse.data));
 
 			callSuccess(`${pet.name} returned successfully!`);

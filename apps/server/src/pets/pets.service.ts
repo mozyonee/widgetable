@@ -162,12 +162,12 @@ export class PetsService {
 	// EXPEDITION METHODS
 	// ============================================================================
 
-	async startExpedition(petId: Types.ObjectId, userId: Types.ObjectId): Promise<PetDocument> {
+	async startExpedition(petId: PetDocument['_id'], userId: UserDocument['_id']): Promise<PetDocument> {
 		const pet = await this.getPet(petId);
 
 		// Validations
-		if (pet.isEgg) throw new BadRequestException('Eggs cannot go on expeditions');
-		if (pet.isOnExpedition) throw new BadRequestException('Pet is already on expedition');
+		if (pet.isEgg) throw new BadRequestException();
+		if (pet.isOnExpedition) throw new BadRequestException();
 
 		// Check for urgent needs (any need below 30)
 		if (pet.needs) {
@@ -178,11 +178,7 @@ export class PetsService {
 			if (pet.needs.energy < 30) urgentNeeds.push('energy');
 			if (pet.needs.toilet < 30) urgentNeeds.push('toilet');
 
-			if (urgentNeeds.length > 0) {
-				throw new BadRequestException(
-					`${pet.name} has urgent needs! Take care of ${urgentNeeds.join(', ')} first.`,
-				);
-			}
+			if (urgentNeeds.length > 0) throw new BadRequestException();
 		}
 
 		// Check expedition slots
@@ -191,9 +187,8 @@ export class PetsService {
 		const maxSlots = Math.ceil(activePets.length * 0.3);
 		const usedSlots = allPets.filter((p) => p.isOnExpedition).length;
 
-		if (usedSlots >= maxSlots) {
-			throw new BadRequestException(`Maximum ${maxSlots} pets can be on expedition at once`);
-		}
+		if (usedSlots >= maxSlots) throw new BadRequestException();
+
 
 		// Calculate duration (1 hour + 10% per level)
 		const baseDuration = EXPEDITION_BASE_DURATION;
@@ -221,16 +216,16 @@ export class PetsService {
 		return updatedPet;
 	}
 
-	async claimExpedition(petId: Types.ObjectId, userId: Types.ObjectId): Promise<ClaimResult> {
+	async claimExpedition(petId: PetDocument['_id'], userId: UserDocument['_id']): Promise<ClaimResult> {
 		const pet = await this.getPet(petId);
 
 		// Validations
-		if (!pet.isOnExpedition) throw new BadRequestException('Pet is not on expedition');
-		if (!pet.expeditionReturnTime) throw new BadRequestException('No return time set');
+		if (!pet.isOnExpedition) throw new BadRequestException();
+		if (!pet.expeditionReturnTime) throw new BadRequestException();
 		if (new Date() < pet.expeditionReturnTime) {
-			throw new BadRequestException('Expedition not yet complete');
+			throw new BadRequestException();
 		}
-		if (!pet.expeditionRewards) throw new BadRequestException('No rewards to claim');
+		if (!pet.expeditionRewards) throw new BadRequestException();
 
 		// Transfer rewards to user inventory
 		const rewards = pet.expeditionRewards;
