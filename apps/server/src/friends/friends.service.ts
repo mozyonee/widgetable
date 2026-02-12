@@ -2,6 +2,7 @@ import { BadRequestException, Injectable, NotFoundException } from '@nestjs/comm
 import { InjectModel } from '@nestjs/mongoose';
 import { RequestType, RequestStatus } from '@widgetable/types';
 import { Model } from 'mongoose';
+import { NotificationsService } from 'src/notifications/notifications.service';
 import { RequestsService } from 'src/requests/requests.service';
 import { User, UserDocument } from 'src/users/entities/user.entity';
 
@@ -10,6 +11,7 @@ export class FriendsService {
 	constructor(
 		@InjectModel(User.name) private userModel: Model<UserDocument>,
 		private requestsService: RequestsService,
+		private notificationsService: NotificationsService,
 	) {}
 
 	async getFriends(userId: string): Promise<Partial<UserDocument>[]> {
@@ -63,7 +65,15 @@ export class FriendsService {
 
 		if (existingRequest || reverseRequest) throw new BadRequestException();
 
-		return this.requestsService.createRequest(RequestType.FRIEND_REQUEST, senderId, recipientId);
+		const request = await this.requestsService.createRequest(RequestType.FRIEND_REQUEST, senderId, recipientId);
+
+		this.notificationsService.sendNotificationToUser(recipientId, {
+			title: 'New Friend Request',
+			body: `${sender.name} sent you a friend request!`,
+			url: '/friends',
+		});
+
+		return request;
 	}
 
 	async acceptFriendRequest(requestId: string, userId: string): Promise<void> {

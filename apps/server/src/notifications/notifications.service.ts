@@ -6,6 +6,7 @@ import { PET_NEED_KEYS, PET_NEEDS_CONFIG, PET_UPDATE_INTERVAL } from '@widgetabl
 import { clamp } from 'lodash';
 import { Model, Types } from 'mongoose';
 import { Pet, PetDocument } from 'src/pets/entities/pet.entity';
+import { User, UserDocument } from 'src/users/entities/user.entity';
 import * as webpush from 'web-push';
 import { PushSubscription, PushSubscriptionDocument } from './entities/push-subscription.entity';
 
@@ -19,6 +20,7 @@ export class NotificationsService {
 	constructor(
 		@InjectModel(PushSubscription.name) private subscriptionModel: Model<PushSubscriptionDocument>,
 		@InjectModel(Pet.name) private petModel: Model<PetDocument>,
+		@InjectModel(User.name) private userModel: Model<UserDocument>,
 		private readonly configService: ConfigService,
 	) {
 		const publicKey = this.configService.get<string>('VAPID_PUBLIC_KEY');
@@ -72,6 +74,34 @@ export class NotificationsService {
 		}
 
 		return { sent, total: subscriptions.length };
+	}
+
+	async sendNotificationToUser(
+		userId: string | Types.ObjectId,
+		payload: { title: string; body: string; icon?: string; url?: string },
+	): Promise<void> {
+		const subscriptions = await this.subscriptionModel
+			.find({ userId: new Types.ObjectId(userId.toString()) })
+			.exec();
+
+		const data = JSON.stringify({
+			...payload,
+			icon: payload.icon ?? '/icon-192x192.png',
+			url: payload.url ?? '/',
+		});
+
+		for (const sub of subscriptions) {
+			try {
+				await webpush.sendNotification({ endpoint: sub.endpoint, keys: sub.keys as any }, data);
+			} catch (error: any) {
+				if (error.statusCode === 410 || error.statusCode === 404) {
+					await this.subscriptionModel.deleteOne({ _id: sub._id });
+					this.logger.debug(`Removed expired subscription: ${sub.endpoint}`);
+				} else {
+					this.logger.error(`Failed to send notification: ${error.message}`);
+				}
+			}
+		}
 	}
 
 	@Cron(CronExpression.EVERY_10_MINUTES)
@@ -144,5 +174,140 @@ export class NotificationsService {
 		}
 
 		this.logger.debug(`Sent notifications to ${usersToNotify.size} user(s)`);
+	}
+
+	@Cron(CronExpression.EVERY_10_MINUTES)
+	async checkExpeditionReturns() {
+		this.logger.debug('Checking expedition returns for notifications...');
+
+		const now = new Date();
+		const windowStart = new Date(now.getTime() - NOTIFICATION_COOLDOWN);
+
+		const pets = await this.petModel
+			.find({
+				isOnExpedition: true,
+				expeditionReturnTime: { $lte: now, $gte: windowStart },
+			})
+			.lean()
+			.exec();
+
+		const usersToNotify = new Map<string, string[]>();
+
+		for (const pet of pets) {
+			for (const parentId of pet.parents) {
+				const key = parentId.toString();
+				if (!usersToNotify.has(key)) usersToNotify.set(key, []);
+				usersToNotify.get(key)!.push(pet.name);
+			}
+		}
+
+		for (const [userId, petNames] of usersToNotify) {
+			this.sendNotificationToUser(userId, {
+				title: 'Expedition Complete!',
+				body:
+					petNames.length === 1
+						? `${petNames[0]} has returned from the expedition!`
+						: `${petNames.length} pets have returned from their expeditions!`,
+			});
+		}
+
+		if (usersToNotify.size > 0) {
+			this.logger.debug(`Sent expedition return notifications to ${usersToNotify.size} user(s)`);
+		}
+	}
+
+	@Cron(CronExpression.EVERY_10_MINUTES)
+	async checkEggHatching() {
+		this.logger.debug('Checking egg hatching for notifications...');
+
+		const now = new Date();
+		const windowStart = new Date(now.getTime() - NOTIFICATION_COOLDOWN);
+
+		const pets = await this.petModel
+			.find({
+				isEgg: true,
+				hatchTime: { $lte: now, $gte: windowStart },
+			})
+			.lean()
+			.exec();
+
+		const usersToNotify = new Map<string, string[]>();
+
+		for (const pet of pets) {
+			for (const parentId of pet.parents) {
+				const key = parentId.toString();
+				if (!usersToNotify.has(key)) usersToNotify.set(key, []);
+				usersToNotify.get(key)!.push(pet.name);
+			}
+		}
+
+		for (const [userId, petNames] of usersToNotify) {
+			this.sendNotificationToUser(userId, {
+				title: 'Egg Hatched!',
+				body:
+					petNames.length === 1
+						? `${petNames[0]} has hatched!`
+						: `${petNames.length} eggs have hatched!`,
+			});
+		}
+
+		if (usersToNotify.size > 0) {
+			this.logger.debug(`Sent egg hatching notifications to ${usersToNotify.size} user(s)`);
+		}
+	}
+
+	@Cron(CronExpression.EVERY_10_MINUTES)
+	async checkClaimAvailability() {
+		this.logger.debug('Checking claim availability for notifications...');
+
+		const now = new Date();
+		const dailyCooldownMs = 24 * 60 * 60 * 1000;
+		const quickCooldownMs = 4 * 60 * 60 * 1000;
+
+		// Daily became available if lastDailyClaimTime is between (now - 24h - 10min) and (now - 24h)
+		const dailyWindowEnd = new Date(now.getTime() - dailyCooldownMs);
+		const dailyWindowStart = new Date(dailyWindowEnd.getTime() - NOTIFICATION_COOLDOWN);
+
+		const quickWindowEnd = new Date(now.getTime() - quickCooldownMs);
+		const quickWindowStart = new Date(quickWindowEnd.getTime() - NOTIFICATION_COOLDOWN);
+
+		const users = await this.userModel
+			.find({
+				$or: [
+					{ lastDailyClaimTime: { $gte: dailyWindowStart, $lte: dailyWindowEnd } },
+					{ lastQuickClaimTime: { $gte: quickWindowStart, $lte: quickWindowEnd } },
+				],
+			})
+			.lean()
+			.exec();
+
+		for (const user of users) {
+			const dailyReady =
+				user.lastDailyClaimTime &&
+				user.lastDailyClaimTime >= dailyWindowStart &&
+				user.lastDailyClaimTime <= dailyWindowEnd;
+			const quickReady =
+				user.lastQuickClaimTime &&
+				user.lastQuickClaimTime >= quickWindowStart &&
+				user.lastQuickClaimTime <= quickWindowEnd;
+
+			let body: string;
+			if (dailyReady && quickReady) {
+				body = 'Your daily and quick goodies are ready to collect!';
+			} else if (dailyReady) {
+				body = 'Your daily goodies are ready to collect!';
+			} else {
+				body = 'Your quick goodies are ready to collect!';
+			}
+
+			this.sendNotificationToUser(user._id.toString(), {
+				title: 'Goodies Available!',
+				body,
+			});
+		}
+
+		if (users.length > 0) {
+			this.logger.debug(`Sent claim availability notifications to ${users.length} user(s)`);
+		}
 	}
 }

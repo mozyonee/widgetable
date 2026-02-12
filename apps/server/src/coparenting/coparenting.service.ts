@@ -2,6 +2,7 @@ import { BadRequestException, Injectable, NotFoundException } from '@nestjs/comm
 import { InjectModel } from '@nestjs/mongoose';
 import { RequestStatus, RequestType } from '@widgetable/types';
 import { Model, Types } from 'mongoose';
+import { NotificationsService } from 'src/notifications/notifications.service';
 import { Pet, PetDocument } from 'src/pets/entities/pet.entity';
 import { RequestsService } from 'src/requests/requests.service';
 import { User, UserDocument } from 'src/users/entities/user.entity';
@@ -12,6 +13,7 @@ export class CoparentingService {
 		@InjectModel(User.name) private userModel: Model<UserDocument>,
 		@InjectModel(Pet.name) private petModel: Model<PetDocument>,
 		private requestsService: RequestsService,
+		private notificationsService: NotificationsService,
 	) {}
 
 	async sendCoparentingRequest(senderId: string, recipientId: string, petId: string) {
@@ -37,9 +39,17 @@ export class CoparentingService {
 		);
 		if (existingRequest) throw new BadRequestException();
 
-		return this.requestsService.createRequest(RequestType.COPARENTING_REQUEST, senderId, recipientId, {
+		const request = await this.requestsService.createRequest(RequestType.COPARENTING_REQUEST, senderId, recipientId, {
 			petId: petObjectId,
 		});
+
+		this.notificationsService.sendNotificationToUser(recipientId, {
+			title: 'Co-Parenting Invite',
+			body: `${sender.name} wants to co-parent ${pet.name} with you!`,
+			url: '/friends',
+		});
+
+		return request;
 	}
 
 	async acceptCoparentingRequest(requestId: string, userId: string): Promise<void> {

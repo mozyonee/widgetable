@@ -105,7 +105,10 @@
       "mcp__chrome-devtools__evaluate_script",
       "mcp__chrome-devtools__list_console_messages",
       "Bash(tr:*)",
-      "mcp__chrome-devtools__list_network_requests"
+      "mcp__chrome-devtools__list_network_requests",
+      "mcp__mongodb__find",
+      "mcp__mongodb__list-databases",
+      "mcp__mongodb__connect"
     ],
     "deny": [],
     "ask": []
