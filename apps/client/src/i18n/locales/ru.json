@@ -23,6 +23,11 @@
 	"account.selectImage": "Пожалуйста, выберите изображение",
 	"account.imageTooLarge": "Размер изображения не должен превышать 5 МБ",
 	"account.language": "Язык",
+	"account.notifications": "Уведомления",
+	"account.enableNotifications": "Включить уведомления",
+	"account.disableNotifications": "Выключить уведомления",
+	"account.notificationsNotSupported": "Уведомления не поддерживаются в этом браузере",
+	"account.notificationsDenied": "Уведомления заблокированы. Включите их в настройках браузера.",
 
 	"pets.title": "Питомцы",
 	"pets.addPet": "Добавить",

@@ -23,6 +23,11 @@
 	"account.selectImage": "Please select an image file",
 	"account.imageTooLarge": "Image size should be less than 5MB",
 	"account.language": "Language",
+	"account.notifications": "Notifications",
+	"account.enableNotifications": "Enable Notifications",
+	"account.disableNotifications": "Disable Notifications",
+	"account.notificationsNotSupported": "Notifications are not supported in this browser",
+	"account.notificationsDenied": "Notifications are blocked. Please enable them in browser settings.",
 
 	"pets.title": "Pets",
 	"pets.addPet": "Add Pet",

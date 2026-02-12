@@ -5,6 +5,7 @@ import { Skeleton } from '@/components/ui/Skeleton';
 import { ClaimButton } from '@/features/claims/components/ClaimButton';
 import { RewardsModal } from '@/features/claims/components/RewardsModal';
 import { useClaims } from '@/features/claims/hooks/useClaims';
+import { usePushNotifications } from '@/features/notifications/hooks/usePushNotifications';
 import { LANGUAGES } from '@/i18n';
 import { useTranslation } from '@/i18n/useTranslation';
 import api from '@/lib/api';
@@ -49,6 +50,7 @@ const Account = () => {
 	const user = useAppSelector((state) => state.user.userData);
 	const { t, language, setLanguage } = useTranslation();
 	const { claimStatus, claimingType, lastRewards, claimDaily, claimQuick, claimDebug, closeRewardsModal } = useClaims();
+	const { isSupported, isSubscribed, permission, loading: notifLoading, subscribe, unsubscribe } = usePushNotifications();
 
 	const fileInputRef = useRef<HTMLInputElement>(null);
 	const updateTimerRef = useRef<NodeJS.Timeout | null>(null);
@@ -234,6 +236,23 @@ const Account = () => {
 							</button>
 						))}
 					</div>
+				</div>
+
+				<div className="flex flex-col gap-4 bg-white shadow-lg border border-secondary/20 rounded-2xl p-6">
+					<h2 className="font-bold text-xl text-foreground">{t('account.notifications')}</h2>
+					{!isSupported ? (
+						<p className="text-secondary text-sm">{t('account.notificationsNotSupported')}</p>
+					) : permission === 'denied' ? (
+						<p className="text-secondary text-sm">{t('account.notificationsDenied')}</p>
+					) : isSubscribed ? (
+						<Button variant="secondary" size="md" style="w-full" onClick={unsubscribe} disabled={notifLoading}>
+							{t('account.disableNotifications')}
+						</Button>
+					) : (
+						<Button variant="primary" size="md" style="w-full" onClick={subscribe} disabled={notifLoading}>
+							{t('account.enableNotifications')}
+						</Button>
+					)}
 				</div>
 
 				<Button variant="danger" size="lg" onClick={logout} style="flex justify-center items-center gap-2">
