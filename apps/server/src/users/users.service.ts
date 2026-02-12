@@ -33,9 +33,9 @@ export class UsersService {
 		const savedUser = await newUser.save();
 
 		// Give new users 1 starter egg
-		await this.addInventory(savedUser._id.toString(), EGG_ITEM_NAME, 1);
+		const updatedUser = await this.addInventory(savedUser._id.toString(), EGG_ITEM_NAME, 1);
 
-		return savedUser;
+		return updatedUser;
 	}
 
 	async getImageUrl(userId: string): Promise<string> {

@@ -34,7 +34,7 @@ const PwaPageContent = () => {
 	}, [router]);
 
 	return (
-		<div className="flex flex-col items-center justify-center grow p-6">
+		<div className="flex flex-col items-center justify-center grow p-6 bg-background">
 			<div className="max-w-sm w-full flex flex-col gap-4">
 				<h2 className="text-lg font-bold text-foreground text-center">
 					{t('pwa.warning')}

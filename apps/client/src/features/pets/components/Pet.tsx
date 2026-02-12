@@ -174,7 +174,10 @@ const PetPage = () => {
 			dispatch(setSelectedPet(response.data));
 			callSuccess(t('pets.departedExpedition', { name: pet.name }));
 		} catch (error: any) {
-			callError(error.response?.data?.message || t('pets.failedStartExpedition'));
+			const status = error.response?.status;
+			if (status === 422) callError(t('pets.expeditionEggError'));
+			else if (status === 409) callError(t('pets.expeditionSlotsFull'));
+			else callError(t('pets.failedStartExpedition'));
 		}
 	};
 
@@ -190,7 +193,7 @@ const PetPage = () => {
 
 			callSuccess(t('pets.returnedSuccess', { name: pet.name }));
 		} catch (error: any) {
-			callError(error.response?.data?.message || t('pets.failedClaimRewards'));
+			callError(t('pets.failedClaimRewards'));
 		}
 	};
 

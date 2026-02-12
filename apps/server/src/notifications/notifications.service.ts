@@ -110,8 +110,8 @@ export class NotificationsService {
 
 		const pets = await this.petModel.find({ isEgg: false, isOnExpedition: false }).lean().exec();
 
-		// Compute current needs and find pets where all needs = 0
-		const usersToNotify = new Map<string, string[]>();
+		const urgentUsers = new Map<string, string[]>();
+		const zeroUsers = new Map<string, string[]>();
 
 		for (const pet of pets) {
 			const timeDiff = Date.now() - (pet.updatedAt?.getTime() || 0);
@@ -119,61 +119,64 @@ export class NotificationsService {
 
 			if (intervals <= 0) continue;
 
-			const allZero = PET_NEED_KEYS.every((key) => {
+			let hasNewUrgent = false;
+			let allZero = true;
+
+			for (const key of PET_NEED_KEYS) {
 				const config = PET_NEEDS_CONFIG[key];
 				const decrease = intervals * config.decayRate * (PET_UPDATE_INTERVAL / DECAY_TIME_UNIT);
-				const current = clamp(pet.needs[key] - decrease, 0, 100);
-				return current === 0;
-			});
+				const stored = pet.needs[key];
+				const current = clamp(stored - decrease, 0, 100);
 
-			if (!allZero) continue;
+				if (current !== 0) allZero = false;
+				// Detect threshold crossing: stored was >=30 but decayed below 30
+				if (stored >= 30 && current < 30) hasNewUrgent = true;
+			}
 
 			for (const parentId of pet.parents) {
 				const key = parentId.toString();
-				if (!usersToNotify.has(key)) usersToNotify.set(key, []);
-				usersToNotify.get(key)!.push(pet.name);
+				if (hasNewUrgent) {
+					if (!urgentUsers.has(key)) urgentUsers.set(key, []);
+					urgentUsers.get(key)!.push(pet.name);
+				}
+				if (allZero) {
+					if (!zeroUsers.has(key)) zeroUsers.set(key, []);
+					zeroUsers.get(key)!.push(pet.name);
+				}
 			}
 		}
 
-		if (usersToNotify.size === 0) return;
+		// Notify urgent needs (threshold crossing) — prioritize over zero notifications
+		const notifiedUsers = new Set<string>();
 
-		const cooldownThreshold = new Date(Date.now() - NOTIFICATION_COOLDOWN);
+		for (const [userId, petNames] of urgentUsers) {
+			await this.sendNotificationToUser(userId, {
+				title: petNames.length === 1 ? `${petNames[0]} is sad!` : 'Your pets are sad!',
+				body:
+					petNames.length === 1
+						? `${petNames[0]} needs your attention!`
+						: `${petNames.length} pets need your attention!`,
+			});
+			notifiedUsers.add(userId);
+		}
 
-		for (const [userId, petNames] of usersToNotify) {
-			const subscriptions = await this.subscriptionModel
-				.find({
-					userId: new Types.ObjectId(userId),
-					$or: [{ lastNotifiedAt: { $exists: false } }, { lastNotifiedAt: null }, { lastNotifiedAt: { $lt: cooldownThreshold } }],
-				})
-				.exec();
+		// Notify all-zero needs (only for users not already notified above)
+		for (const [userId, petNames] of zeroUsers) {
+			if (notifiedUsers.has(userId)) continue;
 
-			const payload = JSON.stringify({
+			await this.sendNotificationToUser(userId, {
 				title: 'Your pets need you!',
 				body:
 					petNames.length === 1
 						? `${petNames[0]} needs your attention — all needs are at zero!`
 						: `${petNames.length} pets need your attention!`,
-				icon: '/icon-192x192.png',
-				url: '/',
 			});
-
-			const now = new Date();
-			for (const sub of subscriptions) {
-				try {
-					await webpush.sendNotification({ endpoint: sub.endpoint, keys: sub.keys as any }, payload);
-					await this.subscriptionModel.updateOne({ _id: sub._id }, { lastNotifiedAt: now });
-				} catch (error: any) {
-					if (error.statusCode === 410 || error.statusCode === 404) {
-						await this.subscriptionModel.deleteOne({ _id: sub._id });
-						this.logger.debug(`Removed expired subscription: ${sub.endpoint}`);
-					} else {
-						this.logger.error(`Failed to send notification: ${error.message}`);
-					}
-				}
-			}
 		}
 
-		this.logger.debug(`Sent notifications to ${usersToNotify.size} user(s)`);
+		const totalNotified = new Set([...urgentUsers.keys(), ...zeroUsers.keys()]).size;
+		if (totalNotified > 0) {
+			this.logger.debug(`Sent pet needs notifications to ${totalNotified} user(s)`);
+		}
 	}
 
 	@Cron(CronExpression.EVERY_10_MINUTES)

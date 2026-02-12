@@ -137,18 +137,14 @@ const AnimatedSprite = ({
 		return <div style={{ width: heightStyle, height: heightStyle }} />;
 	}
 
-	// Calculate scale based on desired height and actual frame size
-	const heightNum = typeof height === 'number' ? height : 500;
-	const scale = heightNum / dimensions.frameSize;
-
 	return (
 		<canvas
 			ref={canvasRef}
 			width={dimensions.frameSize}
 			height={dimensions.frameSize}
 			style={{
-				width: `${dimensions.frameSize * scale}px`,
-				height: `${dimensions.frameSize * scale}px`,
+				height: '100%',
+				aspectRatio: '1 / 1',
 				imageRendering: 'pixelated',
 			}}
 			aria-label={alt}

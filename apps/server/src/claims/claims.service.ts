@@ -14,10 +14,10 @@ export class ClaimsService {
 	private readonly QUICK_REWARD_MULTIPLIER = 0.4;
 
 	// Base rewards for 1 pet
-	private readonly BASE_FOOD_ITEMS = 8;
+	private readonly BASE_FOOD_ITEMS = 6;
 	private readonly BASE_DRINK_ITEMS = 6;
 	private readonly BASE_HYGIENE_ITEMS = 4;
-	private readonly BASE_CARE_ITEMS = 3;
+	private readonly BASE_CARE_ITEMS = 4;
 	private readonly BASE_EGG_CHANCE = 0.35;
 
 	// Tier weights (must sum to 100)

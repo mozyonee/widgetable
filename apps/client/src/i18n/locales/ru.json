@@ -1,8 +1,7 @@
 {
 	"common.loading": "Загрузка...",
 	"common.calculating": "Подсчёт...",
-
-	"auth.welcomeBack": "С возвращением",
+	"auth.welcomeBack": "С возвращением!",
 	"auth.createAccount": "Создать аккаунт",
 	"auth.login": "Войти",
 	"auth.register": "Регистрация",
@@ -11,7 +10,6 @@
 	"auth.noAccount": "Нет аккаунта?",
 	"auth.hasAccount": "Уже есть аккаунт?",
 	"auth.failedAuth": "Ошибка аутентификации",
-
 	"account.profile": "Профиль",
 	"account.carePackages": "Припасы",
 	"account.carePackagesDesc": "Собирайте припасы для питомцев!",
@@ -28,7 +26,6 @@
 	"account.disableNotifications": "Выключить уведомления",
 	"account.notificationsNotSupported": "Уведомления не поддерживаются в этом браузере",
 	"account.notificationsDenied": "Уведомления заблокированы. Включите их в настройках браузера.",
-
 	"pets.title": "Питомцы",
 	"pets.addPet": "Добавить",
 	"pets.egg": "Яйцо",
@@ -36,7 +33,7 @@
 	"pets.xp": "{current}/{next} XP",
 	"pets.hatching": "Вылупляется...",
 	"pets.hatchingIn": "Вылупится через {time}",
-	"pets.ready": "Готов!",
+	"pets.ready": "Вернулся!",
 	"pets.needEggs": "Нужны яйца, чтобы добавить питомца!",
 	"pets.clickToAdd": "Нажмите кнопку ниже, чтобы добавить питомца!",
 	"pets.expedition": "Охота",
@@ -52,11 +49,12 @@
 	"pets.departedExpedition": "{name} отправился на охоту!",
 	"pets.returnedSuccess": "{name} успешно вернулся!",
 	"pets.failedStartExpedition": "Не удалось начать охоту",
+	"pets.expeditionEggError": "Яйца не могут отправляться на охоту",
+	"pets.expeditionSlotsFull": "Все слоты для охоты заняты",
 	"pets.failedClaimRewards": "Не удалось забрать награды",
 	"pets.urgentNeeds": "У {name} срочные нужды! Позаботьтесь о: {needs}.",
 	"pets.isBusy": "{name} занят",
 	"pets.noLongerParent": "Вы больше не опекаете {name}",
-
 	"pets.type.fox": "Лиса",
 	"pets.type.cat": "Кот",
 	"pets.type.dog": "Собака",
@@ -65,24 +63,20 @@
 	"pets.type.panda": "Панда",
 	"pets.type.turtle": "Черепаха",
 	"pets.type.parrot": "Попугай",
-
 	"pets.category.Feed": "Еда",
 	"pets.category.Drink": "Напитки",
 	"pets.category.Wash": "Гигиена",
 	"pets.category.Care": "Уход",
-
 	"pets.needs.hygiene": "Гигиена",
 	"pets.needs.hunger": "Голод",
 	"pets.needs.thirst": "Жажда",
 	"pets.needs.energy": "Энергия",
 	"pets.needs.toilet": "Туалет",
-
 	"pets.needs.urgency.hygiene": "Мне нужна ванна!",
 	"pets.needs.urgency.hunger": "Я голоден!",
 	"pets.needs.urgency.thirst": "Я хочу пить!",
 	"pets.needs.urgency.energy": "Я устал!",
 	"pets.needs.urgency.toilet": "Мне нужно в туалет!",
-
 	"pets.happy.0": "Я счастлив!",
 	"pets.happy.1": "Жизнь прекрасна!",
 	"pets.happy.2": "Я отлично себя чувствую!",
@@ -91,12 +85,10 @@
 	"pets.happy.5": "Ты лучший!",
 	"pets.happy.6": "Мне так хорошо!",
 	"pets.happy.7": "Всё идеально!",
-
 	"pets.usernameVariation.0": "{username}, {message}",
 	"pets.usernameVariation.1": "{username}, {message}",
 	"pets.usernameVariation.2": "{message}, {username}!",
 	"pets.usernameVariation.3": "{username}! {message}",
-
 	"friends.title": "Друзья",
 	"friends.searchPlaceholder": "Поиск пользователей...",
 	"friends.noUsersFound": "Пользователи не найдены",
@@ -104,7 +96,6 @@
 	"friends.pending": "Ожидание",
 	"friends.wantsToShare": "{name} хочет поделиться",
 	"friends.sharedWith": "Поделились с {name}",
-
 	"invite.title": "Пригласить друга",
 	"invite.noFriends": "Нет доступных друзей",
 	"invite.findMore": "Найти больше друзей",
@@ -112,7 +103,6 @@
 	"invite.userNotFound": "Пользователь или питомец не найден",
 	"invite.cannotSend": "Невозможно отправить запрос",
 	"invite.failedSend": "Не удалось отправить приглашение",
-
 	"claims.collecting": "Собираю...",
 	"claims.dailyCarePackage": "Ежедневные припасы",
 	"claims.quickCarePackage": "Быстрые припасы",
@@ -122,7 +112,6 @@
 	"claims.nextIn": "Следующие через:",
 	"claims.failedLoad": "Не удалось загрузить статус наград",
 	"claims.failedClaim": "Не удалось забрать награды. Попробуйте снова.",
-
 	"rewards.title": "Награды экспедиции!",
 	"rewards.food": "Еда",
 	"rewards.drinks": "Напитки",
@@ -132,7 +121,6 @@
 	"rewards.bonus": "Бонус",
 	"rewards.luckyFind": "Повезло!",
 	"rewards.awesome": "ОТЛИЧНО!",
-
 	"action.Sushi": "Суши",
 	"action.Hamburger": "Гамбургер",
 	"action.Lasagna": "Лазанья",
@@ -178,7 +166,6 @@
 	"action.Grooming Session": "Груминг",
 	"action.Nail Trim": "Стрижка когтей",
 	"action.Ear Cleaning": "Чистка ушей",
-
 	"pwa.warning": "Лучше как PWA",
 	"pwa.description": "Это приложение создано для PWA и может работать некорректно в браузере.",
 	"pwa.iosTitle": "Установка на iOS:",

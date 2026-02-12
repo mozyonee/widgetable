@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable, NotFoundException, UnprocessableEntityException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 
 import {
@@ -187,9 +187,9 @@ export class PetsService {
 	async startExpedition(petId: PetDocument['_id'], userId: UserDocument['_id']): Promise<PetDocument> {
 		const pet = await this.getPet(petId);
 
-		// Validations
-		if (pet.isEgg) throw new BadRequestException();
-		if (pet.isOnExpedition) throw new BadRequestException();
+		// Validations (each uses a distinct status code so the frontend can map to i18n keys)
+		if (pet.isEgg) throw new UnprocessableEntityException();
+		if (pet.isOnExpedition) throw new ConflictException();
 
 		// Check for urgent needs (any need below 30)
 		if (pet.needs) {
@@ -203,13 +203,16 @@ export class PetsService {
 			if (urgentNeeds.length > 0) throw new BadRequestException();
 		}
 
-		// Check expedition slots
+		// Check expedition slots (only count pets that are actively away, not returned-but-unclaimed)
+		const now = new Date();
 		const allPets = await this.getPetsForUser(userId);
 		const activePets = allPets.filter((p) => !p.isEgg);
 		const maxSlots = Math.ceil(activePets.length * 0.3);
-		const usedSlots = allPets.filter((p) => p.isOnExpedition).length;
+		const usedSlots = allPets.filter((p) =>
+			p.isOnExpedition && p.expeditionReturnTime && new Date(p.expeditionReturnTime) > now,
+		).length;
 
-		if (usedSlots >= maxSlots) throw new BadRequestException();
+		if (usedSlots >= maxSlots) throw new ConflictException();
 
 
 		// Calculate duration (1 hour + 10% per level)
@@ -242,12 +245,12 @@ export class PetsService {
 		const pet = await this.getPet(petId);
 
 		// Validations
-		if (!pet.isOnExpedition) throw new BadRequestException();
-		if (!pet.expeditionReturnTime) throw new BadRequestException();
+		if (!pet.isOnExpedition) throw new ConflictException();
+		if (!pet.expeditionReturnTime) throw new UnprocessableEntityException();
 		if (new Date() < pet.expeditionReturnTime) {
-			throw new BadRequestException();
+			throw new ConflictException();
 		}
-		if (!pet.expeditionRewards) throw new BadRequestException();
+		if (!pet.expeditionRewards) throw new UnprocessableEntityException();
 
 		// Transfer rewards to user inventory
 		const rewards = pet.expeditionRewards;
@@ -287,10 +290,10 @@ export class PetsService {
 
 	private calculateExpeditionRewards(pet: PetDocument): ClaimResult {
 		// Base rewards for single pet (slightly less than global system)
-		const BASE_FOOD_ITEMS = 6;
+		const BASE_FOOD_ITEMS = 4;
 		const BASE_DRINK_ITEMS = 4;
 		const BASE_HYGIENE_ITEMS = 3;
-		const BASE_CARE_ITEMS = 2;
+		const BASE_CARE_ITEMS = 3;
 		const MIN_EGG_CHANCE = 0.05;
 		const MAX_EGG_CHANCE = 0.18;
 

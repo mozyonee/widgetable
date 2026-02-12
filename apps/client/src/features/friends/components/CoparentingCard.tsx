@@ -22,9 +22,9 @@ const CoparentingCard = ({ request, type, onAccept, onDecline, onCancel }: Copar
 	if (!pet || !otherUser) return null;
 
 	return (
-		<div className="bg-white rounded-2xl p-4 shadow-md border border-secondary/20 flex items-center gap-4">
+		<div className="bg-white rounded-2xl p-2 shadow-md border border-secondary/20 flex items-center gap-4">
 			<div className="flex-shrink-0 w-16 h-16 flex items-center justify-center">
-				<PetSprite pet={pet} height={64} width={64} />
+				<PetSprite pet={pet} height={64} width={64} forceShow />
 			</div>
 
 			<div className="flex-1 min-w-0">

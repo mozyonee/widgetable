@@ -1,7 +1,7 @@
 'use client';
 
-import type { User } from '@widgetable/types';
 import { User as UserIcon } from '@nsmr/pixelart-react';
+import type { User } from '@widgetable/types';
 import Image from 'next/image';
 import { ReactNode, useState } from 'react';
 
@@ -16,8 +16,8 @@ const UserCard = ({ user, actions, variant = 'default' }: UserCardProps) => {
 
 	const cardStyles =
 		variant === 'nested'
-			? 'bg-transparent p-4 flex items-center gap-4'
-			: 'bg-white rounded-2xl p-4 shadow-md border border-secondary/20 flex items-center gap-4 flex-wrap';
+			? 'bg-transparent p-2 flex items-center gap-4'
+			: 'bg-white rounded-2xl p-2 shadow-md border border-secondary/20 flex items-center gap-4 flex-wrap';
 
 	const hasPicture = user.picture && !imageError;
 

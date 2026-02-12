@@ -403,10 +403,6 @@
 				"fps": 7
 			},
 			{
-				"sprite": "/pets/panda/Bambu.png",
-				"fps": 3
-			},
-			{
 				"sprite": "/pets/panda/PandaSoFull.png",
 				"fps": 3
 			}
@@ -436,7 +432,7 @@
 		"bath": [
 			{
 				"sprite": "/pets/panda/PandaWave.png",
-				"fps": 3
+				"fps": 6
 			},
 			{
 				"sprite": "/pets/panda/Happy.png",

@@ -1,7 +1,7 @@
 'use client';
 
 import api from '@/lib/api';
-import { useAppDispatch, useAppSelector } from '@/store';
+import { persistor, useAppDispatch, useAppSelector } from '@/store';
 import { clearClaims } from '@/features/claims/slices/claimsSlice';
 import { clearPets } from '@/features/pets/slices/petsSlice';
 import { logout, setAuthenticated, setUserData } from '@/store/slices/userSlice';
@@ -34,10 +34,11 @@ export const useAuth = () => {
 		}
 	}, [dispatch]);
 
-	const handleLogout = () => {
+	const handleLogout = async () => {
 		dispatch(clearPets());
 		dispatch(clearClaims());
 		dispatch(logout());
+		await persistor.purge();
 		router.push('/auth');
 	};
 

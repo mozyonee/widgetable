@@ -46,7 +46,7 @@ const Friends = () => {
 			<h1 className="font-bold text-3xl text-foreground text-center">{t('friends.title')}</h1>
 
 			<div className="bg-white rounded-2xl shadow-md border border-secondary/20">
-				<label className="relative p-4 flex items-center cursor-text">
+				<label className="relative p-2 flex items-center cursor-text">
 					<Search className="absolute left-[23px] text-secondary pointer-events-none" width={25} height={25} />
 					<input
 						type="text"

@@ -132,7 +132,7 @@ const PetSprite = ({ pet, height = 500, width = 200, animation, onAnimationEnd, 
 	// If sprite has fps, it's an animated sprite
 	if (currentSpriteConfig.fps) {
 		return (
-			<div style={{ transform: `scale(${scale})`, transformOrigin: 'center bottom' }}>
+			<div className="w-full h-full flex items-center justify-center" style={{ transform: `scale(${scale})`, transformOrigin: 'center bottom' }}>
 				<AnimatedSprite
 					sprite={currentSpriteConfig.sprite}
 					fps={currentSpriteConfig.fps}
@@ -151,7 +151,7 @@ const PetSprite = ({ pet, height = 500, width = 200, animation, onAnimationEnd, 
 	const heightStyle = typeof height === 'number' ? `${height}px` : height;
 
 	return (
-		<div style={{ transform: `scale(${scale})`, transformOrigin: 'center bottom' }}>
+		<div className="w-full h-full flex items-center justify-center" style={{ transform: `scale(${scale})`, transformOrigin: 'center bottom' }}>
 			<Image
 				src={currentSpriteConfig.sprite}
 				alt={pet.name}

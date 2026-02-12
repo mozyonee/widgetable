@@ -52,6 +52,8 @@
 	"pets.departedExpedition": "{name} departed on an expedition!",
 	"pets.returnedSuccess": "{name} returned successfully!",
 	"pets.failedStartExpedition": "Failed to start expedition",
+	"pets.expeditionEggError": "Eggs cannot go on expeditions",
+	"pets.expeditionSlotsFull": "All expedition slots are full",
 	"pets.failedClaimRewards": "Failed to claim rewards",
 	"pets.urgentNeeds": "{name} has urgent needs! Take care of {needs} first.",
 	"pets.isBusy": "{name} is busy",
