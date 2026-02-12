@@ -55,6 +55,14 @@ export default withPWA({
 		/^manifest.*\.js$/,
 		/\.well-known\//,
 	],
+	publicExcludes: [
+		"!assets/**/*",
+		"!assets_new/**/*",
+		"!backgrounds/**/*",
+		"!pets/**/*",
+		"!valentine/**/*",
+		"!fonts/**/*",
+	],
 	dynamicStartUrlRedirect: "/auth",
 	runtimeCaching: [
 		{

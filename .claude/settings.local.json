@@ -104,7 +104,8 @@
       "Bash(npx next start)",
       "mcp__chrome-devtools__evaluate_script",
       "mcp__chrome-devtools__list_console_messages",
-      "Bash(tr:*)"
+      "Bash(tr:*)",
+      "mcp__chrome-devtools__list_network_requests"
     ],
     "deny": [],
     "ask": []

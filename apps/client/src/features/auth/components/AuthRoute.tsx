@@ -4,7 +4,7 @@ import { useAuth } from '@/store/hooks/useAuth';
 import { usePathname, useRouter } from 'next/navigation';
 import { ReactNode, useEffect, useState } from 'react';
 
-const PUBLIC_ROUTES = ['/auth'];
+const PUBLIC_ROUTES = ['/auth', '/pwa'];
 
 let authCompleted = false;
 

@@ -28,4 +28,9 @@ export class NotificationsController {
 	unsubscribe(@Body() body: { endpoint: string }) {
 		return this.notificationsService.unsubscribe(body.endpoint);
 	}
+
+	@Post('test')
+	sendTestNotification(@GetUser() user: UserDocument) {
+		return this.notificationsService.sendTestNotification(user._id);
+	}
 }

@@ -9,7 +9,7 @@ import { Pet, PetDocument } from 'src/pets/entities/pet.entity';
 import * as webpush from 'web-push';
 import { PushSubscription, PushSubscriptionDocument } from './entities/push-subscription.entity';
 
-const NOTIFICATION_COOLDOWN = 4 * 60 * 60 * 1000; // 4 hours
+const NOTIFICATION_COOLDOWN = 10 * 60 * 1000; // 10 minutes
 const DECAY_TIME_UNIT = 60 * 1000;
 
 @Injectable()
@@ -40,6 +40,38 @@ export class NotificationsService {
 
 	async unsubscribe(endpoint: string) {
 		return this.subscriptionModel.deleteOne({ endpoint });
+	}
+
+	async sendTestNotification(userId: Types.ObjectId) {
+		const subscriptions = await this.subscriptionModel.find({ userId }).exec();
+
+		if (subscriptions.length === 0) {
+			return { sent: 0, message: 'No subscriptions found for this user' };
+		}
+
+		const payload = JSON.stringify({
+			title: 'Test Notification',
+			body: 'If you see this, push notifications are working!',
+			icon: '/icon-192x192.png',
+			url: '/',
+		});
+
+		let sent = 0;
+		for (const sub of subscriptions) {
+			try {
+				await webpush.sendNotification({ endpoint: sub.endpoint, keys: sub.keys as any }, payload);
+				sent++;
+			} catch (error: any) {
+				if (error.statusCode === 410 || error.statusCode === 404) {
+					await this.subscriptionModel.deleteOne({ _id: sub._id });
+					this.logger.debug(`Removed expired subscription: ${sub.endpoint}`);
+				} else {
+					this.logger.error(`Failed to send test notification: ${error.message}`);
+				}
+			}
+		}
+
+		return { sent, total: subscriptions.length };
 	}
 
 	@Cron(CronExpression.EVERY_10_MINUTES)
