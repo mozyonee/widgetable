@@ -85,7 +85,10 @@ const PwaPageContent = () => {
 					variant="primary"
 					size="lg"
 					style="w-full mt-2"
-					onClick={() => router.replace('/auth')}
+					onClick={() => {
+						sessionStorage.setItem('pwa-warning-dismissed', '1');
+						router.replace('/auth');
+					}}
 				>
 					{t('pwa.continueAnyway')}
 				</Button>

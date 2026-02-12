@@ -10,6 +10,9 @@ const PwaWarning = () => {
 	useEffect(() => {
 		if (pathname === '/pwa') return;
 
+		const dismissed = sessionStorage.getItem('pwa-warning-dismissed');
+		if (dismissed) return;
+
 		const isStandalone =
 			window.matchMedia('(display-mode: standalone)').matches ||
 			(navigator as any).standalone === true;
