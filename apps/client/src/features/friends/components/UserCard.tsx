@@ -26,7 +26,7 @@ const UserCard = ({ user, actions, variant = 'default' }: UserCardProps) => {
 			<div className="w-12 h-12 rounded-full bg-background flex items-center justify-center flex-shrink-0">
 				{hasPicture ? (
 					<Image
-						src={`${process.env.NEXT_PUBLIC_SERVER_URL}/users/${user._id}/picture`}
+						src={`/api/users/${user._id}/picture`}
 						alt={user.name || user.email}
 						height={48}
 						width={48}
