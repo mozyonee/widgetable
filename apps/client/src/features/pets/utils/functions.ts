@@ -1,4 +1,5 @@
-import { HAPPY_MESSAGES, Pet, PET_NEED_KEYS, PET_NEEDS_CONFIG, STAT_THRESHOLD, USERNAME_INCLUSION_CHANCE } from '@widgetable/types';
+import { TFunction } from '@/i18n';
+import { Pet, PET_NEED_KEYS, PET_NEEDS_CONFIG, STAT_THRESHOLD, USERNAME_INCLUSION_CHANCE } from '@widgetable/types';
 
 // Sums pet needs in 10-point buckets and incorporates pet ID to create a stable, pet-specific seed
 function getPetStateSeed(pet: Pet): number {
@@ -18,33 +19,26 @@ function hashString(str: string): number {
 	return Math.abs(hash);
 }
 
-function addUsernameToMessage(message: string, username: string | undefined, seed: number): string {
+function addUsernameToMessage(message: string, username: string | undefined, seed: number, t: TFunction): string {
 	if (!username || seed % 100 >= USERNAME_INCLUSION_CHANCE * 100) {
 		return message;
 	}
 
-	const variations = [
-		`Hey ${username}, ${message.toLowerCase()}`,
-		`${username}, ${message.toLowerCase()}`,
-		`${message.replace("!", ",")} ${username}!`,
-		`${username}! ${message}`,
-	];
-
-	return variations[seed % variations.length];
+	return t(`pets.usernameVariation.${seed % 4}`, { username, message: message.toLowerCase() });
 }
 
-export function getPetMessage(pet: Pet, username?: string): string {
+export function getPetMessage(pet: Pet, username: string | undefined, t: TFunction): string {
 	const seed = getPetStateSeed(pet);
 
 	for (const needKey of PET_NEED_KEYS) {
 		if (pet.needs[needKey] < STAT_THRESHOLD) {
-			const message = PET_NEEDS_CONFIG[needKey].urgencyMessage;
-			return addUsernameToMessage(message, username, seed);
+			const message = t('pets.needs.urgency.' + needKey);
+			return addUsernameToMessage(message, username, seed, t);
 		}
 	}
 
-	const happyMessage = HAPPY_MESSAGES[seed % HAPPY_MESSAGES.length];
-	return addUsernameToMessage(happyMessage, username, seed);
+	const happyMessage = t('pets.happy.' + (seed % 8));
+	return addUsernameToMessage(happyMessage, username, seed, t);
 }
 
 export function getParentId(parent: string | { _id: string }): string {

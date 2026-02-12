@@ -1,6 +1,7 @@
 'use client';
 
 import { Button } from '@/components/ui/Button';
+import { useTranslation } from '@/i18n/useTranslation';
 import PetSprite from '@/features/pets/components/PetSprite';
 import { Request, RequestDirection } from '@widgetable/types';
 import { Check, Clock, Users, Close } from '@nsmr/pixelart-react';
@@ -14,6 +15,7 @@ interface CoparentingCardProps {
 }
 
 const CoparentingCard = ({ request, type, onAccept, onDecline, onCancel }: CoparentingCardProps) => {
+	const { t } = useTranslation();
 	const otherUser = type === RequestDirection.RECEIVED ? request.sender : request.recipient;
 	const pet = request.metadata?.pet;
 
@@ -31,8 +33,8 @@ const CoparentingCard = ({ request, type, onAccept, onDecline, onCancel }: Copar
 					<Users width={12} height={12} className="flex-shrink-0" />
 					<span className="truncate min-w-0">
 						{type === RequestDirection.RECEIVED
-							? `${otherUser.name} wants to share`
-							: `Shared with ${otherUser.name}`}
+							? t('friends.wantsToShare', { name: otherUser.name })
+							: t('friends.sharedWith', { name: otherUser.name })}
 					</span>
 				</div>
 			</div>

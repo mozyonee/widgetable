@@ -5,6 +5,7 @@ interface AnimatedSpriteProps {
 	fps: number;
 	loop?: boolean;
 	onAnimationEnd?: () => void;
+	onLoad?: () => void;
 	height?: number | string;
 	alt?: string;
 }
@@ -15,6 +16,7 @@ const AnimatedSprite = ({
 	fps,
 	loop = true,
 	onAnimationEnd,
+	onLoad,
 	height = 500,
 	alt = 'animated sprite',
 }: AnimatedSpriteProps) => {
@@ -40,6 +42,7 @@ const AnimatedSprite = ({
 			const frames = Math.floor(image.naturalWidth / frameSize);
 
 			setDimensions({ frames, frameSize });
+			onLoad?.();
 		};
 
 		return () => {

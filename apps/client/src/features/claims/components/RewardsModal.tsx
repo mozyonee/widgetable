@@ -1,6 +1,7 @@
 'use client';
 
 import { ACTION_SPRITES } from '@/data/actionSprites';
+import { useTranslation } from '@/i18n/useTranslation';
 import { EGG_ITEM_NAME } from '@widgetable/types';
 import Image from 'next/image';
 import { useEffect } from 'react';
@@ -51,6 +52,8 @@ const ItemDisplay = ({ item, index }: { item: ItemReward; index: number }) => {
 };
 
 export const RewardsModal = ({ rewards, onClose }: RewardsModalProps) => {
+	const { t } = useTranslation();
+
 	useEffect(() => {
 		const scrollY = window.scrollY;
 		document.body.style.position = 'fixed';
@@ -87,7 +90,7 @@ export const RewardsModal = ({ rewards, onClose }: RewardsModalProps) => {
 				<div className="sticky top-0 bg-primary text-white p-6 rounded-t-2xl flex items-center justify-between z-10">
 					<h2 className="text-2xl font-bold flex items-center gap-2">
 						<Check width={28} height={28} />
-						Expedition Rewards!
+						{t('rewards.title')}
 					</h2>
 					<button
 						onClick={onClose}
@@ -105,7 +108,7 @@ export const RewardsModal = ({ rewards, onClose }: RewardsModalProps) => {
 						<div>
 							<h3 className="font-bold text-lg mb-3 text-foreground flex items-center gap-2">
 								<Edit width={20} height={20} className="text-primary" />
-								Food ({rewards.rewards.food.reduce((sum, item) => sum + item.quantity, 0)} items)
+								{t('rewards.food')} ({t('rewards.items', { count: rewards.rewards.food.reduce((sum, item) => sum + item.quantity, 0) })})
 							</h3>
 							<div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
 								{sortedFood.map((item, idx) => (
@@ -120,7 +123,7 @@ export const RewardsModal = ({ rewards, onClose }: RewardsModalProps) => {
 						<div>
 							<h3 className="font-bold text-lg mb-3 text-foreground flex items-center gap-2">
 								<Coffee width={20} height={20} className="text-primary" />
-								Drinks ({rewards.rewards.drinks.reduce((sum, item) => sum + item.quantity, 0)} items)
+								{t('rewards.drinks')} ({t('rewards.items', { count: rewards.rewards.drinks.reduce((sum, item) => sum + item.quantity, 0) })})
 							</h3>
 							<div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
 								{sortedDrinks.map((item, idx) => (
@@ -135,7 +138,7 @@ export const RewardsModal = ({ rewards, onClose }: RewardsModalProps) => {
 						<div>
 							<h3 className="font-bold text-lg mb-3 text-foreground flex items-center gap-2">
 								<Zap width={20} height={20} className="text-primary" />
-								Hygiene ({rewards.rewards.hygiene.reduce((sum, item) => sum + item.quantity, 0)} items)
+								{t('rewards.hygiene')} ({t('rewards.items', { count: rewards.rewards.hygiene.reduce((sum, item) => sum + item.quantity, 0) })})
 							</h3>
 							<div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
 								{sortedHygiene.map((item, idx) => (
@@ -150,7 +153,7 @@ export const RewardsModal = ({ rewards, onClose }: RewardsModalProps) => {
 						<div>
 							<h3 className="font-bold text-lg mb-3 text-foreground flex items-center gap-2">
 								<Bed width={20} height={20} className="text-primary" />
-								Care ({sortedCare.reduce((sum, item) => sum + item.quantity, 0)} items)
+								{t('rewards.care')} ({t('rewards.items', { count: sortedCare.reduce((sum, item) => sum + item.quantity, 0) })})
 							</h3>
 							<div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
 								{sortedCare.map((item, idx) => (
@@ -163,7 +166,7 @@ export const RewardsModal = ({ rewards, onClose }: RewardsModalProps) => {
 					{/* Bonus Eggs */}
 					{rewards.rewards.eggs > 0 && (
 						<div className="bg-gradient-to-r from-yellow-100 to-orange-100 border-2 border-yellow-400 rounded-lg p-4">
-							<h3 className="font-bold text-lg mb-2 text-foreground">Bonus</h3>
+							<h3 className="font-bold text-lg mb-2 text-foreground">{t('rewards.bonus')}</h3>
 							<div className="flex items-center gap-3 justify-center">
 								<div className="relative w-16 h-16">
 									<Image src="/pets/egg.png" alt={EGG_ITEM_NAME} fill className="object-contain pixelated" />
@@ -171,7 +174,7 @@ export const RewardsModal = ({ rewards, onClose }: RewardsModalProps) => {
 								<div className="text-center">
 									<div className="font-bold text-xl">{EGG_ITEM_NAME}</div>
 									<div className="text-sm text-muted-foreground">x{rewards.rewards.eggs}</div>
-									<div className="text-sm font-semibold text-yellow-700 mt-1">Lucky find!</div>
+									<div className="text-sm font-semibold text-yellow-700 mt-1">{t('rewards.luckyFind')}</div>
 								</div>
 							</div>
 						</div>
@@ -184,7 +187,7 @@ export const RewardsModal = ({ rewards, onClose }: RewardsModalProps) => {
 						onClick={onClose}
 						className="w-full bg-primary hover:bg-primary/90 text-white font-bold py-3 px-6 rounded-lg transition-colors"
 					>
-						AWESOME!
+						{t('rewards.awesome')}
 					</button>
 				</div>
 			</div>

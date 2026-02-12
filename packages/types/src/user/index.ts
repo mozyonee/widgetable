@@ -20,6 +20,7 @@ export interface UserData {
 	email: string;
 	password: string;
 	inventory?: UserInventory;
+	language?: string;
 }
 
 export type User = UserData & Database;

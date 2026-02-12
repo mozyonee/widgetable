@@ -1,6 +1,7 @@
 'use client';
 
 import { Button } from '@/components/ui/Button';
+import { useTranslation } from '@/i18n/useTranslation';
 import { Check, Clock } from '@nsmr/pixelart-react';
 import { ClaimTimer } from './ClaimTimer';
 
@@ -13,20 +14,21 @@ interface ClaimButtonProps {
 }
 
 export const ClaimButton = ({ type, available, claimingType, nextClaimTime, onClaim }: ClaimButtonProps) => {
+	const { t } = useTranslation();
 	const isClaiming = claimingType === type;
 
 	const getButtonText = () => {
-		if (isClaiming) return 'Collecting...';
+		if (isClaiming) return t('claims.collecting');
 
 		switch (type) {
 			case 'daily':
-				return available ? 'Daily Care Package' : 'Care Package';
+				return available ? t('claims.dailyCarePackage') : t('claims.carePackage');
 			case 'quick':
-				return available ? 'Quick Care Package' : 'Care Package';
+				return available ? t('claims.quickCarePackage') : t('claims.carePackage');
 			case 'debug':
-				return 'Debug Claim';
+				return t('claims.debugClaim');
 			default:
-				return 'Claim Rewards';
+				return t('claims.claimRewards');
 		}
 	};
 
@@ -51,7 +53,7 @@ export const ClaimButton = ({ type, available, claimingType, nextClaimTime, onCl
 			</Button>
 			{!available && !isClaiming && (
 				<div className="flex items-center justify-between text-sm px-2">
-					<span className="text-muted-foreground">Next in:</span>
+					<span className="text-muted-foreground">{t('claims.nextIn')}</span>
 					<ClaimTimer nextClaimTime={nextClaimTime} />
 				</div>
 			)}

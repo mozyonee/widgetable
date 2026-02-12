@@ -23,6 +23,11 @@ import { UserDocument } from 'src/users/entities/user.entity';
 import { UsersService } from 'src/users/users.service';
 import { Pet, PetDocument } from './entities/pet.entity';
 
+const PET_TYPE_NAMES: Record<string, Record<string, string>> = {
+	en: { fox: 'Fox', cat: 'Cat', dog: 'Dog', bunny: 'Bunny', chicken: 'Chicken', panda: 'Panda', turtle: 'Turtle', parrot: 'Parrot' },
+	ru: { fox: 'Лиса', cat: 'Кот', dog: 'Собака', bunny: 'Кролик', chicken: 'Курица', panda: 'Панда', turtle: 'Черепаха', parrot: 'Попугай' },
+};
+
 @Injectable()
 export class PetsService {
 	private readonly PARENT_FIELDS = '_id name email picture';
@@ -58,6 +63,10 @@ export class PetsService {
 		const pets = Object.values(PetType);
 		const randomType = pets[random(pets.length - 1)];
 
+		const user = await this.usersService.findById(userId.toString());
+		const lang = user?.language || 'en';
+		const petName = PET_TYPE_NAMES[lang]?.[randomType] || PET_TYPE_NAMES['en'][randomType] || randomType;
+
 		const existingPets = await this.petModel.countDocuments({ parents: { $in: [userId] }, isEgg: false });
 		const HATCH_DURATIONS = [
 			30 * 1000,			// 0 pets: 30s
@@ -73,7 +82,7 @@ export class PetsService {
 
 		const result = await this.petModel.create({
 			type: randomType,
-			name: randomType, // Will be named by the type initially
+			name: petName,
 			parents: [userId],
 			isEgg: true,
 			hatchTime: new Date(Date.now() + hatchDuration),

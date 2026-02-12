@@ -1,5 +1,6 @@
 import AppLoader from '@/components/layout/AppLoader';
 import AuthRoute from '@/features/auth/components/AuthRoute';
+import { TranslationProvider } from '@/i18n/TranslationProvider';
 import ReduxProvider from '@/store/provider';
 import type { Metadata, Viewport } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
@@ -66,10 +67,12 @@ const RootLayout = ({ children }: Readonly<{ children: React.ReactNode }>) => {
 			<body className="antialiased h-dvh! overflow-y-auto flex flex-col lg:max-w-[450px] m-auto">
 				<AppLoader />
 				<ReduxProvider>
-					<AuthRoute>
-						<Toaster position="top-center" reverseOrder={false} />
-						{children}
-					</AuthRoute>
+					<TranslationProvider>
+						<AuthRoute>
+							<Toaster position="top-center" reverseOrder={false} />
+							{children}
+						</AuthRoute>
+					</TranslationProvider>
 				</ReduxProvider>
 			</body>
 		</html>

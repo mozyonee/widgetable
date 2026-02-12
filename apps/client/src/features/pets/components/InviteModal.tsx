@@ -1,6 +1,7 @@
 'use client';
 
 import UserCard from '@/features/friends/components/UserCard';
+import { useTranslation } from '@/i18n/useTranslation';
 import { Clock, Close } from '@nsmr/pixelart-react';
 import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
@@ -14,6 +15,7 @@ interface InviteModalProps {
 }
 
 export const InviteModal = ({ isOpen, onClose, friends, onInvite }: InviteModalProps) => {
+	const { t } = useTranslation();
 	const [mounted, setMounted] = useState(false);
 	const modalRef = useRef<HTMLDivElement | null>(null);
 
@@ -39,7 +41,7 @@ export const InviteModal = ({ isOpen, onClose, friends, onInvite }: InviteModalP
 				className="bg-white rounded-2xl shadow-xl max-w-sm w-full max-h-[80vh] overflow-hidden flex flex-col"
 			>
 				<div className="flex items-center justify-between p-4 border-b border-secondary/20">
-					<h2 className="text-xl font-bold text-foreground">Invite a Friend</h2>
+					<h2 className="text-xl font-bold text-foreground">{t('invite.title')}</h2>
 					<button
 						onClick={onClose}
 						className="text-secondary hover:text-foreground transition"
@@ -79,9 +81,9 @@ export const InviteModal = ({ isOpen, onClose, friends, onInvite }: InviteModalP
 						))
 					) : (
 						<div className="flex flex-col items-center gap-2 p-6">
-							<span className="text-secondary">No friends can be invited</span>
+							<span className="text-secondary">{t('invite.noFriends')}</span>
 							<Link href="/friends" className="text-primary font-semibold hover:underline">
-								Find more friends
+								{t('invite.findMore')}
 							</Link>
 						</div>
 					)}

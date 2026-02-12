@@ -1,6 +1,8 @@
 import { Skeleton } from '@/components/ui/Skeleton';
-import PetSprite from '@/features/pets/components/PetSprite';
+import PetSprite, { getPetIdleSprite } from '@/features/pets/components/PetSprite';
+import { useTranslation } from '@/i18n/useTranslation';
 import { callError } from '@/lib/functions';
+import { useImagesLoaded } from '@/lib/useImagesLoaded';
 import { useAppDispatch, useAppSelector } from '@/store';
 import { setSelectedPet } from '@/features/pets/slices/petsSlice';
 import { Clock, Plus, Users } from '@nsmr/pixelart-react';
@@ -10,7 +12,7 @@ import {
 	EXPEDITION_LEVEL_MULTIPLIER,
 } from '@widgetable/types';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { usePets } from '../hooks/usePets';
 import { getParentNames } from '../utils/functions';
 
@@ -37,6 +39,7 @@ const useExpeditionReady = (returnTime?: Date) => {
 };
 
 const PetCard = ({ pet, userName }: { pet: any; userName?: string }) => {
+	const { t } = useTranslation();
 	const router = useRouter();
 	const dispatch = useAppDispatch();
 	const parentNames = getParentNames(pet, userName);
@@ -50,7 +53,7 @@ const PetCard = ({ pet, userName }: { pet: any; userName?: string }) => {
 	return (
 		<div
 			key={pet._id}
-			className="bg-white rounded-2xl p-2 flex flex-col items-center justify-between gap-1 cursor-pointer relative shadow-md border border-secondary/20 hover:scale-105 transition-transform duration-300"
+			className="bg-white rounded-2xl px-4 py-2 flex flex-col items-center justify-between gap-1 cursor-pointer relative shadow-md border border-secondary/20 hover:scale-105 transition-transform duration-300"
 			onClick={handleClick}
 		>
 			<div className="h-[100px] flex items-end justify-center overflow-hidden">
@@ -68,18 +71,18 @@ const PetCard = ({ pet, userName }: { pet: any; userName?: string }) => {
 			{isExpeditionReady && (
 				<div className="w-full mt-2">
 					<div className="text-center text-sm font-semibold text-green-600">
-						Ready!
+						{t('pets.ready')}
 					</div>
 				</div>
 			)}
 			<p className={`text-2xl font-bold text-foreground text-center w-full truncate ${isExpeditionReady ? "" : "mt-2"}`}>
-				{pet.isEgg ? 'Egg' : pet.name}
+				{pet.isEgg ? t('pets.egg') : pet.name}
 			</p>
 			{pet.isEgg ? (
 				<EggTimer hatchTime={pet.hatchTime} createdAt={pet.createdAt} />
 			) : (
 				<>
-					<div className="text-sm text-secondary font-semibold">Level {pet.level}</div>
+					<div className="text-sm text-secondary font-semibold">{t('pets.level', { level: pet.level })}</div>
 					{!pet.isOnExpedition && parentNames.length > 0 && (
 						<div className="flex items-center justify-center gap-1 text-secondary text-xs">
 							<Users width={12} height={12} />
@@ -93,15 +96,22 @@ const PetCard = ({ pet, userName }: { pet: any; userName?: string }) => {
 };
 
 const PetsPage = () => {
+	const { t } = useTranslation();
 	const user = useAppSelector((state) => state.user.userData);
 	const { pets, loading, addPet } = usePets();
+
+	const spriteUrls = useMemo(
+		() => pets.map((pet) => getPetIdleSprite(pet, true).sprite),
+		[pets],
+	);
+	const spritesLoaded = useImagesLoaded(spriteUrls);
 
 	const eggCount = user?.inventory?.[EGG_ITEM_NAME] ?? 0;
 	const canAddPet = eggCount > 0;
 
 	const handleAddPet = () => {
 		if (!canAddPet) {
-			callError('You need eggs to add a pet!');
+			callError(t('pets.needEggs'));
 			return;
 		}
 		addPet();
@@ -111,7 +121,7 @@ const PetsPage = () => {
 		<div className="flex flex-col gap-6 h-full">
 			<div className="grid grid-cols-[1fr_auto_1fr] items-center flex-shrink-0">
 				<div></div>
-				<h1 className="font-bold text-3xl text-foreground text-center">Pets</h1>
+				<h1 className="font-bold text-3xl text-foreground text-center">{t('pets.title')}</h1>
 				<div className="flex items-center gap-2 bg-white rounded-full px-4 py-2 shadow-md border border-secondary/20 justify-self-end">
 					<img src="/assets/egg_white.png" alt="Egg" className="w-5 h-5 object-contain" />
 					<span className="font-bold text-foreground text-xl">{eggCount}</span>
@@ -119,7 +129,7 @@ const PetsPage = () => {
 			</div>
 
 			<div className="pb-4">
-				{loading ? (
+				{loading || !spritesLoaded ? (
 					<div className="grid gap-2 [grid-template-columns:repeat(auto-fit,minmax(125px,1fr))]">
 						<PetCardSkeleton />
 						<PetCardSkeleton />
@@ -135,7 +145,7 @@ const PetsPage = () => {
 				) : (
 					<div className="flex flex-col items-center justify-center py-12">
 						<p className="text-secondary text-center text-lg mb-4">
-							{canAddPet ? 'Click the button below to add a pet!' : 'You need eggs to add a pet!'}
+							{canAddPet ? t('pets.clickToAdd') : t('pets.needEggs')}
 						</p>
 						<AddPetButton onClick={handleAddPet} variant="centered" />
 					</div>
@@ -146,6 +156,7 @@ const PetsPage = () => {
 };
 
 const EggTimer = ({ hatchTime, createdAt }: { hatchTime?: Date; createdAt?: Date }) => {
+	const { t } = useTranslation();
 	const [timeLeft, setTimeLeft] = useState<string>('');
 	const [progress, setProgress] = useState<number>(0);
 	const [isHatching, setIsHatching] = useState<boolean>(false);
@@ -160,12 +171,11 @@ const EggTimer = ({ hatchTime, createdAt }: { hatchTime?: Date; createdAt?: Date
 		const formatTime = (milliseconds: number): string => {
 			const seconds = Math.floor(milliseconds / 1000);
 			const minutes = Math.floor(seconds / 60);
-			const remainingSeconds = seconds % 60;
+			const hours = Math.floor(minutes / 60);
 
-			if (minutes > 0) {
-				return `${minutes}m ${remainingSeconds}s`;
-			}
-			return `${remainingSeconds}s`;
+			if (hours > 0) return `${hours}h`;
+			if (minutes > 0) return `${minutes}m`;
+			return `${seconds}s`;
 		};
 
 		const updateTimer = () => {
@@ -193,7 +203,7 @@ const EggTimer = ({ hatchTime, createdAt }: { hatchTime?: Date; createdAt?: Date
 	if (isHatching) {
 		return (
 			<div className="flex items-center justify-center gap-1 text-primary text-xs font-semibold">
-				Hatching...
+				{t('pets.hatching')}
 			</div>
 		);
 	}
@@ -206,12 +216,13 @@ const EggTimer = ({ hatchTime, createdAt }: { hatchTime?: Date; createdAt?: Date
 					style={{ width: `${progress}%` }}
 				/>
 			</div>
-			<div className="text-primary text-xs font-semibold whitespace-nowrap">{timeLeft || 'Calculating...'}</div>
+			<div className="text-primary text-xs font-semibold whitespace-nowrap">{timeLeft || t('common.calculating')}</div>
 		</div>
 	);
 };
 
 const ExpeditionProgressTimer = ({ returnTime, petLevel }: { returnTime?: Date; petLevel: number }) => {
+	const { t } = useTranslation();
 	const [timeLeft, setTimeLeft] = useState<string>('');
 	const [progress, setProgress] = useState<number>(0);
 	const [isReady, setIsReady] = useState<boolean>(false);
@@ -244,7 +255,7 @@ const ExpeditionProgressTimer = ({ returnTime, petLevel }: { returnTime?: Date; 
 
 			if (diff <= 0) {
 				setIsReady(true);
-				setTimeLeft('Ready!');
+				setTimeLeft(t('pets.ready'));
 				setProgress(100);
 				return;
 			}
@@ -273,7 +284,7 @@ const ExpeditionProgressTimer = ({ returnTime, petLevel }: { returnTime?: Date; 
 				/>
 			</div>
 			<div className={`text-xs font-semibold whitespace-nowrap ${isReady ? 'text-green-600' : 'text-primary'}`}>
-				{timeLeft || 'Calculating...'}
+				{timeLeft || t('common.calculating')}
 			</div>
 		</div>
 	);
@@ -297,6 +308,7 @@ const AddPetButton = ({
 	variant?: 'grid' | 'centered';
 	disabled?: boolean;
 }) => {
+	const { t } = useTranslation();
 	if (variant === 'centered') {
 		return (
 			<button
@@ -305,7 +317,7 @@ const AddPetButton = ({
 				onClick={onClick}
 				disabled={disabled}
 			>
-				Add Pet
+				{t('pets.addPet')}
 			</button>
 		);
 	}
@@ -318,7 +330,7 @@ const AddPetButton = ({
 			disabled={disabled}
 		>
 			<Plus width={32} height={32} className="text-primary" />
-			<p className="text-lg font-semibold text-primary">Add Pet</p>
+			<p className="text-lg font-semibold text-primary">{t('pets.addPet')}</p>
 		</button>
 	);
 };

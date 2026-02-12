@@ -70,6 +70,16 @@ export class UsersService {
 		return user;
 	}
 
+	async updateLanguage(userId: string, language: string): Promise<UserDocument> {
+		const validLanguages = ['en', 'ru'];
+		if (!validLanguages.includes(language)) {
+			throw new BadRequestException('Invalid language');
+		}
+		const user = await this.userModel.findByIdAndUpdate(userId, { language }, { new: true });
+		if (!user) throw new NotFoundException();
+		return user;
+	}
+
 	async searchUsers(query: string): Promise<Partial<UserDocument>[]> {
 		const users = await this.userModel
 			.find({

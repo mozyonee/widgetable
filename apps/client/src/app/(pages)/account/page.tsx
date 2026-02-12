@@ -5,30 +5,49 @@ import { Skeleton } from '@/components/ui/Skeleton';
 import { ClaimButton } from '@/features/claims/components/ClaimButton';
 import { RewardsModal } from '@/features/claims/components/RewardsModal';
 import { useClaims } from '@/features/claims/hooks/useClaims';
+import { LANGUAGES } from '@/i18n';
+import { useTranslation } from '@/i18n/useTranslation';
 import api from '@/lib/api';
 import { callError, callSuccess } from '@/lib/functions';
+import { useImagesLoaded } from '@/lib/useImagesLoaded';
 import { useAppDispatch, useAppSelector } from '@/store';
 import { useAuth } from '@/store/hooks/useAuth';
 import { setUserData } from '@/store/slices/userSlice';
 import { Camera, Power, User } from '@nsmr/pixelart-react';
 import Image from 'next/image';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 const ProfileSkeleton = () => (
-	<div className="flex flex-col gap-6 items-center bg-white shadow-lg border border-secondary/20 rounded-2xl p-8 w-full">
-		<Skeleton className="h-24 w-24 rounded-full" />
-		<div className="flex flex-col items-center gap-2 w-full">
-			<Skeleton className="h-8 w-3/5" />
-			<Skeleton className="h-6 w-4/5" />
+	<>
+		<div className="flex flex-col gap-6 items-center bg-white shadow-lg border border-secondary/20 rounded-2xl p-8 w-full">
+			<Skeleton className="h-24 w-24 rounded-full" />
+			<div className="flex flex-col items-center gap-2 w-full">
+				<Skeleton className="h-8 w-3/5" />
+				<Skeleton className="h-6 w-4/5" />
+			</div>
 		</div>
-		<Skeleton className="h-12 w-full" />
-	</div>
+		<div className="flex flex-col gap-4 bg-white shadow-lg border border-secondary/20 rounded-2xl p-6">
+			<Skeleton className="h-7 w-2/5" />
+			<Skeleton className="h-4 w-3/5" />
+			<Skeleton className="h-12 w-full rounded-lg" />
+			<Skeleton className="h-12 w-full rounded-lg" />
+		</div>
+		<div className="flex flex-col gap-4 bg-white shadow-lg border border-secondary/20 rounded-2xl p-6">
+			<Skeleton className="h-7 w-1/3" />
+			<div className="flex gap-2">
+				<Skeleton className="h-12 flex-1 rounded-xl" />
+				<Skeleton className="h-12 flex-1 rounded-xl" />
+			</div>
+		</div>
+		<Skeleton className="h-12 w-full rounded-lg" />
+	</>
 );
 
 const Account = () => {
 	const { logout } = useAuth();
 	const dispatch = useAppDispatch();
 	const user = useAppSelector((state) => state.user.userData);
+	const { t, language, setLanguage } = useTranslation();
 	const { claimStatus, claimingType, lastRewards, claimDaily, claimQuick, claimDebug, closeRewardsModal } = useClaims();
 
 	const fileInputRef = useRef<HTMLInputElement>(null);
@@ -39,6 +58,9 @@ const Account = () => {
 	const [imageTimestamp, setImageTimestamp] = useState(Date.now());
 	const [username, setUsername] = useState(user?.name || '');
 
+	const avatarUrl = user?.picture ? `${process.env.NEXT_PUBLIC_SERVER_URL}/users/${user._id}/picture` : '';
+	const avatarLoaded = useImagesLoaded(useMemo(() => [avatarUrl], [avatarUrl]));
+
 	const handleNameUpdate = async () => {
 		if (!username.trim() || username === user?.name) return;
 
@@ -46,9 +68,9 @@ const Account = () => {
 			setLoading(true);
 			const response = await api.patch('/users/name', { name: username.trim() });
 			dispatch(setUserData(response.data));
-			callSuccess('Username updated');
+			callSuccess(t('account.usernameUpdated'));
 		} catch {
-			callError('Failed to update name');
+			callError(t('account.failedUpdateName'));
 			setUsername(user?.name || '');
 		} finally {
 			setLoading(false);
@@ -60,11 +82,11 @@ const Account = () => {
 		if (!file) return;
 
 		if (!file.type.startsWith('image/')) {
-			return callError('Please select an image file');
+			return callError(t('account.selectImage'));
 		}
 
 		if (file.size > 5 * 1024 * 1024) {
-			return callError('Image size should be less than 5MB');
+			return callError(t('account.imageTooLarge'));
 		}
 
 		try {
@@ -80,7 +102,7 @@ const Account = () => {
 			setImageError(false);
 			setImageTimestamp(Date.now());
 		} catch {
-			callError('Failed to upload image');
+			callError(t('account.failedUploadImage'));
 		} finally {
 			setLoading(false);
 			if (fileInputRef.current) fileInputRef.current.value = '';
@@ -110,8 +132,8 @@ const Account = () => {
 
 	return (
 		<main className="p-4 grow flex flex-col gap-6">
-			<h1 className="font-bold text-3xl text-center text-foreground">Profile</h1>
-			{!user ? (
+			<h1 className="font-bold text-3xl text-center text-foreground">{t('account.profile')}</h1>
+			{!user || !avatarLoaded ? (
 				<ProfileSkeleton />
 			) : (<>
 				<div className="flex flex-col gap-6 items-center bg-white shadow-lg border border-secondary/20 rounded-2xl p-8">
@@ -153,7 +175,7 @@ const Account = () => {
 						<InputTextHidden
 							id={`username-${user._id}`}
 							value={username}
-							placeholder="User Name"
+							placeholder={t('account.usernamePlaceholder')}
 							inputStyles="text-2xl font-bold text-foreground truncate"
 							maxLength={16}
 							onChange={(e) => setUsername(e.target.value)}
@@ -164,8 +186,8 @@ const Account = () => {
 				</div>
 
 				<div className="flex flex-col gap-4 bg-white shadow-lg border border-secondary/20 rounded-2xl p-6">
-					<h2 className="font-bold text-xl text-foreground">Care Packages</h2>
-					<p className="text-secondary text-sm">Collect supplies for your pets!</p>
+					<h2 className="font-bold text-xl text-foreground">{t('account.carePackages')}</h2>
+					<p className="text-secondary text-sm">{t('account.carePackagesDesc')}</p>
 
 					{claimStatus && (
 						<div className="space-y-3">
@@ -195,8 +217,27 @@ const Account = () => {
 					)}
 				</div>
 
+				<div className="flex flex-col gap-4 bg-white shadow-lg border border-secondary/20 rounded-2xl p-6">
+					<h2 className="font-bold text-xl text-foreground">{t('account.language')}</h2>
+					<div className="flex gap-2">
+						{LANGUAGES.map((lang) => (
+							<button
+								key={lang.code}
+								onClick={() => setLanguage(lang.code)}
+								className={`flex-1 py-3 px-4 rounded-xl font-semibold transition-colors border-2 ${
+									language === lang.code
+										? 'border-primary bg-primary/10 text-primary'
+										: 'border-secondary/20 bg-background text-foreground hover:border-primary/50'
+								}`}
+							>
+								{lang.nativeLabel}
+							</button>
+						))}
+					</div>
+				</div>
+
 				<Button variant="danger" size="lg" onClick={logout} style="flex justify-center items-center gap-2">
-					Log Out
+					{t('account.logOut')}
 					<Power width={20} height={20} className="text-danger" />
 				</Button>
 			</>)}

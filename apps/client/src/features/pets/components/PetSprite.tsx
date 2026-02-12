@@ -11,6 +11,7 @@ interface PetSpriteProps {
 	width?: number | string;
 	animation?: PetAnimation;
 	onAnimationEnd?: () => void;
+	onLoad?: () => void;
 	forceShow?: boolean; // Show sprite even if on expedition
 }
 
@@ -50,7 +51,7 @@ const selectSpriteConfig = (
 	return spriteData;
 };
 
-const getPetIdleSprite = (pet: Pet, forceShow?: boolean): SpriteConfig => {
+export const getPetIdleSprite = (pet: Pet, forceShow?: boolean): SpriteConfig => {
 	// Hide sprite if pet is on expedition (unless forced to show)
 	if (pet.isOnExpedition && !forceShow) return { sprite: '' };
 
@@ -77,7 +78,7 @@ const getPetIdleSprite = (pet: Pet, forceShow?: boolean): SpriteConfig => {
 	return selectSpriteConfig(idleSprite, seed);
 };
 
-const PetSprite = ({ pet, height = 500, width = 200, animation, onAnimationEnd, forceShow }: PetSpriteProps) => {
+const PetSprite = ({ pet, height = 500, width = 200, animation, onAnimationEnd, onLoad, forceShow }: PetSpriteProps) => {
 	const idleSpriteConfig = useMemo(() => getPetIdleSprite(pet, forceShow), [pet.isEgg, pet.isOnExpedition, pet.type, pet.needs, forceShow]);
 	const [currentSpriteConfig, setCurrentSpriteConfig] = useState<SpriteConfig>(idleSpriteConfig);
 	const [isAnimating, setIsAnimating] = useState(false);
@@ -138,6 +139,7 @@ const PetSprite = ({ pet, height = 500, width = 200, animation, onAnimationEnd, 
 					loop={true}
 					height={height}
 					alt={pet.name}
+				onLoad={onLoad}
 				/>
 			</div>
 		);
@@ -156,6 +158,7 @@ const PetSprite = ({ pet, height = 500, width = 200, animation, onAnimationEnd, 
 				height={heightNum}
 				width={widthNum}
 				style={{ width: 'auto', height: heightStyle }}
+			onLoad={onLoad}
 			/>
 		</div>
 	);

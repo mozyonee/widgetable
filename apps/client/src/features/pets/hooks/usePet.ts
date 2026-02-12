@@ -1,3 +1,4 @@
+import { useTranslation } from '@/i18n/useTranslation';
 import api from '@/lib/api';
 import { callError, callSuccess } from '@/lib/functions';
 import { useAppDispatch, useAppSelector } from '@/store';
@@ -18,6 +19,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { getParentId, getParentNames, getPetMessage } from '../utils/functions';
 
 export const usePet = () => {
+	const { t } = useTranslation();
 	const { id } = useParams<{ id: string }>();
 	const dispatch = useAppDispatch();
 	const pet = useAppSelector((state) => state.pets.selectedPet);
@@ -84,7 +86,7 @@ export const usePet = () => {
 	const updatePet = useCallback(
 		async (data: PetUpdate, animation?: PetAnimation, actionName?: string) => {
 			if (currentAnimation) {
-				callError(`${pet?.name} is busy`);
+				callError(t('pets.isBusy', { name: pet?.name || '' }));
 				return;
 			}
 
@@ -121,7 +123,7 @@ export const usePet = () => {
 			const response = await api.delete(`/pets/${pet._id}`);
 
 			if (response.data && response.data.parents && response.data.parents.length > 0) {
-				callSuccess(`You no longer parent ${pet.name}`);
+				callSuccess(t('pets.noLongerParent', { name: pet.name }));
 			}
 
 		} catch (error: any) {
@@ -140,16 +142,16 @@ export const usePet = () => {
 				});
 				const friend = friends.find((f) => f._id === friendId);
 				dispatch(addCoparentingRequestSent(data));
-				callSuccess(`Coparenting invitation sent to ${friend?.name}`);
+				callSuccess(t('invite.sent', { name: friend?.name || '' }));
 				setShowShareDropdown(false);
 			} catch (error: any) {
 				const status = error.response?.status;
-				let errorMessage = 'Failed to send coparenting invitation';
+				let errorMessage = t('invite.failedSend');
 
 				if (status === 404) {
-					errorMessage = 'User or pet not found';
+					errorMessage = t('invite.userNotFound');
 				} else if (status === 400) {
-					errorMessage = 'Cannot send coparenting request';
+					errorMessage = t('invite.cannotSend');
 				}
 
 				callError(errorMessage);
@@ -193,7 +195,7 @@ export const usePet = () => {
 		if (needsChanged || !cachedMessageRef.current.message) {
 			cachedMessageRef.current = {
 				urgentNeeds,
-				message: getPetMessage(pet, user?.name),
+				message: getPetMessage(pet, user?.name, t),
 			};
 		}
 

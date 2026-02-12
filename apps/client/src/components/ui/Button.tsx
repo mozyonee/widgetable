@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from 'react';
 import { InputTextHiddenProps } from '@/types/buttons.types';
 
 export const Button = ({
@@ -47,17 +48,36 @@ export const InputTextHidden = ({
 	maxLength,
 	inputStyles = '',
 }: InputTextHiddenProps) => {
+	const spanRef = useRef<HTMLSpanElement>(null);
+	const [inputWidth, setInputWidth] = useState<number>(0);
+	const displayText = value || placeholder;
+
+	useEffect(() => {
+		if (spanRef.current) {
+			setInputWidth(spanRef.current.scrollWidth);
+		}
+	}, [displayText]);
+
 	return (
-		<input
-			id={id}
-			value={value}
-			placeholder={placeholder}
-			onChange={onChange}
-			onBlur={onBlur}
-			readOnly={readOnly}
-			maxLength={maxLength}
-			size={Math.max(value.length, placeholder.length, 1)}
-			className={`bg-transparent text-center outline-none w-fit max-w-full ${inputStyles}`}
-		/>
+		<div className="relative inline-grid items-center max-w-full">
+			<span
+				ref={spanRef}
+				aria-hidden="true"
+				className={`invisible whitespace-pre col-start-1 row-start-1 ${inputStyles}`}
+			>
+				{displayText || '\u00A0'}
+			</span>
+			<input
+				id={id}
+				value={value}
+				placeholder={placeholder}
+				onChange={onChange}
+				onBlur={onBlur}
+				readOnly={readOnly}
+				maxLength={maxLength}
+				style={{ width: inputWidth > 0 ? `${inputWidth}px` : 'auto' }}
+				className={`bg-transparent text-center outline-none col-start-1 row-start-1 min-w-[1ch] max-w-full ${inputStyles}`}
+			/>
+		</div>
 	);
 };

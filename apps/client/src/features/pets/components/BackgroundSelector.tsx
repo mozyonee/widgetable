@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslation } from '@/i18n/useTranslation';
 import { Close } from '@nsmr/pixelart-react';
 import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
@@ -14,6 +15,7 @@ interface BackgroundSelectorProps {
 }
 
 export const BackgroundSelector = ({ isOpen, onClose, onSelect, currentBackground }: BackgroundSelectorProps) => {
+	const { t } = useTranslation();
 	const [mounted, setMounted] = useState(false);
 	const [randomPreview, setRandomPreview] = useState(() => Math.floor(Math.random() * 20) + 1);
 	const modalRef = useRef<HTMLDivElement | null>(null);
@@ -56,7 +58,7 @@ export const BackgroundSelector = ({ isOpen, onClose, onSelect, currentBackgroun
 				className="bg-white rounded-2xl shadow-xl max-w-2xl w-full max-h-[80vh] overflow-hidden flex flex-col"
 			>
 				<div className="flex items-center justify-between p-4 border-b border-secondary/20">
-					<h2 className="text-xl font-bold text-foreground">Select Background</h2>
+					<h2 className="text-xl font-bold text-foreground">{t('pets.selectBackground')}</h2>
 					<button
 						onClick={onClose}
 						className="text-secondary hover:text-foreground transition"
@@ -84,7 +86,7 @@ export const BackgroundSelector = ({ isOpen, onClose, onSelect, currentBackgroun
 								<span className="text-white text-6xl font-bold drop-shadow-lg">?</span>
 							</div>
 							<div className="absolute bottom-0 left-0 right-0 bg-black/50 text-white text-xs py-1 text-center">
-								Random
+								{t('pets.random')}
 							</div>
 						</button>
 
@@ -100,11 +102,11 @@ export const BackgroundSelector = ({ isOpen, onClose, onSelect, currentBackgroun
 							>
 								<img
 									src={`/backgrounds/${bgId}.png`}
-									alt={`Background ${bgId}`}
+									alt={t('pets.bgLabel', { id: bgId })}
 									className="w-full h-full object-cover"
 								/>
 								<div className="absolute bottom-0 left-0 right-0 bg-black/50 text-white text-xs py-1 text-center">
-									Background {bgId}
+									{t('pets.bgLabel', { id: bgId })}
 								</div>
 							</button>
 						))}

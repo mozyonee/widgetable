@@ -28,6 +28,9 @@ export class User {
 
 	@Prop({ type: Date, required: false })
 	lastQuickClaimTime?: Date;
+
+	@Prop({ default: 'en' })
+	language?: string;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

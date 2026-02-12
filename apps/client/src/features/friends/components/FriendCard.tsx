@@ -1,6 +1,7 @@
 'use client';
 
 import { Button } from '@/components/ui/Button';
+import { useTranslation } from '@/i18n/useTranslation';
 import { Check, Clock, Close, UserMinus, UserPlus } from '@nsmr/pixelart-react';
 import { FriendshipStatus, User } from '@widgetable/types';
 import UserCard from './UserCard';
@@ -17,6 +18,7 @@ interface FriendCardProps {
 }
 
 const FriendCard = ({ user, status, onAdd, onCancel, onAccept, onDecline, onRemove, variant }: FriendCardProps) => {
+	const { t } = useTranslation();
 	if (!user._id) return null;
 
 	const actionConfig: Record<FriendshipStatus, React.ReactNode> = {
@@ -29,7 +31,7 @@ const FriendCard = ({ user, status, onAdd, onCancel, onAccept, onDecline, onRemo
 			<div className="flex-1 flex flex-col items-center gap-2">
 				<div className="flex items-center gap-1 text-secondary text-sm">
 					<Clock width={16} height={16} />
-					<span>Pending</span>
+					<span>{t('friends.pending')}</span>
 				</div>
 				<Button variant="secondary" onClick={() => onCancel?.(user._id!)} className="p-2">
 					<Close width={20} height={20} />

@@ -7,8 +7,10 @@ import { ClaimResult } from '@/features/claims/hooks/useClaims';
 import { BackgroundSelector } from '@/features/pets/components/BackgroundSelector';
 import { InviteModal } from '@/features/pets/components/InviteModal';
 import PetSprite from '@/features/pets/components/PetSprite';
+import { useTranslation } from '@/i18n/useTranslation';
 import api from '@/lib/api';
 import { callError, callSuccess } from '@/lib/functions';
+import { useImagesLoaded } from '@/lib/useImagesLoaded';
 import { useAppDispatch, useAppSelector } from '@/store';
 import { setSelectedPet } from '@/features/pets/slices/petsSlice';
 import { setUserData } from '@/store/slices/userSlice';
@@ -41,9 +43,10 @@ const getTierColor = (tier?: number): string => {
 	}
 };
 
-const actionBarBtnClass = 'flex items-center gap-2 px-4 py-2 bg-white/80 backdrop-blur-sm rounded-xl border border-secondary/20 shadow-sm hover:bg-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed';
+const actionBarBtnClass = 'flex items-center justify-center gap-2 px-4 py-2 bg-white/80 backdrop-blur-sm rounded-xl border border-secondary/20 shadow-sm hover:bg-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed';
 
 const PetPage = () => {
+	const { t } = useTranslation();
 	const router = useRouter();
 	const pet = useAppSelector((state) => state.pets.selectedPet);
 	const user = useAppSelector((state) => state.user.userData);
@@ -77,12 +80,11 @@ const PetPage = () => {
 		const formatTime = (milliseconds: number): string => {
 			const seconds = Math.floor(milliseconds / 1000);
 			const minutes = Math.floor(seconds / 60);
-			const remainingSeconds = seconds % 60;
+			const hours = Math.floor(minutes / 60);
 
-			if (minutes > 0) {
-				return `${minutes}m ${remainingSeconds}s`;
-			}
-			return `${remainingSeconds}s`;
+			if (hours > 0) return `${hours}h`;
+			if (minutes > 0) return `${minutes}m`;
+			return `${seconds}s`;
 		};
 
 		const updateTimer = () => {
@@ -91,11 +93,11 @@ const PetPage = () => {
 			const diff = hatchTimeMs - now;
 
 			if (diff <= 0) {
-				setEggTimeLeft('Hatching...');
+				setEggTimeLeft(t('pets.hatching'));
 				return;
 			}
 
-			setEggTimeLeft(`Hatching in ${formatTime(diff)}`);
+			setEggTimeLeft(t('pets.hatchingIn', { time: formatTime(diff) }));
 		};
 
 		updateTimer();
@@ -162,7 +164,7 @@ const PetPage = () => {
 			if (pet.needs.toilet < 30) urgentNeeds.push('toilet');
 
 			if (urgentNeeds.length > 0) {
-				callError(`${pet.name} has urgent needs! Take care of ${urgentNeeds.join(', ')} first.`);
+				callError(t('pets.urgentNeeds', { name: pet.name, needs: urgentNeeds.join(', ') }));
 				return;
 			}
 		}
@@ -170,9 +172,9 @@ const PetPage = () => {
 		try {
 			const response = await api.post(`/pets/${pet._id}/expedition/start`);
 			dispatch(setSelectedPet(response.data));
-			callSuccess(`${pet.name} departed on an expedition!`);
+			callSuccess(t('pets.departedExpedition', { name: pet.name }));
 		} catch (error: any) {
-			callError(error.response?.data?.message || 'Failed to start expedition');
+			callError(error.response?.data?.message || t('pets.failedStartExpedition'));
 		}
 	};
 
@@ -186,9 +188,9 @@ const PetPage = () => {
 			const userResponse = await api.get('/auth/me');
 			dispatch(setUserData(userResponse.data));
 
-			callSuccess(`${pet.name} returned successfully!`);
+			callSuccess(t('pets.returnedSuccess', { name: pet.name }));
 		} catch (error: any) {
-			callError(error.response?.data?.message || 'Failed to claim rewards');
+			callError(error.response?.data?.message || t('pets.failedClaimRewards'));
 		}
 	};
 
@@ -200,20 +202,20 @@ const PetPage = () => {
 		return Math.floor(Math.random() * 20) + 1;
 	}, [pet?.background, pet?._id]);
 
+	const bgUrl = backgroundId ? `/backgrounds/${backgroundId}.png` : '';
+	const bgLoaded = useImagesLoaded(useMemo(() => [bgUrl], [bgUrl]));
+
 	// Save background to database
 	const handleBackgroundSelect = (backgroundId: number | null) => {
 		const newBackground = backgroundId ?? Math.floor(Math.random() * 20) + 1;
 		updatePet({ background: newBackground });
 	};
 
-	if (!pet) return null;
-
-	const isEgg = pet.isEgg;
-
 	// Generate action categories dynamically from configuration
 	const actionCategories = useMemo(
-		() =>
-			Object.values(PetActionCategory).map((category) => ({
+		() => {
+			if (!pet) return [];
+			return Object.values(PetActionCategory).map((category) => ({
 				categoryName: category,
 				actions: PET_ACTIONS_BY_CATEGORY[category].map((action) => {
 					const needConfig = PET_NEEDS_CONFIG[action.needKey];
@@ -235,11 +237,16 @@ const PetPage = () => {
 						),
 					};
 				}),
-			})),
-		[pet.needs, user?.inventory, updatePet],
+			}));
+		},
+		[pet?.needs, user?.inventory, updatePet],
 	);
 
 	const selectedActions = actionCategories.find((cat) => cat.categoryName === selectedCategory)?.actions || [];
+
+	if (!pet || !bgLoaded) return null;
+
+	const isEgg = pet.isEgg;
 
 	return (
 		<>
@@ -259,7 +266,7 @@ const PetPage = () => {
 
 					<div className="flex flex-col items-center gap-1 overflow-hidden w-full">
 						{isEgg ? (
-							<h2 className="font-bold text-3xl text-foreground px-2">Egg</h2>
+							<h2 className="font-bold text-3xl text-foreground px-2">{t('pets.egg')}</h2>
 						) : (
 							<>
 								<InputTextHidden
@@ -273,10 +280,10 @@ const PetPage = () => {
 									}}
 								/>
 								<div className="flex items-center gap-2 text-lg text-secondary">
-									<span className="font-semibold">Level {pet.level}</span>
+									<span className="font-semibold">{t('pets.level', { level: pet.level })}</span>
 									<span>•</span>
 									<span>
-										{pet.experience - getExpForCurrentLevel(pet.level)}/{getExpForNextLevel(pet.level)} XP
+										{t('pets.xp', { current: pet.experience - getExpForCurrentLevel(pet.level), next: getExpForNextLevel(pet.level) })}
 									</span>
 								</div>
 							</>
@@ -304,16 +311,16 @@ const PetPage = () => {
 							<div className="bg-white rounded-2xl p-4 shadow-md border border-secondary/20 flex flex-col items-center gap-2">
 								<Clock width={64} height={64} className="text-primary" />
 								<div className="text-2xl font-bold text-center text-foreground">
-									{canClaimExpedition ? `${pet.name} is back from an expedition!` : `${pet.name} is on an expedition`}
+									{canClaimExpedition ? t('pets.backFromExpedition', { name: pet.name }) : t('pets.onExpedition', { name: pet.name })}
 								</div>
 								{canClaimExpedition ? (
 									<Button onClick={handleClaimExpedition} size="lg" style="px-8">
 										<Check width={20} height={20} className="inline mr-2" />
-										Claim Rewards
+										{t('pets.claimRewards')}
 									</Button>
 								) : (
 									<div className="text-xl text-secondary">
-										Will return in {expeditionTimeLeft}
+										{t('pets.willReturn', { time: expeditionTimeLeft })}
 									</div>
 								)}
 							</div>
@@ -347,18 +354,18 @@ const PetPage = () => {
 									<>
 										<button
 											onClick={() => { setBgSelectorOpen(true); setActionsMenuOpen(false); }}
-											className={actionBarBtnClass}
+											className={`${actionBarBtnClass} flex-1`}
 										>
 											<Image width={18} height={18} className="text-primary" />
-											<span className="text-sm font-semibold text-foreground">Background</span>
+											<span className="text-sm font-semibold text-foreground">{t('pets.background')}</span>
 										</button>
 
 										<button
 											onClick={() => { setShowShareDropdown(true); setActionsMenuOpen(false); }}
-											className={actionBarBtnClass}
+											className={`${actionBarBtnClass} flex-1`}
 										>
 											<UserPlus width={18} height={18} className="text-primary" />
-											<span className="text-sm font-semibold text-foreground">Invite</span>
+											<span className="text-sm font-semibold text-foreground">{t('pets.invite')}</span>
 										</button>
 									</>
 								)}
@@ -382,7 +389,7 @@ const PetPage = () => {
 									className={`${actionBarBtnClass} w-full justify-center`}
 								>
 									<Zap width={18} height={18} className="text-primary" />
-									<span className="text-sm font-semibold text-foreground">Expedition</span>
+									<span className="text-sm font-semibold text-foreground">{t('pets.expedition')}</span>
 								</button>
 							)}
 						</div>
@@ -406,7 +413,7 @@ const PetPage = () => {
 										: 'text-secondary hover:text-foreground border-b-2 border-transparent'
 										}`}
 									onClick={() => setSelectedCategory(category.categoryName)}
-									title={category.categoryName}
+									title={t(`pets.category.${category.categoryName}`)}
 									disabled={isEgg}
 								>
 									<Icon
@@ -425,12 +432,7 @@ const PetPage = () => {
 									key={action.name}
 									onClick={action.onClick}
 									disabled={isEgg || pet.isOnExpedition || !!currentAnimation || action.isDisabled}
-									className={`
-									flex flex-col items-center gap-1 p-2 rounded-lg border-2 bg-white
-									${getTierColor(action.inventoryCost)}
-									${isEgg || pet.isOnExpedition || currentAnimation || action.isDisabled ? 'opacity-30 cursor-not-allowed' : 'hover:bg-gray-50 cursor-pointer'}
-									transition-colors
-								`}
+									className={`flex flex-col items-center justify-center gap-1 p-2 rounded-lg border-2 bg-white transition-colors ${getTierColor(action.inventoryCost)} ${isEgg || pet.isOnExpedition || currentAnimation || action.isDisabled ? 'opacity-30 cursor-not-allowed' : 'hover:bg-gray-50 cursor-pointer'}`}
 								>
 									{action.sprite && (
 										<div className="relative w-16 h-16">
@@ -441,7 +443,7 @@ const PetPage = () => {
 											/>
 										</div>
 									)}
-									<div className="text-sm font-semibold text-center text-foreground">{action.name}</div>
+									<div className="text-sm font-semibold text-center text-foreground w-full">{t(`action.${action.name}`)}</div>
 									{action.inventoryCost !== undefined && (
 										<div className="text-xs text-muted-foreground">x{action.inventoryCount}</div>
 									)}

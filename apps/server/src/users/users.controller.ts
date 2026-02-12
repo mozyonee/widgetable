@@ -54,6 +54,14 @@ export class UsersController {
 		return this.usersService.updateName(userId, name.trim());
 	}
 
+	@Patch('language')
+	@UseGuards(JwtAuthGuard)
+	updateLanguage(@Request() req: UserRequest, @Body('language') language: string) {
+		if (!language || language.trim().length === 0) throw new BadRequestException();
+		const userId = req.user._id.toString();
+		return this.usersService.updateLanguage(userId, language.trim());
+	}
+
 	@Get('search')
 	@UseGuards(JwtAuthGuard)
 	searchUsers(@Query('query') query: string) {

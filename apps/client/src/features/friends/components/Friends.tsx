@@ -1,6 +1,7 @@
 'use client';
 
 import { Skeleton } from '@/components/ui/Skeleton';
+import { useTranslation } from '@/i18n/useTranslation';
 import { useAppSelector } from '@/store';
 import { Search } from '@nsmr/pixelart-react';
 import { RequestDirection } from '@widgetable/types';
@@ -10,6 +11,7 @@ import CoparentingCard from './CoparentingCard';
 import FriendCard from './FriendCard';
 
 const Friends = () => {
+	const { t } = useTranslation();
 	const user = useAppSelector((state) => state.user.userData);
 	if (!user?._id) return null;
 
@@ -41,14 +43,14 @@ const Friends = () => {
 
 	return (
 		<div className="flex flex-col gap-4 h-full">
-			<h1 className="font-bold text-3xl text-foreground text-center">Friends</h1>
+			<h1 className="font-bold text-3xl text-foreground text-center">{t('friends.title')}</h1>
 
 			<div className="bg-white rounded-2xl shadow-md border border-secondary/20">
 				<label className="relative p-4 flex items-center cursor-text">
 					<Search className="absolute left-[23px] text-secondary pointer-events-none" width={25} height={25} />
 					<input
 						type="text"
-						placeholder="Search users..."
+						placeholder={t('friends.searchPlaceholder')}
 						value={searchQuery}
 						onChange={(e) => setSearchQuery(e.target.value)}
 						className="w-full pl-11 pr-4 py-2 bg-transparent focus:outline-none text-foreground"
@@ -82,7 +84,7 @@ const Friends = () => {
 				)}
 
 				{!searching && searchQuery.trim() && searchResults.length === 0 && (
-					<p className="text-center text-secondary my-4">No users found</p>
+					<p className="text-center text-secondary my-4">{t('friends.noUsersFound')}</p>
 				)}
 			</div>
 
@@ -131,7 +133,7 @@ const Friends = () => {
 				</div>
 			) : (
 				<div className="flex-1 flex flex-col items-center justify-center">
-					<p className="text-secondary text-center text-lg">Search for users above to add friends!</p>
+					<p className="text-secondary text-center text-lg">{t('friends.searchToAdd')}</p>
 				</div>
 			)}
 		</div>

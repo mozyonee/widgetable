@@ -3,7 +3,7 @@ import { Skeleton } from '@/components/ui/Skeleton';
 export default function Loading() {
 	return (
 		<main className="p-4 grow flex flex-col gap-6">
-			<h1 className="font-bold text-3xl text-center text-foreground">Profile</h1>
+			<Skeleton className="h-9 w-24 self-center" />
 			<div className="flex flex-col gap-6 items-center bg-white shadow-lg border border-secondary/20 rounded-2xl p-8 w-full">
 				<Skeleton className="h-24 w-24 rounded-full" />
 				<div className="flex flex-col items-center gap-2 w-full">
@@ -17,6 +17,14 @@ export default function Loading() {
 				<Skeleton className="h-12 w-full rounded-lg" />
 				<Skeleton className="h-12 w-full rounded-lg" />
 			</div>
+			<div className="flex flex-col gap-4 bg-white shadow-lg border border-secondary/20 rounded-2xl p-6">
+				<Skeleton className="h-7 w-1/3" />
+				<div className="flex gap-2">
+					<Skeleton className="h-12 flex-1 rounded-xl" />
+					<Skeleton className="h-12 flex-1 rounded-xl" />
+				</div>
+			</div>
+			<Skeleton className="h-12 w-full rounded-lg" />
 		</main>
 	);
 }

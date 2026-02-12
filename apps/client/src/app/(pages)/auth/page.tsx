@@ -1,5 +1,6 @@
 'use client';
 import { Button } from '@/components/ui/Button';
+import { useTranslation } from '@/i18n/useTranslation';
 import api from '@/lib/api';
 import { callError } from '@/lib/functions';
 import { useAppDispatch } from '@/store';
@@ -9,6 +10,7 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
 export default function AuthPage() {
+	const { t } = useTranslation();
 	const [isLogin, setIsLogin] = useState(true);
 	const router = useRouter();
 	const dispatch = useAppDispatch();
@@ -33,7 +35,7 @@ export default function AuthPage() {
 
 			router.push('/');
 		} catch (error) {
-			callError(`Failed to authenticate`);
+			callError(t('auth.failedAuth'));
 		}
 	};
 
@@ -41,14 +43,14 @@ export default function AuthPage() {
 		<main className="p-4 flex flex-col items-center justify-center grow gap-4">
 			<div className="w-full max-w-md bg-white rounded-2xl p-8 shadow-lg border border-secondary/20">
 				<h2 className="text-center text-3xl font-bold text-foreground mb-6">
-					{isLogin ? 'Welcome Back' : 'Create Account'}
+					{isLogin ? t('auth.welcomeBack') : t('auth.createAccount')}
 				</h2>
 				<form onSubmit={handleSubmit} className="flex flex-col gap-4">
 					<input
 						required
 						type="email"
 						name="email"
-						placeholder="Email"
+						placeholder={t('auth.email')}
 						className="bg-background text-foreground placeholder-secondary rounded-lg p-3 border border-secondary/20 focus:outline-none focus:ring-2 focus:ring-primary"
 					/>
 					<div className="relative">
@@ -57,7 +59,7 @@ export default function AuthPage() {
 							minLength={8}
 							type={showPassword ? 'text' : 'password'}
 							name="password"
-							placeholder="Password"
+							placeholder={t('auth.password')}
 							className="bg-background text-foreground placeholder-secondary rounded-lg p-3 border border-secondary/20 focus:outline-none focus:ring-2 focus:ring-primary w-full pr-10"
 						/>
 						<button
@@ -69,13 +71,13 @@ export default function AuthPage() {
 						</button>
 					</div>
 					<Button type="submit" size="lg" style="mt-2 w-full">
-						{isLogin ? 'Login' : 'Register'}
+						{isLogin ? t('auth.login') : t('auth.register')}
 					</Button>
 				</form>
 				<p className="text-center text-secondary mt-6">
-					{isLogin ? "Don't have an account?" : 'Already have an account?'}{' '}
+					{isLogin ? t('auth.noAccount') : t('auth.hasAccount')}{' '}
 					<button onClick={() => setIsLogin(!isLogin)} className="font-bold text-primary hover:underline">
-						{isLogin ? 'Register' : 'Login'}
+						{isLogin ? t('auth.register') : t('auth.login')}
 					</button>
 				</p>
 			</div>

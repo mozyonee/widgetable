@@ -1,4 +1,5 @@
 import { setClaimStatus as setClaimStatusAction } from '@/features/claims/slices/claimsSlice';
+import { useTranslation } from '@/i18n/useTranslation';
 import api, { isAbortError } from '@/lib/api';
 import { callError } from '@/lib/functions';
 import { useAppDispatch, useAppSelector } from '@/store';
@@ -34,6 +35,7 @@ export interface ClaimResult {
 }
 
 export const useClaims = () => {
+	const { t } = useTranslation();
 	const dispatch = useAppDispatch();
 	const claimStatus = useAppSelector((state) => state.claims.claimStatus);
 	const loaded = useAppSelector((state) => state.claims.loaded);
@@ -46,7 +48,7 @@ export const useClaims = () => {
 			const response = await api.get('/claims/status');
 			dispatch(setClaimStatusAction(response.data));
 		} catch (error: any) {
-			if (!isAbortError(error)) callError('Failed to load claim status');
+			if (!isAbortError(error)) callError(t('claims.failedLoad'));
 		}
 	}, [dispatch]);
 
@@ -69,7 +71,7 @@ export const useClaims = () => {
 			const userResponse = await api.get('/auth/me');
 			dispatch(setUserData(userResponse.data));
 		} catch (error: any) {
-			callError('Failed to claim rewards. Please try again.');
+			callError(t('claims.failedClaim'));
 		} finally {
 			setClaimingType(null);
 		}
