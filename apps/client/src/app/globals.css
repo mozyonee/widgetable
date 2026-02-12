@@ -1,5 +1,17 @@
 @import "tailwindcss";
 
+:root {
+	--background: #FFFBF7;
+	--foreground: #5C3D2E;
+	--inactive: #B4A5A5;
+
+	--primary: #D48C8C;
+	--secondary: #c4b4ae;
+
+	--accent: #F4D160;
+	--danger: #EF4444;
+}
+
 @font-face {
 	font-family: 'Basis33';
 	font-style: normal;
@@ -16,16 +28,26 @@
 	src: url(/fonts/pixel-font7.ttf) format('truetype');
 }
 
-:root {
-	--background: #FFFBF7;
-	--foreground: #5C3D2E;
-	--inactive: #B4A5A5;
+@keyframes bounceSquash {
+	0% {
+		transform: translateY(0) scaleX(1.05) scaleY(0.95);
+	}
 
-	--primary: #D48C8C;
-	--secondary: #c4b4ae;
+	25% {
+		transform: translateY(-1.5rem) scaleX(0.98) scaleY(1.02);
+	}
 
-	--accent: #F4D160;
-	--danger: #EF4444;
+	50% {
+		transform: translateY(-2rem) scaleX(0.97) scaleY(1.03);
+	}
+
+	75% {
+		transform: translateY(-0.5rem) scaleX(1) scaleY(1);
+	}
+
+	100% {
+		transform: translateY(0) scaleX(1.05) scaleY(0.95);
+	}
 }
 
 @theme inline {
@@ -77,9 +99,14 @@ html {
 	font-family: 'Basis33', ui-monospace, monospace, ui-sans-serif, system-ui, sans-serif;
 	font-size: 20px;
 	line-height: 1;
+	overscroll-behavior: none;
 }
 
 button,
 a {
 	cursor: pointer;
+}
+
+.bounce-squash {
+	animation: bounceSquash 1s ease-in-out infinite;
 }

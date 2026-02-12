@@ -35,9 +35,11 @@ import { v4 as uuidv4 } from 'uuid';
 		MongooseModule.forRootAsync({
 			useFactory: (configService: ConfigService) => {
 				const uri = configService.get<string>('MONGODB_URI');
+				const isRailway = uri?.includes('.railway.internal');
 				return {
 					uri,
-					family: uri?.includes('.railway.internal') ? 6 : 4,
+					family: isRailway ? 6 : 4,
+					directConnection: true,
 				};
 			},
 			inject: [ConfigService],

@@ -2,8 +2,8 @@
 
 import { Skeleton } from '@/components/ui/Skeleton';
 import { useAppSelector } from '@/store';
-import { RequestDirection } from '@widgetable/types';
 import { Search } from '@nsmr/pixelart-react';
+import { RequestDirection } from '@widgetable/types';
 import { useCoparenting } from '../hooks/useCoparenting';
 import { useFriends } from '../hooks/useFriends';
 import CoparentingCard from './CoparentingCard';
@@ -140,10 +140,10 @@ const Friends = () => {
 
 const FriendSkeleton = () => (
 	<div className="bg-white rounded-2xl p-4 shadow-md border border-secondary/20 flex items-center gap-4">
-		<Skeleton className="h-12 w-12 rounded-full" />
+		<Skeleton className="h-12 w-12 shrink-0 rounded-full" />
 		<div className="flex-1">
-			<Skeleton className="h-5 w-32 mb-2" />
-			<Skeleton className="h-4 w-40" />
+			<Skeleton className="h-5 w-3/5 mb-2" />
+			<Skeleton className="h-4 w-4/5" />
 		</div>
 	</div>
 );

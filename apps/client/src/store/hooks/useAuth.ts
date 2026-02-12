@@ -2,6 +2,8 @@
 
 import api from '@/lib/api';
 import { useAppDispatch, useAppSelector } from '@/store';
+import { clearClaims } from '@/features/claims/slices/claimsSlice';
+import { clearPets } from '@/features/pets/slices/petsSlice';
 import { logout, setAuthenticated, setUserData } from '@/store/slices/userSlice';
 import { useRouter } from 'next/navigation';
 import { useCallback, useState } from 'react';
@@ -38,6 +40,8 @@ export const useAuth = () => {
 		} catch (error) {
 			// Ignore error, logout locally anyway
 		} finally {
+			dispatch(clearPets());
+			dispatch(clearClaims());
 			dispatch(logout());
 			router.push('/auth');
 		}

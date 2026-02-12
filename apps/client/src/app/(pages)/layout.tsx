@@ -1,18 +1,38 @@
 'use client';
 
 import Footer from '@/components/layout/Footer';
-import { PetContext } from '@/features/pets/context/PetContext';
-import { Pet } from '@widgetable/types';
-import { useState } from 'react';
+import { usePathname } from 'next/navigation';
+import { useEffect } from 'react';
 
 const PagesLayout = ({ children }: Readonly<{ children: React.ReactNode }>) => {
-	const [pet, setPet] = useState<Pet>();
+	const pathname = usePathname();
+	const isPetPage = pathname.startsWith('/pet/');
+	const isAuthPage = pathname === '/auth';
+	const showFooter = !isPetPage && !isAuthPage;
+
+	useEffect(() => {
+		if (isPetPage) return;
+
+		const handleTouchStart = (e: TouchEvent) => {
+			if (e.touches.length !== 1) return;
+			const x = e.touches[0].clientX;
+			if (x < window.innerWidth * 0.1 || x > window.innerWidth * 0.9) {
+				e.preventDefault();
+			}
+		};
+
+		window.addEventListener('touchstart', handleTouchStart, { passive: false });
+
+		return () => {
+			window.removeEventListener('touchstart', handleTouchStart);
+		};
+	}, [isPetPage]);
 
 	return (
-		<PetContext.Provider value={{ pet, setPet }}>
+		<div className="flex flex-col grow min-h-0">
 			{children}
-			{!pet && <Footer />}
-		</PetContext.Provider>
+			{showFooter && <Footer />}
+		</div>
 	);
 };
 

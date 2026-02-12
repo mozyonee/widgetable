@@ -23,8 +23,8 @@ export default function AuthPage() {
 		try {
 			await api.post(endpoint, data);
 			router.push('/');
-		} catch (error: any) {
-			callError(error.message);
+		} catch (error) {
+			callError(`Failed to authenticate`);
 		}
 	};
 

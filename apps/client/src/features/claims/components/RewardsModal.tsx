@@ -52,9 +52,17 @@ const ItemDisplay = ({ item, index }: { item: ItemReward; index: number }) => {
 
 export const RewardsModal = ({ rewards, onClose }: RewardsModalProps) => {
 	useEffect(() => {
-		document.body.style.overflow = 'hidden';
+		const scrollY = window.scrollY;
+		document.body.style.position = 'fixed';
+		document.body.style.top = `-${scrollY}px`;
+		document.body.style.left = '0';
+		document.body.style.right = '0';
 		return () => {
-			document.body.style.overflow = 'unset';
+			document.body.style.position = '';
+			document.body.style.top = '';
+			document.body.style.left = '';
+			document.body.style.right = '';
+			window.scrollTo(0, scrollY);
 		};
 	}, []);
 
@@ -74,10 +82,15 @@ export const RewardsModal = ({ rewards, onClose }: RewardsModalProps) => {
 	];
 
 	return (
-		<div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 p-4" onClick={onClose}>
+		<div
+			className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 p-4"
+			onClick={onClose}
+			onTouchMove={(e) => e.preventDefault()}
+		>
 			<div
-				className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto animate-[scaleIn_0.3s_ease-out]"
+				className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto overscroll-none animate-[scaleIn_0.3s_ease-out]"
 				onClick={(e) => e.stopPropagation()}
+				onTouchMove={(e) => e.stopPropagation()}
 			>
 				{/* Header */}
 				<div className="sticky top-0 bg-primary text-white p-6 rounded-t-2xl flex items-center justify-between z-10">

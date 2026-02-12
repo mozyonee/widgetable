@@ -1,8 +1,8 @@
 {
-    "name": "Your app name",
-    "short_name": "App shot name",
-    "theme_color": "#00ff00",
-    "background_color": "#ffffff",
+    "name": "Widgetable",
+    "short_name": "Widgetable",
+    "theme_color": "#FFFBF7",
+    "background_color": "#FFFBF7",
     "display": "standalone",
     "orientation": "any",
     "scope": "/",

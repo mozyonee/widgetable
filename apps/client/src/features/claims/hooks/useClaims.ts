@@ -1,22 +1,18 @@
-import api from '@/lib/api';
+import api, { isAbortError } from '@/lib/api';
 import { callError, callSuccess } from '@/lib/functions';
-import { useAppDispatch } from '@/store';
+import { useAppDispatch, useAppSelector } from '@/store';
+import { setClaimStatus as setClaimStatusAction } from '@/features/claims/slices/claimsSlice';
+import type { ClaimStatus } from '@/features/claims/slices/claimsSlice';
 import { setUserData } from '@/store/slices/userSlice';
 import { useCallback, useEffect, useState } from 'react';
+
+export type { ClaimStatus } from '@/features/claims/slices/claimsSlice';
 
 export enum ItemTier {
 	BASIC = 1,
 	COMMON = 2,
 	PREMIUM = 3,
 	LEGENDARY = 4,
-}
-
-export interface ClaimStatus {
-	dailyAvailable: boolean;
-	quickAvailable: boolean;
-	nextDailyTime?: Date;
-	nextQuickTime?: Date;
-	petCount: number;
 }
 
 export interface ItemReward {
@@ -39,21 +35,20 @@ export interface ClaimResult {
 
 export const useClaims = () => {
 	const dispatch = useAppDispatch();
-	const [claimStatus, setClaimStatus] = useState<ClaimStatus | null>(null);
+	const claimStatus = useAppSelector((state) => state.claims.claimStatus);
+	const loaded = useAppSelector((state) => state.claims.loaded);
+
 	const [claimingType, setClaimingType] = useState<'daily' | 'quick' | 'debug' | null>(null);
 	const [lastRewards, setLastRewards] = useState<ClaimResult | null>(null);
-	const [loading, setLoading] = useState(true);
 
 	const loadClaimStatus = useCallback(async () => {
 		try {
 			const response = await api.get('/claims/status');
-			setClaimStatus(response.data);
-			setLoading(false);
+			dispatch(setClaimStatusAction(response.data));
 		} catch (error: any) {
-			callError(error.message || 'Failed to load claim status');
-			setLoading(false);
+			if (!isAbortError(error)) callError('Failed to load claim status');
 		}
-	}, []);
+	}, [dispatch]);
 
 	const executeClaim = async (endpoint: string, toastMessage: string, type: 'daily' | 'quick' | 'debug') => {
 		if (claimingType) return;
@@ -109,7 +104,7 @@ export const useClaims = () => {
 		claimStatus,
 		claimingType,
 		lastRewards,
-		loading,
+		loading: !loaded,
 		claimDaily,
 		claimQuick,
 		claimDebug,

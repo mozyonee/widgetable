@@ -8,10 +8,10 @@ import { ClaimResult } from '@/features/claims/hooks/useClaims';
 import UserCard from '@/features/friends/components/UserCard';
 import { BackgroundSelector } from '@/features/pets/components/BackgroundSelector';
 import PetSprite from '@/features/pets/components/PetSprite';
-import { PetContext } from '@/features/pets/context/PetContext';
 import api from '@/lib/api';
 import { callError, callSuccess } from '@/lib/functions';
 import { useAppDispatch, useAppSelector } from '@/store';
+import { setSelectedPet } from '@/features/pets/slices/petsSlice';
 import { setUserData } from '@/store/slices/userSlice';
 import { Bed, Check, ChevronLeft, Clock, Close, Coffee, Edit, UserPlus, Users, Zap } from '@nsmr/pixelart-react';
 import {
@@ -22,7 +22,8 @@ import {
 	PetActionCategory
 } from '@widgetable/types';
 import Link from 'next/link';
-import { useContext, useEffect, useMemo, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { useEffect, useMemo, useState } from 'react';
 import { usePet } from '../hooks/usePet';
 
 const getTierColor = (tier?: number): string => {
@@ -41,7 +42,8 @@ const getTierColor = (tier?: number): string => {
 };
 
 const PetPage = () => {
-	const { pet, setPet } = useContext(PetContext);
+	const router = useRouter();
+	const pet = useAppSelector((state) => state.pets.selectedPet);
 	const user = useAppSelector((state) => state.user.userData);
 	const dispatch = useAppDispatch();
 	const [eggTimeLeft, setEggTimeLeft] = useState<string>('');
@@ -163,7 +165,7 @@ const PetPage = () => {
 
 		try {
 			const response = await api.post(`/pets/${pet._id}/expedition/start`);
-			setPet(response.data);
+			dispatch(setSelectedPet(response.data));
 			callSuccess(`${pet.name} departed on an expedition!`);
 		} catch (error: any) {
 			callError(error.response?.data?.message || 'Failed to start expedition');
@@ -240,25 +242,25 @@ const PetPage = () => {
 			<div className="h-full flex flex-col overflow-hidden"
 				style={{
 					backgroundImage: `url(/backgrounds/${backgroundId}.png)`,
-					backgroundSize: '100% max(65dvh, 100%)',
-					backgroundPosition: 'center calc(100% - 35dvh + 15px)',
+					backgroundSize: 'cover',
+					backgroundPosition: 'center calc(100% - 40dvh + 50px)',
 					backgroundRepeat: 'no-repeat',
 				}}
 			>
 				{/* Header */}
 				<div className="grid grid-cols-[1fr_auto_1fr] items-center w-full p-4 flex-shrink-0 bg-white backdrop-blur-sm rounded-b-2xl shadow-md border-b border-secondary/20">
-					<Button style={`w-fit aspect-square`} variant="ghost" size="sm" onClick={() => setPet(undefined)}>
+					<Button style={`w-fit aspect-square`} variant="ghost" size="sm" onClick={() => router.back()}>
 						<ChevronLeft width={25} height={25} className="text-primary" />
 					</Button>
 
-					<div className="flex flex-col items-center gap-1">
+					<div className="flex flex-col items-center gap-1 overflow-hidden w-full">
 						{isEgg ? (
 							<h2 className="font-bold text-3xl text-foreground px-2">Egg</h2>
 						) : (
 							<>
 								<InputTextHidden
 									id={`pet-name-${pet._id}`}
-									inputStyles="font-bold text-3xl text-foreground justify-self-center px-2"
+									inputStyles="font-bold text-3xl text-foreground justify-self-center px-2 truncate"
 									placeholder={pet.name}
 									value={pet.name}
 									maxLength={16}
@@ -338,7 +340,7 @@ const PetPage = () => {
 							className="w-80"
 						/>
 
-						<Button style={`aspect-square w-fit`} variant="danger" size="sm" onClick={() => deletePet()}>
+						<Button style={`aspect-square w-fit`} variant="danger" size="sm" onClick={async () => { await deletePet(); router.back(); }}>
 							<Close width={20} height={20} className="text-danger" />
 						</Button>
 					</div>
@@ -406,7 +408,7 @@ const PetPage = () => {
 				</div>
 
 				{/* Action Menu */}
-				<div className="bg-white backdrop-blur-sm rounded-t-2xl shadow-md border-t border-secondary/20 h-[35dvh] flex flex-col flex-shrink-0">
+				<div className="bg-white backdrop-blur-sm rounded-t-2xl shadow-md border-t border-secondary/20 h-[40dvh] flex flex-col flex-shrink-0">
 					<div className="flex justify-center px-4 flex-shrink-0 gap-4 border-b border-secondary/20">
 						{actionCategories.map((category) => {
 							const Icon =
@@ -439,7 +441,7 @@ const PetPage = () => {
 						})}
 					</div>
 					<div className="overflow-y-auto p-4">
-						{!isEgg && !pet.isOnExpedition && (
+						{!isEgg && !pet.isOnExpedition && !hasUrgentNeeds && (
 							<Button
 								onClick={handleStartExpedition}
 								disabled={!!currentAnimation || hasUrgentNeeds}
@@ -448,7 +450,7 @@ const PetPage = () => {
 								style={`w-full mb-4 ${hasUrgentNeeds ? 'opacity-50' : 'bg-green-600 hover:bg-green-700'} text-white font-semibold`}
 							>
 								<Clock width={20} height={20} className="inline mr-2" />
-								{hasUrgentNeeds ? 'Take Care of Urgent Needs First' : 'Send on Expedition'}
+								Send on Expedition
 							</Button>
 						)}
 						<div className="grid grid-cols-3 gap-2">
@@ -458,7 +460,7 @@ const PetPage = () => {
 									onClick={action.onClick}
 									disabled={isEgg || pet.isOnExpedition || !!currentAnimation || action.isDisabled}
 									className={`
-									flex flex-col items-center gap-1 p-3 rounded-lg border-2 bg-white
+									flex flex-col items-center gap-1 p-2 rounded-lg border-2 bg-white
 									${getTierColor(action.inventoryCost)}
 									${isEgg || pet.isOnExpedition || currentAnimation || action.isDisabled ? 'opacity-30 cursor-not-allowed' : 'hover:bg-gray-50 cursor-pointer'}
 									transition-colors

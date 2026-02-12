@@ -17,7 +17,7 @@ const UserCard = ({ user, actions, variant = 'default' }: UserCardProps) => {
 	const cardStyles =
 		variant === 'nested'
 			? 'bg-transparent p-4 flex items-center gap-4'
-			: 'bg-white rounded-2xl p-4 shadow-md border border-secondary/20 flex items-center gap-4';
+			: 'bg-white rounded-2xl p-4 shadow-md border border-secondary/20 flex items-center gap-4 flex-wrap';
 
 	const hasPicture = user.picture && !imageError;
 
@@ -38,9 +38,9 @@ const UserCard = ({ user, actions, variant = 'default' }: UserCardProps) => {
 				)}
 			</div>
 
-			<div className="flex-1 min-w-0">
+			<div className="flex-2 min-w-4">
 				<p className="text-lg font-bold text-foreground truncate">{user.name}</p>
-				<p className=" text-secondary truncate mt-1">{user.email}</p>
+				<p className="text-secondary truncate mt-1">{user.email}</p>
 			</div>
 
 			{actions}

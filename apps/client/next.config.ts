@@ -2,6 +2,9 @@ import withPWA from "next-pwa";
 
 const nextConfig = {
 	reactStrictMode: true,
+	onDemandEntries: {
+		maxInactiveAge: 1000 * 60 * 60, // keep pages compiled for 1 hour
+	},
 
 	allowedDevOrigins: [
 		"localhost",
@@ -49,4 +52,30 @@ export default withPWA({
 		/\.well-known\//,
 	],
 	dynamicStartUrlRedirect: "/offline",
+	runtimeCaching: [
+		{
+			// Static images: sprites, backgrounds, assets
+			urlPattern: /\.(png|jpg|jpeg|webp|gif|svg)$/i,
+			handler: "CacheFirst",
+			options: {
+				cacheName: "images",
+				expiration: {
+					maxEntries: 200,
+					maxAgeSeconds: 30 * 24 * 60 * 60, // 30 days
+				},
+			},
+		},
+		{
+			// Profile pictures from API
+			urlPattern: /\/users\/.*\/picture/,
+			handler: "StaleWhileRevalidate",
+			options: {
+				cacheName: "profile-pictures",
+				expiration: {
+					maxEntries: 50,
+					maxAgeSeconds: 7 * 24 * 60 * 60, // 7 days
+				},
+			},
+		},
+	],
 })(nextConfig);

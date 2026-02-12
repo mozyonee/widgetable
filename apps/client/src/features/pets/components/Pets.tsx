@@ -1,8 +1,8 @@
 import { Skeleton } from '@/components/ui/Skeleton';
 import PetSprite from '@/features/pets/components/PetSprite';
-import { PetContext } from '@/features/pets/context/PetContext';
 import { callError } from '@/lib/functions';
-import { useAppSelector } from '@/store';
+import { useAppDispatch, useAppSelector } from '@/store';
+import { setSelectedPet } from '@/features/pets/slices/petsSlice';
 import { Clock, Plus, Users } from '@nsmr/pixelart-react';
 import {
 	EGG_ITEM_NAME,
@@ -10,7 +10,8 @@ import {
 	EXPEDITION_LEVEL_MULTIPLIER,
 	HATCH_DURATION
 } from '@widgetable/types';
-import { useContext, useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 import { usePets } from '../hooks/usePets';
 import { getParentNames } from '../utils/functions';
 
@@ -37,15 +38,21 @@ const useExpeditionReady = (returnTime?: Date) => {
 };
 
 const PetCard = ({ pet, userName }: { pet: any; userName?: string }) => {
-	const { setPet } = useContext(PetContext);
+	const router = useRouter();
+	const dispatch = useAppDispatch();
 	const parentNames = getParentNames(pet, userName);
 	const isExpeditionReady = useExpeditionReady(pet.isOnExpedition ? pet.expeditionReturnTime : undefined);
+
+	const handleClick = () => {
+		dispatch(setSelectedPet(pet));
+		router.push(`/pet/${pet._id}`);
+	};
 
 	return (
 		<div
 			key={pet._id}
-			className="bg-white rounded-2xl p-4 flex flex-col items-center justify-between gap-1 cursor-pointer relative shadow-md border border-secondary/20 hover:scale-105 transition-transform duration-300"
-			onClick={() => setPet(pet)}
+			className="bg-white rounded-2xl p-2 flex flex-col items-center justify-between gap-1 cursor-pointer relative shadow-md border border-secondary/20 hover:scale-105 transition-transform duration-300"
+			onClick={handleClick}
 		>
 			<div className="h-[100px] flex items-end justify-center overflow-hidden">
 				{pet.isOnExpedition && !isExpeditionReady ? (
@@ -66,7 +73,7 @@ const PetCard = ({ pet, userName }: { pet: any; userName?: string }) => {
 					</div>
 				</div>
 			)}
-			<p className={`text-2xl font-bold text-foreground text-center ${isExpeditionReady ? "" : "mt-2"}`}>
+			<p className={`text-2xl font-bold text-foreground text-center w-full truncate ${isExpeditionReady ? "" : "mt-2"}`}>
 				{pet.isEgg ? 'Egg' : pet.name}
 			</p>
 			{pet.isEgg ? (
@@ -114,13 +121,13 @@ const PetsPage = () => {
 
 			<div className="pb-4">
 				{loading ? (
-					<div className="grid gap-6 [grid-template-columns:repeat(auto-fit,minmax(100px,1fr))]">
+					<div className="grid gap-2 [grid-template-columns:repeat(auto-fit,minmax(100px,1fr))]">
 						<PetCardSkeleton />
 						<PetCardSkeleton />
 						<PetCardSkeleton />
 					</div>
 				) : pets.length > 0 ? (
-					<div className="grid gap-6 [grid-template-columns:repeat(auto-fit,minmax(100px,1fr))]">
+					<div className="grid gap-2 [grid-template-columns:repeat(auto-fit,minmax(100px,1fr))]">
 						{pets.map((pet) => (
 							<PetCard key={pet._id} pet={pet} userName={user?.name} />
 						))}
@@ -275,9 +282,9 @@ const ExpeditionProgressTimer = ({ returnTime, petLevel }: { returnTime?: Date; 
 
 const PetCardSkeleton = () => {
 	return (
-		<div className="bg-white rounded-2xl p-4 flex flex-col items-center justify-between gap-4 shadow-md border border-secondary/20">
-			<Skeleton className="h-[100px] w-[100px] rounded-full" />
-			<Skeleton className="h-6 w-20" />
+		<div className="bg-white rounded-2xl p-2 flex flex-col items-center justify-between gap-4 shadow-md border border-secondary/20">
+			<Skeleton className="aspect-square w-full rounded-full" />
+			<Skeleton className="h-6 w-full" />
 		</div>
 	);
 };
@@ -306,7 +313,7 @@ const AddPetButton = ({
 
 	return (
 		<button
-			className={`bg-white/50 border-2 border-dashed border-secondary/50 rounded-2xl p-4 flex flex-col items-center justify-center gap-2 transition-transform duration-300 ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:scale-105 hover:bg-white'
+			className={`bg-white/50 border-2 border-dashed border-secondary/50 rounded-2xl p-2 flex flex-col items-center justify-center gap-2 transition-transform duration-300 ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:scale-105 hover:bg-white'
 				}`}
 			onClick={onClick}
 			disabled={disabled}

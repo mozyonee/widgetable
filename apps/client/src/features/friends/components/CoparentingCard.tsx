@@ -40,19 +40,19 @@ const CoparentingCard = ({ request, type, onAccept, onDecline, onCancel }: Copar
 			<div className="flex flex-col items-center gap-2">
 				{type === RequestDirection.RECEIVED ? (
 					<>
-						<Button onClick={onAccept} variant="primary" className="!p-2">
+						<Button onClick={onAccept} variant="primary" className="p-2">
 							<Check width={20} height={20} />
 						</Button>
-						<Button onClick={onDecline} variant="secondary" className="!p-2">
+						<Button onClick={onDecline} variant="secondary" className="p-2">
 							<Close width={20} height={20} />
 						</Button>
 					</>
 				) : (
 					<>
-						<Button disabled={true} variant="secondary" title="Pending" className="!p-2">
+						<Button disabled={true} variant="secondary" title="Pending" className="p-2">
 							<Clock width={20} height={20} className="flex-shrink-0" />
 						</Button>
-						<Button onClick={onCancel} variant="secondary" className="!p-2">
+						<Button onClick={onCancel} variant="secondary" className="p-2">
 							<Close width={20} height={20} />
 						</Button>
 					</>

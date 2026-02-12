@@ -1,6 +1,7 @@
 import api from '@/lib/api';
 import { callError, callSuccess } from '@/lib/functions';
 import { useAppDispatch, useAppSelector } from '@/store';
+import { setSelectedPet } from '@/features/pets/slices/petsSlice';
 import { addCoparentingRequestSent, setUserData } from '@/store/slices/userSlice';
 import {
 	PetActionCategory,
@@ -12,14 +13,14 @@ import {
 	PET_ACTIONS_BY_CATEGORY,
 	PET_UPDATE_INTERVAL,
 } from '@widgetable/types';
-import { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
-import { PetContext } from '../context/PetContext';
+import { useParams } from 'next/navigation';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { getParentId, getParentNames, getPetMessage } from '../utils/functions';
 
 export const usePet = () => {
-	const { pet, setPet } = useContext(PetContext);
-
+	const { id } = useParams<{ id: string }>();
 	const dispatch = useAppDispatch();
+	const pet = useAppSelector((state) => state.pets.selectedPet);
 	const user = useAppSelector((state) => state.user.userData);
 	const coparentingRequests = useAppSelector((state) => state.user.coparentingRequests ?? { sent: [], received: [] });
 
@@ -33,15 +34,17 @@ export const usePet = () => {
 
 	// Fetches
 
+	const petId = pet?._id || id;
+
 	const loadPet = useCallback(async () => {
-		if (!user?._id || !pet?._id) return;
+		if (!user?._id || !petId) return;
 		try {
-			const response = await api.get(`/pets/${pet._id}`);
-			setPet(response.data);
+			const response = await api.get(`/pets/${petId}`);
+			dispatch(setSelectedPet(response.data));
 		} catch (error: any) {
 			callError(error.message);
 		}
-	}, [user?._id, pet?._id, setPet]);
+	}, [user?._id, petId, dispatch]);
 
 	const loadFriends = useCallback(async () => {
 		try {
@@ -55,7 +58,7 @@ export const usePet = () => {
 	// Initial load
 	useEffect(() => {
 		loadPet();
-	}, [user?._id, pet?._id, loadPet]);
+	}, [loadPet]);
 
 	useEffect(() => {
 		loadFriends();
@@ -63,7 +66,7 @@ export const usePet = () => {
 
 	// Polling mechanism to keep pet stats synced with server
 	useEffect(() => {
-		if (!pet?._id) return;
+		if (!petId) return;
 
 		pollingIntervalRef.current = setInterval(() => {
 			loadPet();
@@ -74,7 +77,7 @@ export const usePet = () => {
 				clearInterval(pollingIntervalRef.current);
 			}
 		};
-	}, [pet?._id, loadPet]);
+	}, [petId, loadPet]);
 
 	// Actions
 
@@ -92,7 +95,7 @@ export const usePet = () => {
 			try {
 				const payload = actionName ? { ...data, actionName } : data;
 				const response = await api.patch(`/pets/${pet?._id}`, payload);
-				setPet(response.data);
+				dispatch(setSelectedPet(response.data));
 
 				// If action consumed inventory, refetch user data to update inventory count
 				if (actionName) {
@@ -108,7 +111,7 @@ export const usePet = () => {
 				callError(error.message);
 			}
 		},
-		[pet, currentAnimation, setPet, dispatch],
+		[pet, currentAnimation, dispatch],
 	);
 
 	const deletePet = useCallback(async () => {
@@ -121,11 +124,10 @@ export const usePet = () => {
 				callSuccess(`You no longer parent ${pet.name}`);
 			}
 
-			setPet(undefined);
 		} catch (error: any) {
 			callError(error.message);
 		}
-	}, [pet, setPet]);
+	}, [pet]);
 
 	const sendCoparentingRequest = useCallback(
 		async (friendId: string) => {

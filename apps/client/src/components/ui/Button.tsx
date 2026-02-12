@@ -57,7 +57,7 @@ export const InputTextHidden = ({
 			readOnly={readOnly}
 			maxLength={maxLength}
 			size={Math.max(value.length, placeholder.length, 1)}
-			className={`bg-transparent text-center outline-none w-fit ${inputStyles}`}
+			className={`bg-transparent text-center outline-none w-fit max-w-full ${inputStyles}`}
 		/>
 	);
 };

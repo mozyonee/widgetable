@@ -1,4 +1,4 @@
-import api from '@/lib/api';
+import api, { isAbortError } from '@/lib/api';
 import { callError, callSuccess } from '@/lib/functions';
 import { useAppDispatch, useAppSelector } from '@/store';
 import {
@@ -20,19 +20,19 @@ export const useFriends = (userId: string) => {
 
 	const [searchResults, setSearchResults] = useState<User[]>([]);
 	const [searchQuery, setSearchQuery] = useState('');
-	const [loading, setLoading] = useState(true);
+	const hasCachedData = friends.length > 0 || requests.sent.length > 0 || requests.received.length > 0;
+	const [loading, setLoading] = useState(!hasCachedData);
 	const [searching, setSearching] = useState(false);
 
 	// Fetches
 
 	const loadData = useCallback(async () => {
-		setLoading(true);
 		try {
 			const [friendsRes, requestsRes] = await Promise.all([api.get('/friends'), api.get('/friends/requests')]);
 			dispatch(setFriends(friendsRes.data));
 			dispatch(setFriendRequests(requestsRes.data));
-		} catch {
-			callError('Failed to load friends');
+		} catch (error: any) {
+			if (!isAbortError(error)) callError('Failed to load friends');
 		} finally {
 			setLoading(false);
 		}

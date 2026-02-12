@@ -3,16 +3,20 @@ import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux';
 import { persistReducer, persistStore } from 'redux-persist';
 import storage from '@/store/storage';
 
+import claimsReducer from '@/features/claims/slices/claimsSlice';
+import petsReducer from '@/features/pets/slices/petsSlice';
 import userReducer from '@/store/slices/userSlice';
 
 const persistConfig = {
 	key: 'root',
 	storage,
-	whitelist: ['user', 'adminUsers', 'adminStats'],
+	whitelist: ['user', 'pets', 'claims', 'adminUsers', 'adminStats'],
 };
 
 const rootReducer = combineReducers({
 	user: userReducer,
+	pets: petsReducer,
+	claims: claimsReducer,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

@@ -17,9 +17,9 @@ import { useEffect, useRef, useState } from 'react';
 const ProfileSkeleton = () => (
 	<div className="flex flex-col gap-6 items-center bg-white shadow-lg border border-secondary/20 rounded-2xl p-8 w-full">
 		<Skeleton className="h-24 w-24 rounded-full" />
-		<div className="flex flex-col items-center gap-2">
-			<Skeleton className="h-8 w-32" />
-			<Skeleton className="h-6 w-40" />
+		<div className="flex flex-col items-center gap-2 w-full">
+			<Skeleton className="h-8 w-3/5" />
+			<Skeleton className="h-6 w-4/5" />
 		</div>
 		<Skeleton className="h-12 w-full" />
 	</div>
@@ -149,17 +149,17 @@ const Account = () => {
 						/>
 					</div>
 
-					<div className="text-center">
+					<div className="text-center min-w-4 w-full overflow-hidden">
 						<InputTextHidden
 							id={`username-${user._id}`}
 							value={username}
 							placeholder="User Name"
-							inputStyles="text-2xl font-bold text-foreground"
+							inputStyles="text-2xl font-bold text-foreground truncate"
 							maxLength={16}
 							onChange={(e) => setUsername(e.target.value)}
 							onBlur={handleBlur}
 						/>
-						<p className="text-secondary">{user.email}</p>
+						<p className="text-secondary truncate">{user.email}</p>
 					</div>
 				</div>
 

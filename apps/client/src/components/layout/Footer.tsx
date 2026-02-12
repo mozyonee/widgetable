@@ -1,14 +1,11 @@
 'use client';
 
-import { useAppSelector } from '@/store';
 import { Home, Message, User } from '@nsmr/pixelart-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
 export default function Footer() {
 	const pathname = usePathname();
-	const coparentingRequests = useAppSelector((state) => state.user.coparentingRequests ?? { sent: [], received: [] });
-	const pendingCount = coparentingRequests.received.length;
 
 	const isActive = (path: string) => {
 		if (path === '/account') {
@@ -18,28 +15,23 @@ export default function Footer() {
 	};
 
 	const getLinkClassName = (path: string) => {
-		const baseClasses = 'flex flex-col items-center justify-end gap-1 font-bold';
+		const baseClasses = 'flex flex-1 items-center justify-center pt-3 pb-7 font-bold';
 		const colorClass = isActive(path) ? 'text-primary' : 'text-secondary';
 		return `${baseClasses} ${colorClass}`;
 	};
 
 	return (
 		<footer className="sticky bottom-0 mt-auto bg-white border-t border-secondary/20">
-			<nav className="flex justify-evenly p-4">
-				<Link href="/friends" className={`${getLinkClassName('/friends')} relative`}>
+			<nav className="flex">
+				<Link href="/friends" replace className={getLinkClassName('/friends')}>
 					<Message width={30} height={30} />
-					{pendingCount > 0 && (
-						<span className="absolute -top-1 -right-1 bg-danger text-white text-xs rounded-full h-5 min-w-[20px] px-1 flex items-center justify-center font-bold">
-							{pendingCount > 9 ? '9+' : pendingCount}
-						</span>
-					)}
 				</Link>
 
-				<Link href="/" className={getLinkClassName('/')}>
+				<Link href="/" replace className={getLinkClassName('/')}>
 					<Home width={30} height={30} />
 				</Link>
 
-				<Link href="/account" className={getLinkClassName('/account')}>
+				<Link href="/account" replace className={getLinkClassName('/account')}>
 					<User width={30} height={30} />
 				</Link>
 			</nav>

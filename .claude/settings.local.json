@@ -92,7 +92,12 @@
       "Bash(git status:*)",
       "Bash(tsc:*)",
       "WebFetch(domain:docs.railway.com)",
-      "WebFetch(domain:station.railway.com)"
+      "WebFetch(domain:station.railway.com)",
+      "Bash(ipconfig:*)",
+      "Bash(npx turbo:*)",
+      "Bash(npx next build:*)",
+      "WebFetch(domain:pqina.nl)",
+      "WebFetch(domain:medium.com)"
     ],
     "deny": [],
     "ask": []
