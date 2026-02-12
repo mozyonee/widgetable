@@ -19,8 +19,9 @@ export class AuthService {
 
 		const hashedPassword = await this.hashPassword(password);
 		const user = await this.usersService.create(email, hashedPassword);
+		const token = this.generateToken(user);
 
-		return user;
+		return { user, token };
 	}
 
 	async login(email: string, password: string) {
@@ -31,17 +32,8 @@ export class AuthService {
 		if (!isPasswordValid) throw new UnauthorizedException();
 
 		const token = this.generateToken(user);
-		const cookie = this.getCookieWithJwtToken(token);
 
-		return {
-			cookie,
-			user,
-		};
-	}
-
-	getCookieForLogout() {
-		const secure = this.configService.get('NODE_ENV') === 'production';
-		return `Authentication=; Path=/; Max-Age=0; SameSite=None;${secure ? ' Secure; HttpOnly;' : ''}`;
+		return { user, token };
 	}
 
 	private async hashPassword(password: string): Promise<string> {
@@ -61,8 +53,4 @@ export class AuthService {
 		return this.jwtService.sign(payload);
 	}
 
-	private getCookieWithJwtToken(token: string) {
-		const secure = this.configService.get('NODE_ENV') === 'production';
-		return `Authentication=${token}; Path=/; Max-Age=${this.configService.get<string>('JWT_EXPIRATION_TIME', '86400')}; SameSite=None;${secure ? ' Secure; HttpOnly;' : ''}`;
-	}
 }

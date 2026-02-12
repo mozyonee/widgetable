@@ -4,6 +4,7 @@ import type { Request, User } from '@widgetable/types';
 interface UserState {
 	isAuthenticated: boolean;
 	userData: User | null;
+	token: string | null;
 	friends: User[];
 	friendRequests: {
 		sent: Request[];
@@ -18,6 +19,7 @@ interface UserState {
 const initialState: UserState = {
 	isAuthenticated: false,
 	userData: null,
+	token: null,
 	friends: [],
 	friendRequests: {
 		sent: [],
@@ -39,9 +41,13 @@ export const userSlice = createSlice({
 		setUserData: (state, action: PayloadAction<User | null>) => {
 			state.userData = action.payload;
 		},
+		setToken: (state, action: PayloadAction<string | null>) => {
+			state.token = action.payload;
+		},
 		logout: (state) => {
 			state.isAuthenticated = false;
 			state.userData = null;
+			state.token = null;
 			state.friends = [];
 			state.friendRequests = { sent: [], received: [] };
 			state.coparentingRequests = { sent: [], received: [] };
@@ -87,6 +93,7 @@ export const userSlice = createSlice({
 export const {
 	setAuthenticated,
 	setUserData,
+	setToken,
 	logout,
 	setFriends,
 	setFriendRequests,

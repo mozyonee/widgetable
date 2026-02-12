@@ -1,4 +1,4 @@
-import { BadRequestException, Inject, Injectable, NotFoundException, StreamableFile } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { EGG_ITEM_NAME } from '@widgetable/types';
 import * as Minio from 'minio';
@@ -23,7 +23,7 @@ export class UsersService {
 		return this.userModel.findById(id).exec();
 	}
 
-	async create(email: string, hashedPassword: string): Promise<User> {
+	async create(email: string, hashedPassword: string): Promise<UserDocument> {
 		const defaultName = email.split('@')[0];
 		const newUser = new this.userModel({
 			email,
@@ -38,16 +38,11 @@ export class UsersService {
 		return savedUser;
 	}
 
-	async getImage(userId: string) {
+	async getImageUrl(userId: string): Promise<string> {
 		const user = await this.userModel.findById(userId);
 		if (!user || !user.picture) throw new NotFoundException();
 
-		const s3Response = await this.s3Client.getObject(StorageBucket.AVATARS, user.picture);
-		if (!s3Response) throw new NotFoundException();
-
-		return new StreamableFile(s3Response, {
-			type: 'image/jpeg',
-		});
+		return this.s3Client.presignedGetObject(StorageBucket.AVATARS, user.picture, 3600);
 	}
 
 	async setImage(userId: string, file: Express.Multer.File): Promise<UserDocument> {

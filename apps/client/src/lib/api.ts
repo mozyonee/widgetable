@@ -2,12 +2,29 @@ import axios from 'axios';
 
 const api = axios.create({
 	baseURL: process.env.NEXT_PUBLIC_SERVER_URL,
-	withCredentials: true,
 });
 
 const pendingRequests = new Set<AbortController>();
 
+const getToken = (): string | null => {
+	if (typeof window === 'undefined') return null;
+	try {
+		const persisted = localStorage.getItem('persist:root');
+		if (!persisted) return null;
+		const root = JSON.parse(persisted);
+		const user = JSON.parse(root.user);
+		return user.token || null;
+	} catch {
+		return null;
+	}
+};
+
 api.interceptors.request.use((config) => {
+	const token = getToken();
+	if (token) {
+		config.headers.Authorization = `Bearer ${token}`;
+	}
+
 	const controller = new AbortController();
 	config.signal = config.signal || controller.signal;
 	pendingRequests.add(controller);

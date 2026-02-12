@@ -2,6 +2,8 @@
 import { Button } from '@/components/ui/Button';
 import api from '@/lib/api';
 import { callError } from '@/lib/functions';
+import { useAppDispatch } from '@/store';
+import { setAuthenticated, setToken, setUserData } from '@/store/slices/userSlice';
 import { Eye, EyeClosed } from '@nsmr/pixelart-react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
@@ -9,6 +11,7 @@ import { useState } from 'react';
 export default function AuthPage() {
 	const [isLogin, setIsLogin] = useState(true);
 	const router = useRouter();
+	const dispatch = useAppDispatch();
 	const [showPassword, setShowPassword] = useState(false);
 
 	const handleSubmit = async (e: React.FormEvent) => {
@@ -21,7 +24,13 @@ export default function AuthPage() {
 		const endpoint = isLogin ? '/auth/login' : '/auth/register';
 
 		try {
-			await api.post(endpoint, data);
+			const response = await api.post(endpoint, data);
+			const { user, token } = response.data;
+
+			dispatch(setToken(token));
+			dispatch(setUserData(user));
+			dispatch(setAuthenticated(true));
+
 			router.push('/');
 		} catch (error) {
 			callError(`Failed to authenticate`);

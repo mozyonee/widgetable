@@ -1,6 +1,5 @@
 import { BadRequestException, UnauthorizedException, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
-import * as cookieParser from 'cookie-parser';
 import * as cors from 'cors';
 import mongoose from 'mongoose';
 import { LoggingInterceptor } from 'src/common/interceptors/logging.interceptor';
@@ -8,8 +7,6 @@ import { AppModule } from './app.module';
 
 async function bootstrap() {
 	const app = await NestFactory.create(AppModule);
-
-	app.use(cookieParser());
 
 	app.use(
 		cors({

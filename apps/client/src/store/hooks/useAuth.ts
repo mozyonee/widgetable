@@ -34,17 +34,11 @@ export const useAuth = () => {
 		}
 	}, [dispatch]);
 
-	const handleLogout = async () => {
-		try {
-			await api.post('/auth/logout');
-		} catch (error) {
-			// Ignore error, logout locally anyway
-		} finally {
-			dispatch(clearPets());
-			dispatch(clearClaims());
-			dispatch(logout());
-			router.push('/auth');
-		}
+	const handleLogout = () => {
+		dispatch(clearPets());
+		dispatch(clearClaims());
+		dispatch(logout());
+		router.push('/auth');
 	};
 
 	return {
