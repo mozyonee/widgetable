@@ -44,7 +44,7 @@ export default withPWA({
 	disable: process.env.NODE_ENV !== "production",
 	skipWaiting: true,
 	register: true,
-	customWorkerDir: "worker",
+	importScripts: ["/push-sw.js"],
 	buildExcludes: [
 		/middleware-manifest\.json$/,
 		/app-build-manifest\.json$/,
