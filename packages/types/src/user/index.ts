@@ -14,6 +14,7 @@ export enum RequestDirection {
 }
 
 export interface UserData {
+	_id?: string;
 	picture?: string;
 	name: string;
 	email: string;

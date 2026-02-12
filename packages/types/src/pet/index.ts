@@ -229,6 +229,7 @@ export interface ItemReward {
 }
 
 export interface PetData {
+	_id?: string;
 	type: PetType;
 	name: string;
 	parents: string[];

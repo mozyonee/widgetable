@@ -21,6 +21,7 @@ export interface RequestMetadata {
 }
 
 export interface RequestData {
+	_id?: string;
 	type: RequestType;
 	senderId: string;
 	recipientId: string;
