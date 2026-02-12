@@ -43,7 +43,7 @@ export default withPWA({
 	dest: "public",
 	disable: process.env.NODE_ENV !== "production",
 	skipWaiting: true,
-	register: true,
+	register: false,
 	importScripts: ["/push-sw.js"],
 	buildExcludes: [
 		/middleware-manifest\.json$/,
@@ -55,7 +55,7 @@ export default withPWA({
 		/^manifest.*\.js$/,
 		/\.well-known\//,
 	],
-	dynamicStartUrlRedirect: "/offline",
+	dynamicStartUrlRedirect: "/auth",
 	runtimeCaching: [
 		{
 			// Static images: sprites, backgrounds, assets

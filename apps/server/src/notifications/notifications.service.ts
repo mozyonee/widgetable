@@ -42,31 +42,6 @@ export class NotificationsService {
 		return this.subscriptionModel.deleteOne({ endpoint });
 	}
 
-	async sendTestNotification(userId: Types.ObjectId) {
-		const subscriptions = await this.subscriptionModel.find({ userId }).exec();
-		if (!subscriptions.length) return { sent: 0 };
-
-		const payload = JSON.stringify({
-			title: 'Test notification',
-			body: 'If you see this, push notifications work!',
-			icon: '/icon-192x192.png',
-			url: '/',
-		});
-
-		let sent = 0;
-		for (const sub of subscriptions) {
-			try {
-				await webpush.sendNotification({ endpoint: sub.endpoint, keys: sub.keys as any }, payload);
-				sent++;
-			} catch (error: any) {
-				if (error.statusCode === 410 || error.statusCode === 404) {
-					await this.subscriptionModel.deleteOne({ _id: sub._id });
-				}
-			}
-		}
-		return { sent };
-	}
-
 	@Cron(CronExpression.EVERY_10_MINUTES)
 	async checkPetNeeds() {
 		this.logger.debug('Checking pet needs for notifications...');

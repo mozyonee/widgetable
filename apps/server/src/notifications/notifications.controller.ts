@@ -1,5 +1,6 @@
 import { Body, Controller, Delete, Get, Post, UseGuards } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { Types } from 'mongoose';
 import { GetUser } from 'src/common/decorators/get-user.decorator';
 import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
 import { UserDocument } from 'src/users/entities/user.entity';
@@ -26,10 +27,5 @@ export class NotificationsController {
 	@Delete('subscribe')
 	unsubscribe(@Body() body: { endpoint: string }) {
 		return this.notificationsService.unsubscribe(body.endpoint);
-	}
-
-	@Post('test')
-	test(@GetUser() user: UserDocument) {
-		return this.notificationsService.sendTestNotification(user._id);
 	}
 }
