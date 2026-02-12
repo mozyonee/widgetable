@@ -41,7 +41,7 @@ export class AuthService {
 
 	getCookieForLogout() {
 		const secure = this.configService.get('NODE_ENV') === 'production';
-		return `Authentication=; Path=/; Max-Age=0; SameSite=Lax;${secure ? ' Secure; HttpOnly;' : ''}`;
+		return `Authentication=; Path=/; Max-Age=0; SameSite=None;${secure ? ' Secure; HttpOnly;' : ''}`;
 	}
 
 	private async hashPassword(password: string): Promise<string> {
@@ -63,6 +63,6 @@ export class AuthService {
 
 	private getCookieWithJwtToken(token: string) {
 		const secure = this.configService.get('NODE_ENV') === 'production';
-		return `Authentication=${token}; Path=/; Max-Age=${this.configService.get<string>('JWT_EXPIRATION_TIME', '86400')}; SameSite=Lax;${secure ? ' Secure; HttpOnly;' : ''}`;
+		return `Authentication=${token}; Path=/; Max-Age=${this.configService.get<string>('JWT_EXPIRATION_TIME', '86400')}; SameSite=None;${secure ? ' Secure; HttpOnly;' : ''}`;
 	}
 }

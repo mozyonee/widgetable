@@ -120,7 +120,7 @@ const Account = () => {
 							<div className="w-24 h-24 rounded-full bg-background flex items-center justify-center">
 								{user.picture && !imageError ? (
 									<Image
-										src={`/api/users/${user._id}/picture?t=${imageTimestamp}`}
+										src={`${process.env.NEXT_PUBLIC_SERVER_URL}/users/${user._id}/picture?t=${imageTimestamp}`}
 										alt="Profile picture"
 										height={96}
 										width={96}
