@@ -1,5 +1,22 @@
 import withPWA from "next-pwa";
 
+const remotePatterns: { protocol: "http" | "https"; hostname: string; port?: string; pathname: string }[] = [
+	{ protocol: "http", hostname: "localhost", port: "3001", pathname: "/**" },
+	{ protocol: "http", hostname: "172.20.10.9", port: "3001", pathname: "/**" },
+];
+
+if (process.env.NEXT_PUBLIC_SERVER_URL) {
+	try {
+		const url = new URL(process.env.NEXT_PUBLIC_SERVER_URL);
+		remotePatterns.push({
+			protocol: url.protocol.replace(":", "") as "http" | "https",
+			hostname: url.hostname,
+			...(url.port ? { port: url.port } : {}),
+			pathname: "/**",
+		});
+	} catch {}
+}
+
 const nextConfig = {
 	reactStrictMode: true,
 	onDemandEntries: {
@@ -16,20 +33,7 @@ const nextConfig = {
 		"http://172.20.10.9:3000",
 	],
 	images: {
-		remotePatterns: [
-			{
-				protocol: "http" as const,
-				hostname: "localhost",
-				port: "3001",
-				pathname: "/**",
-			},
-			{
-				protocol: "http" as const,
-				hostname: "172.20.10.9",
-				port: "3001",
-				pathname: "/**",
-			}
-		],
+		remotePatterns,
 		dangerouslyAllowSVG: true,
 		unoptimized: process.env.NODE_ENV !== "production",
 	},
