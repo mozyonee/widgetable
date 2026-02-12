@@ -1,4 +1,5 @@
 import { ReactNode, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 
 interface DropdownItem {
 	id: string;
@@ -14,7 +15,6 @@ interface DropdownProps {
 	trigger: ReactNode;
 	items: DropdownItem[];
 	emptyMessage?: ReactNode;
-	align?: 'left' | 'right';
 	className?: string;
 }
 
@@ -24,14 +24,18 @@ export function Dropdown({
 	trigger,
 	items,
 	emptyMessage = 'No items available',
-	align = 'right',
 	className = '',
 }: DropdownProps) {
-	const dropdownRef = useRef<HTMLDivElement | null>(null);
+	const triggerRef = useRef<HTMLDivElement | null>(null);
+	const panelRef = useRef<HTMLDivElement | null>(null);
 
 	useEffect(() => {
 		const handleClickOutside = (event: MouseEvent) => {
-			if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+			const target = event.target as Node;
+			if (
+				triggerRef.current && !triggerRef.current.contains(target) &&
+				panelRef.current && !panelRef.current.contains(target)
+			) {
 				onClose();
 			}
 		};
@@ -46,44 +50,51 @@ export function Dropdown({
 	}, [isOpen, onClose]);
 
 	return (
-		<div className="relative" ref={dropdownRef}>
-			{trigger}
+		<>
+			<div ref={triggerRef}>
+				{trigger}
+			</div>
 
-			{isOpen && (
-				<div
-					className={`absolute ${align === 'right' ? 'right-0' : 'left-0'} mt-2 w-56 bg-white rounded-xl shadow-lg border border-secondary/20 z-10 max-h-60 overflow-y-auto ${className}`}
-				>
-					{items.length > 0 ? (
-						<div className="py-2">
-							{items.map((item) => (
-								<button
-									key={item.id}
-									onClick={() => {
-										if (!item.disabled) {
-											item.onClick();
-											onClose();
-										}
-									}}
-									disabled={item.disabled}
-									className={`w-full text-left transition ${
-										item.disabled ? 'cursor-not-allowed' : 'hover:bg-secondary/10'
-									}`}
-								>
-									{item.content ? (
-										item.content
-									) : (
-										<div className="px-4 py-2 flex items-center gap-2">
-											<span className="font-medium text-foreground">{item.label}</span>
-										</div>
-									)}
-								</button>
-							))}
-						</div>
-					) : (
-						<div className="px-4 py-3 text-secondary text-sm text-center">{emptyMessage}</div>
-					)}
-				</div>
+			{isOpen && createPortal(
+				<div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+					<div className="fixed inset-0 bg-black/50" onClick={onClose} />
+					<div
+						ref={panelRef}
+						className={`relative w-full max-w-sm bg-white rounded-xl shadow-lg border border-secondary/20 max-h-[60vh] overflow-y-auto ${className}`}
+					>
+						{items.length > 0 ? (
+							<div className="py-2">
+								{items.map((item) => (
+									<button
+										key={item.id}
+										onClick={() => {
+											if (!item.disabled) {
+												item.onClick();
+												onClose();
+											}
+										}}
+										disabled={item.disabled}
+										className={`w-full text-left transition ${
+											item.disabled ? 'cursor-not-allowed' : 'hover:bg-secondary/10'
+										}`}
+									>
+										{item.content ? (
+											item.content
+										) : (
+											<div className="px-4 py-2 flex items-center gap-2">
+												<span className="font-medium text-foreground">{item.label}</span>
+											</div>
+										)}
+									</button>
+								))}
+							</div>
+						) : (
+							<div className="px-4 py-3 text-secondary text-sm text-center">{emptyMessage}</div>
+						)}
+					</div>
+				</div>,
+				document.body,
 			)}
-		</div>
+		</>
 	);
 }

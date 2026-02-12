@@ -8,7 +8,6 @@ import {
 	EGG_ITEM_NAME,
 	EXPEDITION_BASE_DURATION,
 	EXPEDITION_LEVEL_MULTIPLIER,
-	HATCH_DURATION
 } from '@widgetable/types';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -77,7 +76,7 @@ const PetCard = ({ pet, userName }: { pet: any; userName?: string }) => {
 				{pet.isEgg ? 'Egg' : pet.name}
 			</p>
 			{pet.isEgg ? (
-				<EggTimer hatchTime={pet.hatchTime} />
+				<EggTimer hatchTime={pet.hatchTime} createdAt={pet.createdAt} />
 			) : (
 				<>
 					<div className="text-sm text-secondary font-semibold">Level {pet.level}</div>
@@ -146,16 +145,17 @@ const PetsPage = () => {
 	);
 };
 
-const EggTimer = ({ hatchTime }: { hatchTime?: Date }) => {
+const EggTimer = ({ hatchTime, createdAt }: { hatchTime?: Date; createdAt?: Date }) => {
 	const [timeLeft, setTimeLeft] = useState<string>('');
 	const [progress, setProgress] = useState<number>(0);
 	const [isHatching, setIsHatching] = useState<boolean>(false);
 
 	useEffect(() => {
-		if (!hatchTime) return;
+		if (!hatchTime || !createdAt) return;
 
 		const hatchTimeMs = new Date(hatchTime).getTime();
-		const creationTime = hatchTimeMs - HATCH_DURATION;
+		const creationTimeMs = new Date(createdAt).getTime();
+		const totalDuration = hatchTimeMs - creationTimeMs;
 
 		const formatTime = (milliseconds: number): string => {
 			const seconds = Math.floor(milliseconds / 1000);
@@ -179,9 +179,8 @@ const EggTimer = ({ hatchTime }: { hatchTime?: Date }) => {
 
 			setTimeLeft(formatTime(diff));
 
-			// Calculate progress (how much time has passed)
-			const elapsed = now - creationTime;
-			const progressPercent = Math.min(100, Math.max(0, (elapsed / HATCH_DURATION) * 100));
+			const elapsed = now - creationTimeMs;
+			const progressPercent = Math.min(100, Math.max(0, (elapsed / totalDuration) * 100));
 			setProgress(progressPercent);
 		};
 
@@ -189,7 +188,7 @@ const EggTimer = ({ hatchTime }: { hatchTime?: Date }) => {
 		const interval = setInterval(updateTimer, 1000);
 
 		return () => clearInterval(interval);
-	}, [hatchTime]);
+	}, [hatchTime, createdAt]);
 
 	if (isHatching) {
 		return (

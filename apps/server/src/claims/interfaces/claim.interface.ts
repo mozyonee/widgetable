@@ -14,6 +14,7 @@ export interface ClaimResult {
 		food: ItemReward[];
 		drinks: ItemReward[];
 		hygiene: ItemReward[];
+		care: ItemReward[];
 		eggs: number;
 	};
 	totalItems: number;

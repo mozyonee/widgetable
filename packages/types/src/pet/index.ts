@@ -62,35 +62,35 @@ export interface PetNeedConfig {
 export const PET_NEEDS_CONFIG = {
 	[PetNeed.HYGIENE]: {
 		label: 'Hygiene',
-		decayRate: 8, // depletes in ~1.25 minutes
+		decayRate: 0.28, // depletes in ~6 hours
 		urgencyMessage: 'I need a bath!',
 		category: PetActionCategory.WASH,
 		animation: PetAnimation.BATH,
 	},
 	[PetNeed.TOILET]: {
 		label: 'Toilet',
-		decayRate: 50, // depletes in ~12 seconds
+		decayRate: 0.56, // depletes in ~3 hours
 		urgencyMessage: 'I need to go to the toilet!',
 		category: PetActionCategory.CARE,
 		animation: PetAnimation.TOILET,
 	},
 	[PetNeed.HUNGER]: {
 		label: 'Hunger',
-		decayRate: 30, // depletes in ~20 seconds
+		decayRate: 0.42, // depletes in ~4 hours
 		urgencyMessage: "I'm hungry!",
 		category: PetActionCategory.FEED,
 		animation: PetAnimation.EAT,
 	},
 	[PetNeed.THIRST]: {
 		label: 'Thirst',
-		decayRate: 60, // depletes in ~10 seconds
+		decayRate: 0.83, // depletes in ~2 hours
 		urgencyMessage: "I'm thirsty!",
 		category: PetActionCategory.DRINK,
 		animation: PetAnimation.DRINK,
 	},
 	[PetNeed.ENERGY]: {
 		label: 'Energy',
-		decayRate: 15, // depletes in ~40 seconds
+		decayRate: 0.33, // depletes in ~5 hours
 		urgencyMessage: "I'm tired!",
 		category: PetActionCategory.CARE,
 		animation: PetAnimation.SLEEP,

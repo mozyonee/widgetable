@@ -5,7 +5,6 @@ import {
 	EGG_ITEM_NAME,
 	EXPEDITION_BASE_DURATION,
 	EXPEDITION_LEVEL_MULTIPLIER,
-	HATCH_DURATION,
 	ItemReward,
 	ItemTier,
 	PET_ACTIONS_BY_CATEGORY,
@@ -58,12 +57,25 @@ export class PetsService {
 		const pets = Object.values(PetType);
 		const randomType = pets[random(pets.length - 1)];
 
+		const existingPets = await this.petModel.countDocuments({ parents: { $in: [userId] }, isEgg: false });
+		const HATCH_DURATIONS = [
+			30 * 1000,			// 0 pets: 30s
+			5 * 60 * 1000,		// 1 pet: 5 min
+			30 * 60 * 1000,		// 2 pets: 30 min
+			60 * 60 * 1000,		// 3 pets: 1 hour
+			2 * 60 * 60 * 1000,	// 4 pets: 2 hours
+			4 * 60 * 60 * 1000,	// 5 pets: 4 hours
+			8 * 60 * 60 * 1000,	// 6 pets: 8 hours
+			16 * 60 * 60 * 1000,	// 7+ pets: 16 hours (cap)
+		];
+		const hatchDuration = HATCH_DURATIONS[Math.min(existingPets, HATCH_DURATIONS.length - 1)];
+
 		const result = await this.petModel.create({
 			type: randomType,
 			name: randomType, // Will be named by the type initially
 			parents: [userId],
 			isEgg: true,
-			hatchTime: new Date(Date.now() + HATCH_DURATION),
+			hatchTime: new Date(Date.now() + hatchDuration),
 		});
 
 		const populatedPet = await this.petModel.findById(result._id).populate('parents', this.PARENT_FIELDS);
@@ -238,6 +250,9 @@ export class PetsService {
 		for (const item of rewards.hygiene) {
 			await this.usersService.addInventory(userId.toString(), item.name, item.quantity);
 		}
+		for (const item of rewards.care || []) {
+			await this.usersService.addInventory(userId.toString(), item.name, item.quantity);
+		}
 		if (rewards.eggs > 0) {
 			await this.usersService.addInventory(userId.toString(), EGG_ITEM_NAME, rewards.eggs);
 		}
@@ -250,7 +265,7 @@ export class PetsService {
 		});
 
 		// Return ClaimResult format (compatible with RewardsModal)
-		const totalItems = [...rewards.food, ...rewards.drinks, ...rewards.hygiene].reduce((sum, item) => sum + item.quantity, rewards.eggs);
+		const totalItems = [...rewards.food, ...rewards.drinks, ...rewards.hygiene, ...(rewards.care || [])].reduce((sum, item) => sum + item.quantity, rewards.eggs);
 
 		return {
 			success: true,
@@ -262,10 +277,12 @@ export class PetsService {
 
 	private calculateExpeditionRewards(pet: PetDocument): ClaimResult {
 		// Base rewards for single pet (slightly less than global system)
-		const BASE_FOOD_ITEMS = 6; // 75% of global per-pet (8)
-		const BASE_DRINK_ITEMS = 4; // 67% of global per-pet (6)
-		const BASE_HYGIENE_ITEMS = 3; // 75% of global per-pet (4)
-		const BASE_EGG_CHANCE = 0.12; // 80% of global base (15%)
+		const BASE_FOOD_ITEMS = 6;
+		const BASE_DRINK_ITEMS = 4;
+		const BASE_HYGIENE_ITEMS = 3;
+		const BASE_CARE_ITEMS = 2;
+		const MIN_EGG_CHANCE = 0.05;
+		const MAX_EGG_CHANCE = 0.18;
 
 		// Level scaling (+10% per level, capped at +100%)
 		const levelMultiplier = 1 + Math.min(pet.level * 0.1, 1.0);
@@ -273,20 +290,21 @@ export class PetsService {
 		const foodCount = Math.floor(BASE_FOOD_ITEMS * levelMultiplier);
 		const drinkCount = Math.floor(BASE_DRINK_ITEMS * levelMultiplier);
 		const hygieneCount = Math.floor(BASE_HYGIENE_ITEMS * levelMultiplier);
+		const careCount = Math.floor(BASE_CARE_ITEMS * levelMultiplier);
 
-		// Reuse weighted selection from ClaimsService
 		const foodItems = this.selectRandomItems(PetActionCategory.FEED, foodCount);
 		const drinkItems = this.selectRandomItems(PetActionCategory.DRINK, drinkCount);
 		const hygieneItems = this.selectRandomItems(PetActionCategory.WASH, hygieneCount);
+		const careItems = this.selectRandomItems(PetActionCategory.CARE, careCount);
 
-		// Egg chance (capped at 30%)
-		const eggChance = Math.min(BASE_EGG_CHANCE * levelMultiplier, 0.3);
+		// Egg chance (increases with level: 5% → 18%)
+		const eggChance = Math.min(MIN_EGG_CHANCE + (MAX_EGG_CHANCE - MIN_EGG_CHANCE) * (1 - 1 / (1 + pet.level * 0.3)), MAX_EGG_CHANCE);
 		const earnedEggs = Math.random() < eggChance ? 1 : 0;
 
 		return {
 			success: true,
-			rewards: { food: foodItems, drinks: drinkItems, hygiene: hygieneItems, eggs: earnedEggs },
-			totalItems: foodCount + drinkCount + hygieneCount + earnedEggs,
+			rewards: { food: foodItems, drinks: drinkItems, hygiene: hygieneItems, care: careItems, eggs: earnedEggs },
+			totalItems: foodCount + drinkCount + hygieneCount + careCount + earnedEggs,
 			nextClaimTime: new Date(),
 		};
 	}

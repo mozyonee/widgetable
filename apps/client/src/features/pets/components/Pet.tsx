@@ -1,19 +1,19 @@
 'use client';
 
 import { Button, InputTextHidden } from '@/components/ui/Button';
-import { Dropdown } from '@/components/ui/Dropdown';
 import { getActionSprite } from '@/data/actionSprites';
 import { RewardsModal } from '@/features/claims/components/RewardsModal';
 import { ClaimResult } from '@/features/claims/hooks/useClaims';
-import UserCard from '@/features/friends/components/UserCard';
 import { BackgroundSelector } from '@/features/pets/components/BackgroundSelector';
+import { InviteModal } from '@/features/pets/components/InviteModal';
 import PetSprite from '@/features/pets/components/PetSprite';
 import api from '@/lib/api';
 import { callError, callSuccess } from '@/lib/functions';
 import { useAppDispatch, useAppSelector } from '@/store';
 import { setSelectedPet } from '@/features/pets/slices/petsSlice';
 import { setUserData } from '@/store/slices/userSlice';
-import { Bed, Check, ChevronLeft, Clock, Close, Coffee, Edit, UserPlus, Users, Zap } from '@nsmr/pixelart-react';
+import { Bed, Check, ChevronLeft, Clock, Close, Coffee, Edit, Image, Menu, Trash, UserPlus, Users, Zap } from '@nsmr/pixelart-react';
+
 import {
 	getExpForCurrentLevel,
 	getExpForNextLevel,
@@ -21,7 +21,7 @@ import {
 	PET_NEEDS_CONFIG,
 	PetActionCategory
 } from '@widgetable/types';
-import Link from 'next/link';
+
 import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
 import { usePet } from '../hooks/usePet';
@@ -41,6 +41,8 @@ const getTierColor = (tier?: number): string => {
 	}
 };
 
+const actionBarBtnClass = 'flex items-center gap-2 px-4 py-2 bg-white/80 backdrop-blur-sm rounded-xl border border-secondary/20 shadow-sm hover:bg-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed';
+
 const PetPage = () => {
 	const router = useRouter();
 	const pet = useAppSelector((state) => state.pets.selectedPet);
@@ -50,6 +52,8 @@ const PetPage = () => {
 	const [expeditionTimeLeft, setExpeditionTimeLeft] = useState<string>('');
 	const [canClaimExpedition, setCanClaimExpedition] = useState(false);
 	const [lastRewards, setLastRewards] = useState<ClaimResult | null>(null);
+	const [bgSelectorOpen, setBgSelectorOpen] = useState(false);
+	const [actionsMenuOpen, setActionsMenuOpen] = useState(false);
 
 	const {
 		availableFriends,
@@ -249,7 +253,7 @@ const PetPage = () => {
 			>
 				{/* Header */}
 				<div className="grid grid-cols-[1fr_auto_1fr] items-center w-full p-4 flex-shrink-0 bg-white backdrop-blur-sm rounded-b-2xl shadow-md border-b border-secondary/20">
-					<Button style={`w-fit aspect-square`} variant="ghost" size="sm" onClick={() => router.back()}>
+					<Button style="w-fit aspect-square" variant="ghost" size="sm" onClick={() => router.back()}>
 						<ChevronLeft width={25} height={25} className="text-primary" />
 					</Button>
 
@@ -285,76 +289,19 @@ const PetPage = () => {
 						)}
 					</div>
 
-					<div className="flex items-center gap-1 justify-self-end flex-wrap justify-end">
-						{pet._id && (
-							<BackgroundSelector
-								petId={pet._id}
-								onSelect={handleBackgroundSelect}
-								currentBackground={backgroundId}
-							/>
-						)}
-
-						<Dropdown
-							isOpen={showShareDropdown}
-							onClose={() => setShowShareDropdown(false)}
-							trigger={
-								<Button
-									style={`aspect-square w-fit`}
-									variant="ghost"
-									size="sm"
-									onClick={() => setShowShareDropdown(!showShareDropdown)}
-								>
-									<UserPlus width={20} height={20} className="text-primary" />
-								</Button>
-							}
-							items={availableFriends.map((friend: any) => ({
-								id: friend._id!,
-								disabled: friend.hasPendingRequest,
-								content: (
-									<div className={friend.hasPendingRequest ? 'opacity-50 cursor-not-allowed' : ''}>
-										<UserCard
-											user={friend}
-											variant="nested"
-											actions={
-												friend.hasPendingRequest && (
-													<Clock width={20} height={20} className="text-secondary" />
-												)
-											}
-										/>
-									</div>
-								),
-								onClick: () => {
-									if (!friend.hasPendingRequest) {
-										sendCoparentingRequest(friend._id!);
-									}
-								},
-							}))}
-							emptyMessage={
-								<div className="flex flex-col items-center gap-2">
-									<span className="text-secondary">No friends can be invited</span>
-									<Link href="/friends" className="text-primary font-semibold hover:underline">
-										Find more friends
-									</Link>
-								</div>
-							}
-							className="w-80"
-						/>
-
-						<Button style={`aspect-square w-fit`} variant="danger" size="sm" onClick={async () => { await deletePet(); router.back(); }}>
-							<Close width={20} height={20} className="text-danger" />
+					<div className="justify-self-end">
+						<Button style="aspect-square w-fit" variant="danger" size="sm" onClick={async () => { await deletePet(); router.back(); }}>
+							<Trash width={20} height={20} className="text-danger" />
 						</Button>
 					</div>
 				</div>
 
 				{/* Content Area */}
-				<div
-					className="flex-1 flex flex-col gap-5 items-center justify-center overflow-y-auto overflow-x-hidden py-8 px-4"
-
-				>
+				<div className="flex-1 flex flex-col gap-5 items-center justify-center overflow-y-auto overflow-x-hidden py-8 px-4">
 					{pet.isOnExpedition ? (
 						/* Expedition Status Display */
 						<div className="flex flex-col items-center justify-center gap-4 py-8">
-							<div className="bg-white rounded-2xl p-6 shadow-md border border-secondary/20 flex flex-col items-center gap-4">
+							<div className="bg-white rounded-2xl p-4 shadow-md border border-secondary/20 flex flex-col items-center gap-2">
 								<Clock width={64} height={64} className="text-primary" />
 								<div className="text-2xl font-bold text-center text-foreground">
 									{canClaimExpedition ? `${pet.name} is back from an expedition!` : `${pet.name} is on an expedition`}
@@ -375,32 +322,15 @@ const PetPage = () => {
 						<>
 							<div className="relative inline-block max-w-[80vw] sm:max-w-md" style={{ minHeight: '44px' }}>
 								{!currentAnimation && (
-									<>
-										{/* Bubble */}
-										<div className="bg-white border-2 border-primary rounded-xl px-4 py-2 text-xl break-words text-center">
-											{isEgg ? eggTimeLeft : getMessage()}
-										</div>
-
-										{/* Tail */}
-										<svg
-											width="24"
-											height="14"
-											viewBox="0 0 24 14"
-											className="absolute left-1/2 -translate-x-1/2 -bottom-[12px]"
-										>
-											<path
-												d="M2 0 L12 10 L22 0"
-												fill="white"
-												stroke="var(--primary)"
-												strokeWidth="2"
-												strokeLinejoin="round"
-											/>
-										</svg>
-									</>
+									<div className="relative bg-white border-2 border-primary rounded-xl px-4 py-2 text-xl break-words text-center">
+										{isEgg ? eggTimeLeft : getMessage()}
+										<div className="absolute left-1/2 -translate-x-1/2 -bottom-[12px] w-0 h-0 border-l-[12px] border-r-[12px] border-t-[12px] border-l-transparent border-r-transparent border-t-primary" />
+										<div className="absolute left-1/2 -translate-x-1/2 -bottom-[8px] w-0 h-0 border-l-[10px] border-r-[10px] border-t-[10px] border-l-transparent border-r-transparent border-t-white" />
+									</div>
 								)}
 							</div>
 
-							<div className="relative h-[200px] flex items-end justify-center overflow-hidden">
+							<div className="relative h-[200px] w-full flex items-end justify-center">
 								<PetSprite height={200} pet={pet} animation={currentAnimation} onAnimationEnd={clearAnimation} />
 							</div>
 						</>
@@ -408,7 +338,55 @@ const PetPage = () => {
 				</div>
 
 				{/* Action Menu */}
-				<div className="bg-white backdrop-blur-sm rounded-t-2xl shadow-md border-t border-secondary/20 h-[40dvh] flex flex-col flex-shrink-0">
+				<div className="relative bg-white backdrop-blur-sm rounded-t-2xl shadow-md border-t border-secondary/20 h-[40dvh] flex flex-col flex-shrink-0">
+					{/* Quick Actions Bar */}
+					{!isEgg && (
+						<div className="absolute bottom-full right-0 left-0 flex flex-col items-end gap-2 px-4 pb-3 z-10">
+							<div className="flex items-center gap-2 w-full">
+								{actionsMenuOpen && (
+									<>
+										<button
+											onClick={() => { setBgSelectorOpen(true); setActionsMenuOpen(false); }}
+											className={actionBarBtnClass}
+										>
+											<Image width={18} height={18} className="text-primary" />
+											<span className="text-sm font-semibold text-foreground">Background</span>
+										</button>
+
+										<button
+											onClick={() => { setShowShareDropdown(true); setActionsMenuOpen(false); }}
+											className={actionBarBtnClass}
+										>
+											<UserPlus width={18} height={18} className="text-primary" />
+											<span className="text-sm font-semibold text-foreground">Invite</span>
+										</button>
+									</>
+								)}
+
+								<button
+									onClick={() => setActionsMenuOpen(!actionsMenuOpen)}
+									className={`${actionBarBtnClass} ml-auto`}
+								>
+									{actionsMenuOpen ? (
+										<Close width={18} height={18} className="text-primary" />
+									) : (
+										<Menu width={18} height={18} className="text-primary" />
+									)}
+								</button>
+							</div>
+
+							{!pet.isOnExpedition && !hasUrgentNeeds && (
+								<button
+									onClick={handleStartExpedition}
+									disabled={!!currentAnimation}
+									className={`${actionBarBtnClass} w-full justify-center`}
+								>
+									<Zap width={18} height={18} className="text-primary" />
+									<span className="text-sm font-semibold text-foreground">Expedition</span>
+								</button>
+							)}
+						</div>
+					)}
 					<div className="flex justify-center px-4 flex-shrink-0 gap-4 border-b border-secondary/20">
 						{actionCategories.map((category) => {
 							const Icon =
@@ -441,18 +419,6 @@ const PetPage = () => {
 						})}
 					</div>
 					<div className="overflow-y-auto p-4">
-						{!isEgg && !pet.isOnExpedition && !hasUrgentNeeds && (
-							<Button
-								onClick={handleStartExpedition}
-								disabled={!!currentAnimation || hasUrgentNeeds}
-								variant="primary"
-								size="lg"
-								style={`w-full mb-4 ${hasUrgentNeeds ? 'opacity-50' : 'bg-green-600 hover:bg-green-700'} text-white font-semibold`}
-							>
-								<Clock width={20} height={20} className="inline mr-2" />
-								Send on Expedition
-							</Button>
-						)}
 						<div className="grid grid-cols-3 gap-2">
 							{selectedActions.map((action) => (
 								<button
@@ -485,6 +451,20 @@ const PetPage = () => {
 					</div>
 				</div>
 			</div>
+
+			<BackgroundSelector
+				isOpen={bgSelectorOpen}
+				onClose={() => setBgSelectorOpen(false)}
+				onSelect={handleBackgroundSelect}
+				currentBackground={backgroundId}
+			/>
+
+			<InviteModal
+				isOpen={showShareDropdown}
+				onClose={() => setShowShareDropdown(false)}
+				friends={availableFriends}
+				onInvite={(friendId) => sendCoparentingRequest(friendId)}
+			/>
 
 			{lastRewards && <RewardsModal rewards={lastRewards} onClose={() => setLastRewards(null)} />}
 		</>

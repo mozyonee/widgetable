@@ -17,7 +17,8 @@ export class ClaimsService {
 	private readonly BASE_FOOD_ITEMS = 8;
 	private readonly BASE_DRINK_ITEMS = 6;
 	private readonly BASE_HYGIENE_ITEMS = 4;
-	private readonly BASE_EGG_CHANCE = 0.15;
+	private readonly BASE_CARE_ITEMS = 3;
+	private readonly BASE_EGG_CHANCE = 0.35;
 
 	// Tier weights (must sum to 100)
 	private readonly TIER_WEIGHTS = {
@@ -97,6 +98,9 @@ export class ClaimsService {
 		for (const item of rewards.rewards.hygiene) {
 			await this.usersService.addInventory(userId.toString(), item.name, item.quantity);
 		}
+		for (const item of rewards.rewards.care) {
+			await this.usersService.addInventory(userId.toString(), item.name, item.quantity);
+		}
 		if (rewards.rewards.eggs > 0) {
 			await this.usersService.addInventory(userId.toString(), EGG_ITEM_NAME, rewards.rewards.eggs);
 		}
@@ -117,17 +121,19 @@ export class ClaimsService {
 		const foodCount = Math.floor(this.BASE_FOOD_ITEMS * petMultiplier * multiplier);
 		const drinkCount = Math.floor(this.BASE_DRINK_ITEMS * petMultiplier * multiplier);
 		const hygieneCount = Math.floor(this.BASE_HYGIENE_ITEMS * petMultiplier * multiplier);
+		const careCount = Math.floor(this.BASE_CARE_ITEMS * petMultiplier * multiplier);
 
 		// Select random items from each category
 		const foodItems = this.selectRandomItems(PetActionCategory.FEED, foodCount);
 		const drinkItems = this.selectRandomItems(PetActionCategory.DRINK, drinkCount);
 		const hygieneItems = this.selectRandomItems(PetActionCategory.WASH, hygieneCount);
+		const careItems = this.selectRandomItems(PetActionCategory.CARE, careCount);
 
-		// Calculate egg chance
-		const eggChance = Math.min(this.BASE_EGG_CHANCE * (1 + petCount * 0.05), 0.5);
+		// Calculate egg chance (decreases with more pets: 35% → 5%)
+		const eggChance = Math.max(this.BASE_EGG_CHANCE / (1 + petCount * 0.6), 0.05);
 		const earnedEggs = Math.random() < eggChance ? 1 : 0;
 
-		const totalItems = foodCount + drinkCount + hygieneCount + earnedEggs;
+		const totalItems = foodCount + drinkCount + hygieneCount + careCount + earnedEggs;
 		const cooldownHours = isQuick ? this.QUICK_COOLDOWN_HOURS : this.DAILY_COOLDOWN_HOURS;
 		const nextClaimTime = new Date(Date.now() + cooldownHours * 60 * 60 * 1000);
 
@@ -137,6 +143,7 @@ export class ClaimsService {
 				food: foodItems,
 				drinks: drinkItems,
 				hygiene: hygieneItems,
+				care: careItems,
 				eggs: earnedEggs,
 			},
 			totalItems,

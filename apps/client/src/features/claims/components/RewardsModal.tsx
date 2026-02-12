@@ -4,7 +4,7 @@ import { ACTION_SPRITES } from '@/data/actionSprites';
 import { EGG_ITEM_NAME } from '@widgetable/types';
 import Image from 'next/image';
 import { useEffect } from 'react';
-import { Edit, Coffee, Zap, Check } from '@nsmr/pixelart-react';
+import { Bed, Edit, Coffee, Zap, Check } from '@nsmr/pixelart-react';
 import { ClaimResult, ItemReward, ItemTier } from '../hooks/useClaims';
 
 interface RewardsModalProps {
@@ -70,16 +70,7 @@ export const RewardsModal = ({ rewards, onClose }: RewardsModalProps) => {
 	const sortedFood = [...rewards.rewards.food].sort((a, b) => b.tier - a.tier);
 	const sortedDrinks = [...rewards.rewards.drinks].sort((a, b) => b.tier - a.tier);
 	const sortedHygiene = [...rewards.rewards.hygiene].sort((a, b) => b.tier - a.tier);
-
-	const allItems = [
-		...sortedFood.map((item, idx) => ({ ...item, index: idx, category: 'Food' })),
-		...sortedDrinks.map((item, idx) => ({ ...item, index: idx + sortedFood.length, category: 'Drinks' })),
-		...sortedHygiene.map((item, idx) => ({
-			...item,
-			index: idx + sortedFood.length + sortedDrinks.length,
-			category: 'Hygiene',
-		})),
-	];
+	const sortedCare = [...(rewards.rewards.care || [])].sort((a, b) => b.tier - a.tier);
 
 	return (
 		<div
@@ -149,6 +140,21 @@ export const RewardsModal = ({ rewards, onClose }: RewardsModalProps) => {
 							<div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
 								{sortedHygiene.map((item, idx) => (
 									<ItemDisplay key={`${item.name}-${idx}`} item={item} index={idx + sortedFood.length + sortedDrinks.length} />
+								))}
+							</div>
+						</div>
+					)}
+
+					{/* Care Items */}
+					{sortedCare.length > 0 && (
+						<div>
+							<h3 className="font-bold text-lg mb-3 text-foreground flex items-center gap-2">
+								<Bed width={20} height={20} className="text-primary" />
+								Care ({sortedCare.reduce((sum, item) => sum + item.quantity, 0)} items)
+							</h3>
+							<div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
+								{sortedCare.map((item, idx) => (
+									<ItemDisplay key={`${item.name}-${idx}`} item={item} index={idx + sortedFood.length + sortedDrinks.length + sortedHygiene.length} />
 								))}
 							</div>
 						</div>

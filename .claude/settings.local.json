@@ -97,7 +97,10 @@
       "Bash(npx turbo:*)",
       "Bash(npx next build:*)",
       "WebFetch(domain:pqina.nl)",
-      "WebFetch(domain:medium.com)"
+      "WebFetch(domain:medium.com)",
+      "WebFetch(domain:copyprogramming.com)",
+      "WebFetch(domain:www.wisp.blog)",
+      "Bash(xxd:*)"
     ],
     "deny": [],
     "ask": []

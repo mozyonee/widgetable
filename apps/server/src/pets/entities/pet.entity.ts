@@ -1,7 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { PetType } from '@widgetable/types';
+import { Database, PetType } from '@widgetable/types';
 import { HydratedDocument, Types } from 'mongoose';
-import { TimeStamps } from 'src/common/interfaces/app.interface';
 
 @Schema()
 export class PetNeeds {
@@ -52,9 +51,10 @@ export class Pet {
 		food: Array<{ name: string; quantity: number; tier: number }>;
 		drinks: Array<{ name: string; quantity: number; tier: number }>;
 		hygiene: Array<{ name: string; quantity: number; tier: number }>;
+		care: Array<{ name: string; quantity: number; tier: number }>;
 		eggs: number;
 	};
 }
 
 export const PetSchema = SchemaFactory.createForClass(Pet);
-export type PetDocument = HydratedDocument<Pet> & TimeStamps;
+export type PetDocument = HydratedDocument<Pet> & Database;
