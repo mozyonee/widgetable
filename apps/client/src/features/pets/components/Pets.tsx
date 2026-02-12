@@ -121,13 +121,13 @@ const PetsPage = () => {
 
 			<div className="pb-4">
 				{loading ? (
-					<div className="grid gap-2 [grid-template-columns:repeat(auto-fit,minmax(100px,1fr))]">
+					<div className="grid gap-2 [grid-template-columns:repeat(auto-fit,minmax(125px,1fr))]">
 						<PetCardSkeleton />
 						<PetCardSkeleton />
 						<PetCardSkeleton />
 					</div>
 				) : pets.length > 0 ? (
-					<div className="grid gap-2 [grid-template-columns:repeat(auto-fit,minmax(100px,1fr))]">
+					<div className="grid gap-2 [grid-template-columns:repeat(auto-fit,minmax(125px,1fr))]">
 						{pets.map((pet) => (
 							<PetCard key={pet._id} pet={pet} userName={user?.name} />
 						))}

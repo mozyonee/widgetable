@@ -1,7 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, Schema as MongooseSchema, Types } from 'mongoose';
-import { RequestStatus, RequestType } from '@widgetable/types';
-import { TimeStamps } from 'src/common/interfaces/app.interface';
+import { Database, RequestStatus, RequestType } from '@widgetable/types';
 
 export interface RequestMetadata {
 	petId?: Types.ObjectId;
@@ -39,4 +38,4 @@ RequestSchema.index({ senderId: 1, status: 1 });
 RequestSchema.index({ type: 1, status: 1 });
 RequestSchema.index({ senderId: 1, recipientId: 1, type: 1, status: 1 });
 
-export type RequestDocument = HydratedDocument<Request> & TimeStamps;
+export type RequestDocument = HydratedDocument<Request> & Database;
