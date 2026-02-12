@@ -44,7 +44,7 @@ export const ANIMATION_DURATIONS: Record<PetAnimation, number> = {
 	[PetAnimation.DRINK]: 3750,
 	[PetAnimation.TOILET]: 6000,
 	[PetAnimation.BATH]: 6000,
-	[PetAnimation.SLEEP]: 9000,
+	[PetAnimation.SLEEP]: 18000,
 };
 
 // ============================================================================

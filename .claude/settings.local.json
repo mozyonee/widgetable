@@ -108,7 +108,8 @@
       "mcp__chrome-devtools__list_network_requests",
       "mcp__mongodb__find",
       "mcp__mongodb__list-databases",
-      "mcp__mongodb__connect"
+      "mcp__mongodb__connect",
+      "Bash(git log:*)"
     ],
     "deny": [],
     "ask": []

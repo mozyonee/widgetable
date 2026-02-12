@@ -502,7 +502,7 @@
 		"toilet": [
 			{
 				"sprite": "/pets/turtle/Sit.png",
-				"fps": 3
+				"fps": 4
 			},
 			{
 				"sprite": "/pets/turtle/Hide.png",
@@ -512,7 +512,7 @@
 		"bath": [
 			{
 				"sprite": "/pets/turtle/Jump.png",
-				"fps": 3
+				"fps": 6
 			},
 			{
 				"sprite": "/pets/turtle/Walking.png",

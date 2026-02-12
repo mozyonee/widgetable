@@ -13,6 +13,57 @@ import { PushSubscription, PushSubscriptionDocument } from './entities/push-subs
 const NOTIFICATION_COOLDOWN = 10 * 60 * 1000; // 10 minutes
 const DECAY_TIME_UNIT = 60 * 1000;
 
+const NOTIF_I18N: Record<string, Record<string, string>> = {
+	en: {
+		'urgent.title.one': '{name} is sad!',
+		'urgent.title.many': 'Your pets are sad!',
+		'urgent.body.one': '{name} needs your attention!',
+		'urgent.body.many': '{count} pets need your attention!',
+		'zero.title': 'Your pets need you!',
+		'zero.body.one': '{name} needs your attention — all needs are at zero!',
+		'zero.body.many': '{count} pets need your attention!',
+		'expedition.title': 'Expedition Complete!',
+		'expedition.body.one': '{name} has returned from the expedition!',
+		'expedition.body.many': '{count} pets have returned from their expeditions!',
+		'egg.title': 'Egg Hatched!',
+		'egg.body.one': '{name} has hatched!',
+		'egg.body.many': '{count} eggs have hatched!',
+		'claims.title': 'Goodies Available!',
+		'claims.both': 'Your daily and quick goodies are ready to collect!',
+		'claims.daily': 'Your daily goodies are ready to collect!',
+		'claims.quick': 'Your quick goodies are ready to collect!',
+		'test.title': 'Test Notification',
+		'test.body': 'If you see this, push notifications are working!',
+	},
+	ru: {
+		'urgent.title.one': '{name} грустит!',
+		'urgent.title.many': 'Ваши питомцы грустят!',
+		'urgent.body.one': '{name} нуждается в вашем внимании!',
+		'urgent.body.many': '{count} питомцев нуждаются в вашем внимании!',
+		'zero.title': 'Ваши питомцы ждут вас!',
+		'zero.body.one': 'Все показатели {name} на нуле!',
+		'zero.body.many': '{count} питомцев нуждаются в вашем внимании!',
+		'expedition.title': 'Охота завершена!',
+		'expedition.body.one': '{name} вернулся с охоты!',
+		'expedition.body.many': '{count} питомцев вернулись с охоты!',
+		'egg.title': 'Яйцо вылупилось!',
+		'egg.body.one': '{name} вылупился!',
+		'egg.body.many': '{count} яиц вылупились!',
+		'claims.title': 'Припасы готовы!',
+		'claims.both': 'Ежедневные и быстрые припасы готовы к сбору!',
+		'claims.daily': 'Ежедневные припасы готовы к сбору!',
+		'claims.quick': 'Быстрые припасы готовы к сбору!',
+		'test.title': 'Тестовое уведомление',
+		'test.body': 'Если вы видите это, уведомления работают!',
+	},
+};
+
+const nt = (lang: string, key: string, params?: Record<string, string | number>): string => {
+	const str = NOTIF_I18N[lang]?.[key] || NOTIF_I18N['en'][key] || key;
+	if (!params) return str;
+	return Object.entries(params).reduce((s, [k, v]) => s.replace(`{${k}}`, String(v)), str);
+};
+
 @Injectable()
 export class NotificationsService {
 	private readonly logger = new Logger(NotificationsService.name);
@@ -44,6 +95,11 @@ export class NotificationsService {
 		return this.subscriptionModel.deleteOne({ endpoint });
 	}
 
+	private async getUserLang(userId: string | Types.ObjectId): Promise<string> {
+		const user = await this.userModel.findById(userId).select('language').lean().exec();
+		return user?.language || 'en';
+	}
+
 	async sendTestNotification(userId: Types.ObjectId) {
 		const subscriptions = await this.subscriptionModel.find({ userId }).exec();
 
@@ -51,9 +107,10 @@ export class NotificationsService {
 			return { sent: 0, message: 'No subscriptions found for this user' };
 		}
 
+		const lang = await this.getUserLang(userId);
 		const payload = JSON.stringify({
-			title: 'Test Notification',
-			body: 'If you see this, push notifications are working!',
+			title: nt(lang, 'test.title'),
+			body: nt(lang, 'test.body'),
 			icon: '/icon-192x192.png',
 			url: '/',
 		});
@@ -150,12 +207,11 @@ export class NotificationsService {
 		const notifiedUsers = new Set<string>();
 
 		for (const [userId, petNames] of urgentUsers) {
+			const lang = await this.getUserLang(userId);
+			const one = petNames.length === 1;
 			await this.sendNotificationToUser(userId, {
-				title: petNames.length === 1 ? `${petNames[0]} is sad!` : 'Your pets are sad!',
-				body:
-					petNames.length === 1
-						? `${petNames[0]} needs your attention!`
-						: `${petNames.length} pets need your attention!`,
+				title: nt(lang, one ? 'urgent.title.one' : 'urgent.title.many', { name: petNames[0] }),
+				body: nt(lang, one ? 'urgent.body.one' : 'urgent.body.many', { name: petNames[0], count: petNames.length }),
 			});
 			notifiedUsers.add(userId);
 		}
@@ -164,12 +220,11 @@ export class NotificationsService {
 		for (const [userId, petNames] of zeroUsers) {
 			if (notifiedUsers.has(userId)) continue;
 
+			const lang = await this.getUserLang(userId);
+			const one = petNames.length === 1;
 			await this.sendNotificationToUser(userId, {
-				title: 'Your pets need you!',
-				body:
-					petNames.length === 1
-						? `${petNames[0]} needs your attention — all needs are at zero!`
-						: `${petNames.length} pets need your attention!`,
+				title: nt(lang, 'zero.title'),
+				body: nt(lang, one ? 'zero.body.one' : 'zero.body.many', { name: petNames[0], count: petNames.length }),
 			});
 		}
 
@@ -205,12 +260,11 @@ export class NotificationsService {
 		}
 
 		for (const [userId, petNames] of usersToNotify) {
+			const lang = await this.getUserLang(userId);
+			const one = petNames.length === 1;
 			this.sendNotificationToUser(userId, {
-				title: 'Expedition Complete!',
-				body:
-					petNames.length === 1
-						? `${petNames[0]} has returned from the expedition!`
-						: `${petNames.length} pets have returned from their expeditions!`,
+				title: nt(lang, 'expedition.title'),
+				body: nt(lang, one ? 'expedition.body.one' : 'expedition.body.many', { name: petNames[0], count: petNames.length }),
 			});
 		}
 
@@ -245,12 +299,11 @@ export class NotificationsService {
 		}
 
 		for (const [userId, petNames] of usersToNotify) {
+			const lang = await this.getUserLang(userId);
+			const one = petNames.length === 1;
 			this.sendNotificationToUser(userId, {
-				title: 'Egg Hatched!',
-				body:
-					petNames.length === 1
-						? `${petNames[0]} has hatched!`
-						: `${petNames.length} eggs have hatched!`,
+				title: nt(lang, 'egg.title'),
+				body: nt(lang, one ? 'egg.body.one' : 'egg.body.many', { name: petNames[0], count: petNames.length }),
 			});
 		}
 
@@ -294,18 +347,12 @@ export class NotificationsService {
 				user.lastQuickClaimTime >= quickWindowStart &&
 				user.lastQuickClaimTime <= quickWindowEnd;
 
-			let body: string;
-			if (dailyReady && quickReady) {
-				body = 'Your daily and quick goodies are ready to collect!';
-			} else if (dailyReady) {
-				body = 'Your daily goodies are ready to collect!';
-			} else {
-				body = 'Your quick goodies are ready to collect!';
-			}
+			const lang = user.language || 'en';
+			const bodyKey = dailyReady && quickReady ? 'claims.both' : dailyReady ? 'claims.daily' : 'claims.quick';
 
 			this.sendNotificationToUser(user._id.toString(), {
-				title: 'Goodies Available!',
-				body,
+				title: nt(lang, 'claims.title'),
+				body: nt(lang, bodyKey),
 			});
 		}
 
