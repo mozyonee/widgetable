@@ -7,12 +7,12 @@ import { ClaimResult } from '@/features/claims/hooks/useClaims';
 import { BackgroundSelector } from '@/features/pets/components/BackgroundSelector';
 import { InviteModal } from '@/features/pets/components/InviteModal';
 import PetSprite from '@/features/pets/components/PetSprite';
+import { setSelectedPet } from '@/features/pets/slices/petsSlice';
 import { useTranslation } from '@/i18n/useTranslation';
 import api from '@/lib/api';
 import { callError, callSuccess } from '@/lib/functions';
 import { useImagesLoaded } from '@/lib/useImagesLoaded';
 import { useAppDispatch, useAppSelector } from '@/store';
-import { setSelectedPet } from '@/features/pets/slices/petsSlice';
 import { setUserData } from '@/store/slices/userSlice';
 import { Bed, Check, ChevronLeft, Clock, Close, Coffee, Edit, Image, Menu, Trash, UserPlus, Users, Zap } from '@nsmr/pixelart-react';
 
@@ -349,12 +349,12 @@ const PetPage = () => {
 					{/* Quick Actions Bar */}
 					{!isEgg && (
 						<div className="absolute bottom-full right-0 left-0 flex flex-col items-end gap-2 px-4 pb-3 z-10">
-							<div className="flex items-center gap-2 w-full">
+							<div className="flex items-center gap-2 w-full flex-wrap">
 								{actionsMenuOpen && (
 									<>
 										<button
 											onClick={() => { setBgSelectorOpen(true); setActionsMenuOpen(false); }}
-											className={`${actionBarBtnClass} flex-1`}
+											className={`${actionBarBtnClass} flex-2`}
 										>
 											<Image width={18} height={18} className="text-primary" />
 											<span className="text-sm font-semibold text-foreground">{t('pets.background')}</span>
@@ -362,7 +362,7 @@ const PetPage = () => {
 
 										<button
 											onClick={() => { setShowShareDropdown(true); setActionsMenuOpen(false); }}
-											className={`${actionBarBtnClass} flex-1`}
+											className={`${actionBarBtnClass} flex-2`}
 										>
 											<UserPlus width={18} height={18} className="text-primary" />
 											<span className="text-sm font-semibold text-foreground">{t('pets.invite')}</span>
@@ -372,7 +372,7 @@ const PetPage = () => {
 
 								<button
 									onClick={() => setActionsMenuOpen(!actionsMenuOpen)}
-									className={`${actionBarBtnClass} ml-auto`}
+									className={`${actionBarBtnClass} ml-auto ${actionsMenuOpen ? "flex-1" : ""}`}
 								>
 									{actionsMenuOpen ? (
 										<Close width={18} height={18} className="text-primary" />
