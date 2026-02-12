@@ -172,5 +172,19 @@
 	"action.Rest": "Rest",
 	"action.Grooming Session": "Grooming Session",
 	"action.Nail Trim": "Nail Trim",
-	"action.Ear Cleaning": "Ear Cleaning"
+	"action.Ear Cleaning": "Ear Cleaning",
+
+	"pwa.warning": "Best as a PWA",
+	"pwa.description": "This app is designed for PWA and may not work as expected in a browser.",
+	"pwa.iosTitle": "Install on iOS:",
+	"pwa.iosStep1": "Tap the Share button in Safari",
+	"pwa.iosStep2": "Scroll down and tap \"Add to Home Screen\"",
+	"pwa.iosStep3": "Tap \"Add\" to confirm",
+	"pwa.androidTitle": "Install on Android:",
+	"pwa.androidStep1": "Tap the menu (⋮) in Chrome",
+	"pwa.androidStep2": "Tap \"Add to Home Screen\" or \"Install App\"",
+	"pwa.desktopTitle": "Install on Desktop:",
+	"pwa.desktopStep1": "Click the install icon (⊕) in the address bar",
+	"pwa.desktopStep2": "Click \"Install\" to confirm",
+	"pwa.continueAnyway": "Continue Anyway"
 }

@@ -172,5 +172,19 @@
 	"action.Rest": "Отдых",
 	"action.Grooming Session": "Груминг",
 	"action.Nail Trim": "Стрижка когтей",
-	"action.Ear Cleaning": "Чистка ушей"
+	"action.Ear Cleaning": "Чистка ушей",
+
+	"pwa.warning": "Лучше как PWA",
+	"pwa.description": "Это приложение создано для PWA и может работать некорректно в браузере.",
+	"pwa.iosTitle": "Установка на iOS:",
+	"pwa.iosStep1": "Нажмите кнопку «Поделиться» в Safari",
+	"pwa.iosStep2": "Прокрутите вниз и нажмите «На экран Домой»",
+	"pwa.iosStep3": "Нажмите «Добавить» для подтверждения",
+	"pwa.androidTitle": "Установка на Android:",
+	"pwa.androidStep1": "Нажмите меню (⋮) в Chrome",
+	"pwa.androidStep2": "Нажмите «Добавить на главный экран» или «Установить»",
+	"pwa.desktopTitle": "Установка на ПК:",
+	"pwa.desktopStep1": "Нажмите значок установки (⊕) в адресной строке",
+	"pwa.desktopStep2": "Нажмите «Установить» для подтверждения",
+	"pwa.continueAnyway": "Продолжить"
 }

@@ -1,4 +1,5 @@
 import AppLoader from '@/components/layout/AppLoader';
+import PwaWarning from '@/components/layout/PwaWarning';
 import AuthRoute from '@/features/auth/components/AuthRoute';
 import { TranslationProvider } from '@/i18n/TranslationProvider';
 import ReduxProvider from '@/store/provider';
@@ -68,6 +69,7 @@ const RootLayout = ({ children }: Readonly<{ children: React.ReactNode }>) => {
 				<AppLoader />
 				<ReduxProvider>
 					<TranslationProvider>
+						<PwaWarning />
 						<AuthRoute>
 							<Toaster position="top-center" reverseOrder={false} />
 							{children}
