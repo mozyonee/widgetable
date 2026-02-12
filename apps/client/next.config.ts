@@ -5,17 +5,6 @@ const nextConfig = {
 	onDemandEntries: {
 		maxInactiveAge: 1000 * 60 * 60, // keep pages compiled for 1 hour
 	},
-	async rewrites() {
-		const serverUrl = process.env.NEXT_PUBLIC_SERVER_URL;
-		if (!serverUrl) return [];
-		return [
-			{
-				source: '/api/:path*',
-				destination: `${serverUrl}/:path*`,
-			},
-		];
-	},
-
 	allowedDevOrigins: [
 		"localhost",
 		"127.0.0.1",
