@@ -1,6 +1,7 @@
 'use client';
 
 import api from '@/lib/api';
+import { callError } from '@/lib/functions';
 import { useAppSelector } from '@/store';
 import { useCallback, useEffect, useState } from 'react';
 
@@ -59,7 +60,10 @@ export const usePushNotifications = () => {
 			if (result !== 'granted') return;
 
 			const registration = await getSwRegistration();
-			if (!registration) return;
+			if (!registration) {
+				callError('Service worker not available');
+				return;
+			}
 
 			const { data } = await api.get('/notifications/vapid-public-key');
 			const vapidKey = urlBase64ToUint8Array(data.key);
@@ -76,6 +80,8 @@ export const usePushNotifications = () => {
 			});
 
 			setIsSubscribed(true);
+		} catch {
+			callError('Failed to enable notifications');
 		} finally {
 			setLoading(false);
 		}
