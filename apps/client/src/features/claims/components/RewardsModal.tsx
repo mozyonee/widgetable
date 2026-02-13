@@ -1,6 +1,6 @@
 'use client';
 
-import { ACTION_SPRITES } from '@/data/actionSprites';
+import { getActionSprite } from '@/data/actionSprites';
 import { VALENTINE_SPRITES } from '@/data/valentineSprites';
 import { useTranslation } from '@/i18n/useTranslation';
 import { EGG_ITEM_NAME } from '@widgetable/types';
@@ -31,7 +31,7 @@ const getTierColor = (tier: ItemTier): string => {
 
 const ItemDisplay = ({ item, index }: { item: ItemReward; index: number }) => {
 	const { t } = useTranslation();
-	const spritePath = ACTION_SPRITES[item.name];
+	const spritePath = getActionSprite(item.name);
 
 	return (
 		<div
@@ -44,7 +44,7 @@ const ItemDisplay = ({ item, index }: { item: ItemReward; index: number }) => {
 		>
 			{spritePath && (
 				<div className="relative w-12 h-12">
-					<Image src={`/assets_new/${spritePath}`} alt={item.name} fill className="object-contain pixelated" />
+					<Image src={spritePath} alt={item.name} fill className="object-contain pixelated" />
 				</div>
 			)}
 			<div className="text-xs font-semibold text-center">{t(`action.${item.name}`)}</div>
