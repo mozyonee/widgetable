@@ -8,7 +8,8 @@ const PagesLayout = ({ children }: Readonly<{ children: React.ReactNode }>) => {
 	const pathname = usePathname();
 	const isPetPage = pathname.startsWith('/pet/');
 	const isAuthPage = pathname === '/auth';
-	const showFooter = !isPetPage && !isAuthPage;
+	const isValentinePage = pathname === '/valentine';
+	const showFooter = !isPetPage && !isAuthPage && !isValentinePage;
 
 	useEffect(() => {
 		if (isPetPage) return;

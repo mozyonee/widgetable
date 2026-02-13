@@ -9,6 +9,7 @@ import { AuthModule } from 'src/auth/auth.module';
 import { ClaimsModule } from 'src/claims/claims.module';
 import { CoparentingModule } from 'src/coparenting/coparenting.module';
 import { FriendsModule } from 'src/friends/friends.module';
+import { GiftsModule } from 'src/gifts/gifts.module';
 import { NotificationsModule } from 'src/notifications/notifications.module';
 import { PetsModule } from 'src/pets/pets.module';
 import { StorageModule } from 'src/storage/storage.module';
@@ -48,6 +49,7 @@ import { v4 as uuidv4 } from 'uuid';
 		StorageModule,
 		UsersModule,
 		FriendsModule,
+		GiftsModule,
 		CoparentingModule,
 		PetsModule,
 		AuthModule,

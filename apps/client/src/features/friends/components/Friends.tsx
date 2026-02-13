@@ -4,11 +4,13 @@ import { Skeleton } from '@/components/ui/Skeleton';
 import { useTranslation } from '@/i18n/useTranslation';
 import { useAppSelector } from '@/store';
 import { Search } from '@nsmr/pixelart-react';
-import { RequestDirection } from '@widgetable/types';
+import { RequestDirection, User } from '@widgetable/types';
+import { useState } from 'react';
 import { useCoparenting } from '../hooks/useCoparenting';
 import { useFriends } from '../hooks/useFriends';
 import CoparentingCard from './CoparentingCard';
 import FriendCard from './FriendCard';
+import { GiftModal } from './GiftModal';
 
 const Friends = () => {
 	const { t } = useTranslation();
@@ -36,6 +38,8 @@ const Friends = () => {
 		decline: declineCoparenting,
 		cancel: cancelCoparenting,
 	} = useCoparenting(user._id);
+
+	const [giftTarget, setGiftTarget] = useState<User | null>(null);
 
 	const validReceivedRequests = requests?.received.filter((req) => req.metadata?.pet && req.sender) || [];
 	const validSentRequests = requests?.sent.filter((req) => req.metadata?.pet && req.recipient) || [];
@@ -128,6 +132,7 @@ const Friends = () => {
 							onAccept={() => friend.requestId && acceptRequest(friend.requestId)}
 							onDecline={() => friend.requestId && declineRequest(friend.requestId)}
 							onRemove={() => friend._id && remove(friend._id)}
+							onGift={(user) => setGiftTarget(user)}
 						/>
 					))}
 				</div>
@@ -135,6 +140,14 @@ const Friends = () => {
 				<div className="flex-1 flex flex-col items-center justify-center">
 					<p className="text-secondary text-center text-lg">{t('friends.searchToAdd')}</p>
 				</div>
+			)}
+
+			{giftTarget && (
+				<GiftModal
+					isOpen={!!giftTarget}
+					onClose={() => setGiftTarget(null)}
+					friend={giftTarget}
+				/>
 			)}
 		</div>
 	);

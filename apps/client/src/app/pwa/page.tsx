@@ -1,10 +1,10 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/Button';
-import { useTranslation } from '@/i18n/useTranslation';
 import { TranslationProvider } from '@/i18n/TranslationProvider';
+import { useTranslation } from '@/i18n/useTranslation';
+import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 
 type Platform = 'ios' | 'android' | 'other';
 

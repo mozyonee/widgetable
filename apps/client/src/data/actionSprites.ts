@@ -42,6 +42,14 @@ export const ACTION_SPRITES: Record<string, string> = {
 	'Wipe Down': 'bathroom/bath_sponge.png',
 	Sponge: 'bathroom/natural_sponge.png',
 
+	// Valentine Chocolates
+	'Chocolate Bar Red': '/valentine/chocolate_bar_red.png',
+	'Chocolate Bar Brown': '/valentine/chocolate_bar_brown.png',
+	'Chocolate Bar Blue': '/valentine/chocolate_bar_blue.png',
+	'Chocolate Bar White': '/valentine/chocolate_bar_white.png',
+	'Chocolate Bar Duo': '/valentine/chocolate_bar_red_blue.png',
+	Chocolate: '/valentine/chocolate.png',
+
 	// Care Actions
 	Toilet: 'bathroom/toilet.png',
 	'Quick Potty': 'bathroom/toilet_paper_roll.png',
@@ -55,5 +63,6 @@ export const ACTION_SPRITES: Record<string, string> = {
 
 export const getActionSprite = (actionName: string): string | undefined => {
 	const sprite = ACTION_SPRITES[actionName];
-	return sprite ? `/assets_new/${sprite}` : undefined;
+	if (!sprite) return undefined;
+	return sprite.startsWith('/') ? sprite : `/assets_new/${sprite}`;
 };

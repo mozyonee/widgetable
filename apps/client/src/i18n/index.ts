@@ -2,7 +2,7 @@ import en from './locales/en.json';
 import ru from './locales/ru.json';
 
 export type Language = 'en' | 'ru';
-export const DEFAULT_LANGUAGE: Language = 'en';
+export const DEFAULT_LANGUAGE: Language = 'ru';
 export const LANGUAGES: { code: Language; nativeLabel: string }[] = [
 	{ code: 'en', nativeLabel: 'English' },
 	{ code: 'ru', nativeLabel: 'Русский' },
