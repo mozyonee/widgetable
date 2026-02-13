@@ -1,6 +1,7 @@
 'use client';
 
 import { ACTION_SPRITES } from '@/data/actionSprites';
+import { VALENTINE_SPRITES } from '@/data/valentineSprites';
 import { useTranslation } from '@/i18n/useTranslation';
 import { EGG_ITEM_NAME } from '@widgetable/types';
 import Image from 'next/image';
@@ -159,6 +160,36 @@ export const RewardsModal = ({ rewards, onClose }: RewardsModalProps) => {
 								{sortedCare.map((item, idx) => (
 									<ItemDisplay key={`${item.name}-${idx}`} item={item} index={idx + sortedFood.length + sortedDrinks.length + sortedHygiene.length} />
 								))}
+							</div>
+						</div>
+					)}
+
+					{/* Valentine Items */}
+					{(rewards.rewards.valentines?.length ?? 0) > 0 && (
+						<div>
+							<h3 className="font-bold text-lg mb-3 text-foreground flex items-center gap-2">
+								<img src="/valentine/red_heard.png" alt="" className="w-5 h-5" style={{ imageRendering: 'pixelated' }} />
+								{t('rewards.valentines')} ({t('rewards.items', { count: rewards.rewards.valentines!.reduce((sum, item) => sum + item.quantity, 0) })})
+							</h3>
+							<div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
+								{[...rewards.rewards.valentines!].sort((a, b) => b.tier - a.tier).map((item, idx) => {
+									const spritePath = VALENTINE_SPRITES[item.name];
+									return (
+										<div
+											key={`${item.name}-${idx}`}
+											className={`flex flex-col items-center gap-1 p-2 rounded-lg border-2 bg-white ${getTierColor(item.tier)} animate-[fadeIn_0.3s_ease-out]`}
+											style={{ animationDelay: `${idx * 0.1}s`, opacity: 0, animationFillMode: 'forwards' }}
+										>
+											{spritePath && (
+												<div className="relative w-12 h-12">
+													<Image src={spritePath} alt={item.name} fill className="object-contain pixelated" />
+												</div>
+											)}
+											<div className="text-xs font-semibold text-center">{item.name}</div>
+											<div className="text-xs text-muted-foreground">x{item.quantity}</div>
+										</div>
+									);
+								})}
 							</div>
 						</div>
 					)}

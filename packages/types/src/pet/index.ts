@@ -158,6 +158,14 @@ export const PET_ACTIONS_BY_CATEGORY = {
 		{ name: 'Brownie', needKey: PetNeed.HUNGER, value: 'increment', amount: 22, inventoryCost: 1, experience: 5 },
 		{ name: 'Donut', needKey: PetNeed.HUNGER, value: 'increment', amount: 18, inventoryCost: 1, experience: 4 },
 		{ name: 'French Fries', needKey: PetNeed.HUNGER, value: 'increment', amount: 18, inventoryCost: 1, experience: 4 },
+
+		// Valentine chocolates
+		{ name: 'Chocolate Bar Brown', needKey: PetNeed.HUNGER, value: 'increment', amount: 30, inventoryCost: 1, experience: 8 },
+		{ name: 'Chocolate Bar White', needKey: PetNeed.HUNGER, value: 'increment', amount: 30, inventoryCost: 1, experience: 8 },
+		{ name: 'Chocolate Bar Red', needKey: PetNeed.HUNGER, value: 'increment', amount: 35, inventoryCost: 2, experience: 10 },
+		{ name: 'Chocolate Bar Blue', needKey: PetNeed.HUNGER, value: 'increment', amount: 35, inventoryCost: 2, experience: 10 },
+		{ name: 'Chocolate Bar Duo', needKey: PetNeed.HUNGER, value: 'increment', amount: 40, inventoryCost: 2, experience: 12 },
+		{ name: 'Chocolate', needKey: PetNeed.HUNGER, value: 'increment', amount: 45, inventoryCost: 3, experience: 15 },
 	] as PetAction[],
 	[PetActionCategory.DRINK]: [
 		// Full restore
@@ -305,3 +313,26 @@ export type UserInventory = Record<string, number>;
 
 export const EXPEDITION_BASE_DURATION = 60 * 60 * 1000; // 1 hour
 export const EXPEDITION_LEVEL_MULTIPLIER = 0.1; // +10% per level
+
+// ============================================================================
+// VALENTINE ITEMS
+// ============================================================================
+
+export const VALENTINE_GIFT_ITEMS = [
+	{ name: 'Letter Sealed Red Heart', tier: ItemTier.PREMIUM },
+	{ name: 'Letter Sealed Red Border', tier: ItemTier.COMMON },
+	{ name: 'Letter Sealed Pink', tier: ItemTier.BASIC },
+	{ name: 'Letter Sealed Small Heart', tier: ItemTier.COMMON },
+	{ name: 'Letter Sealed Orange', tier: ItemTier.BASIC },
+	{ name: 'Letter Sealed Pink Heart', tier: ItemTier.COMMON },
+	{ name: 'Letter Sealed Brown', tier: ItemTier.BASIC },
+	{ name: 'Letter Sealed Amber', tier: ItemTier.BASIC },
+	{ name: 'Envelope White', tier: ItemTier.BASIC },
+	{ name: 'Envelope Pink', tier: ItemTier.COMMON },
+] as const;
+
+export const VALENTINE_GIFT_ITEM_NAMES: string[] = VALENTINE_GIFT_ITEMS.map((item) => item.name);
+
+export const isValentineGiftItem = (itemName: string): boolean => {
+	return VALENTINE_GIFT_ITEM_NAMES.includes(itemName);
+};

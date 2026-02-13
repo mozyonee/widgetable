@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { EGG_ITEM_NAME, ItemReward, ItemTier, PET_ACTIONS_BY_CATEGORY, PetAction, PetActionCategory } from '@widgetable/types';
+import { EGG_ITEM_NAME, ItemReward, ItemTier, PET_ACTIONS_BY_CATEGORY, PetAction, PetActionCategory, VALENTINE_GIFT_ITEMS } from '@widgetable/types';
 import { Model, Types } from 'mongoose';
 import { Pet, PetDocument } from 'src/pets/entities/pet.entity';
 import { User, UserDocument } from 'src/users/entities/user.entity';
@@ -104,6 +104,9 @@ export class ClaimsService {
 		if (rewards.rewards.eggs > 0) {
 			await this.usersService.addInventory(userId.toString(), EGG_ITEM_NAME, rewards.rewards.eggs);
 		}
+		for (const item of rewards.rewards.valentines || []) {
+			await this.usersService.addInventory(userId.toString(), item.name, item.quantity);
+		}
 
 		// Update claim timestamp
 		const updateField = claimType === 'daily' ? 'lastDailyClaimTime' : 'lastQuickClaimTime';
@@ -133,7 +136,13 @@ export class ClaimsService {
 		const eggChance = Math.max(this.BASE_EGG_CHANCE / (1 + petCount * 0.6), 0.05);
 		const earnedEggs = Math.random() < eggChance ? 1 : 0;
 
-		const totalItems = foodCount + drinkCount + hygieneCount + careCount + earnedEggs;
+		// Valentine bonus (February only)
+		const valentineItems = this.isValentineSeason()
+			? this.selectRandomValentineItems(Math.floor(2 * petMultiplier * multiplier))
+			: [];
+
+		const valentineCount = valentineItems.reduce((sum, item) => sum + item.quantity, 0);
+		const totalItems = foodCount + drinkCount + hygieneCount + careCount + earnedEggs + valentineCount;
 		const cooldownHours = isQuick ? this.QUICK_COOLDOWN_HOURS : this.DAILY_COOLDOWN_HOURS;
 		const nextClaimTime = new Date(Date.now() + cooldownHours * 60 * 60 * 1000);
 
@@ -145,6 +154,7 @@ export class ClaimsService {
 				hygiene: hygieneItems,
 				care: careItems,
 				eggs: earnedEggs,
+				valentines: valentineItems.length > 0 ? valentineItems : undefined,
 			},
 			totalItems,
 			nextClaimTime,
@@ -203,5 +213,39 @@ export class ClaimsService {
 
 	private getNextClaimTime(lastClaimTime: Date, cooldownHours: number): Date {
 		return new Date(lastClaimTime.getTime() + cooldownHours * 60 * 60 * 1000);
+	}
+
+	private isValentineSeason(): boolean {
+		return new Date().getMonth() === 1; // February
+	}
+
+	private selectRandomValentineItems(count: number): ItemReward[] {
+		const itemCounts = new Map<string, { count: number; tier: ItemTier }>();
+
+		const itemsByTier = new Map<ItemTier, (typeof VALENTINE_GIFT_ITEMS)[number][]>();
+		VALENTINE_GIFT_ITEMS.forEach((item) => {
+			if (!itemsByTier.has(item.tier)) itemsByTier.set(item.tier, []);
+			itemsByTier.get(item.tier)!.push(item);
+		});
+
+		for (let i = 0; i < count; i++) {
+			const tier = this.selectWeightedTier();
+			const tierItems = itemsByTier.get(tier) || [];
+			if (tierItems.length === 0) continue;
+
+			const selected = tierItems[Math.floor(Math.random() * tierItems.length)];
+			const existing = itemCounts.get(selected.name);
+			if (existing) {
+				existing.count++;
+			} else {
+				itemCounts.set(selected.name, { count: 1, tier: selected.tier });
+			}
+		}
+
+		const result: ItemReward[] = [];
+		itemCounts.forEach(({ count: qty, tier }, name) => {
+			result.push({ name, quantity: qty, tier });
+		});
+		return result;
 	}
 }

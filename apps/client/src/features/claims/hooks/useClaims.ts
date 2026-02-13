@@ -29,6 +29,7 @@ export interface ClaimResult {
 		hygiene: ItemReward[];
 		care: ItemReward[];
 		eggs: number;
+		valentines?: ItemReward[];
 	};
 	totalItems: number;
 	nextClaimTime: Date;

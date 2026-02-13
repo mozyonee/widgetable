@@ -14,10 +14,11 @@ interface FriendCardProps {
 	onAccept?: (id: string) => void;
 	onDecline?: (id: string) => void;
 	onRemove?: (id: string) => void;
+	onGift?: (user: User) => void;
 	variant?: 'default' | 'nested';
 }
 
-const FriendCard = ({ user, status, onAdd, onCancel, onAccept, onDecline, onRemove, variant }: FriendCardProps) => {
+const FriendCard = ({ user, status, onAdd, onCancel, onAccept, onDecline, onRemove, onGift, variant }: FriendCardProps) => {
 	const { t } = useTranslation();
 	if (!user._id) return null;
 
@@ -49,9 +50,16 @@ const FriendCard = ({ user, status, onAdd, onCancel, onAccept, onDecline, onRemo
 			</div>
 		),
 		[FriendshipStatus.FRIENDS]: (
-			<Button variant="secondary" onClick={() => onRemove?.(user._id!)} className="p-2">
-				<UserMinus width={20} height={20} />
-			</Button>
+			<div className="flex items-center gap-2">
+				{onGift && (
+					<Button variant="primary" onClick={() => onGift(user)} className="p-2">
+						<img src="/valentine/red_heard.png" alt={t('gifts.sendGift')} className="w-5 h-5" style={{ imageRendering: 'pixelated' }} />
+					</Button>
+				)}
+				<Button variant="secondary" onClick={() => onRemove?.(user._id!)} className="p-2">
+					<UserMinus width={20} height={20} />
+				</Button>
+			</div>
 		),
 	};
 
