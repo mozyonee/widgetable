@@ -109,7 +109,9 @@
       "mcp__mongodb__find",
       "mcp__mongodb__list-databases",
       "mcp__mongodb__connect",
-      "Bash(git log:*)"
+      "Bash(git log:*)",
+      "Bash(gh pr create:*)",
+      "Bash(git cherry-pick:*)"
     ],
     "deny": [],
     "ask": []
