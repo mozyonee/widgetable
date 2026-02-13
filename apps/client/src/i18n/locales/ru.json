@@ -186,6 +186,7 @@
 	"gifts.title": "Отправить подарок",
 	"gifts.send": "Отправить",
 	"gifts.noItems": "Нет валентинок в инвентаре",
+	"gifts.noItemsHint": "Собирайте валентинки из припасов и с охоты!",
 	"gifts.sent": "Подарок отправлен {name}!",
 	"gifts.failedSend": "Не удалось отправить подарок",
 	"gifts.sendGift": "Подарок",

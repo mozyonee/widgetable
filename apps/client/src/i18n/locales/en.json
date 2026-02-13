@@ -201,6 +201,7 @@
 	"gifts.title": "Send a Gift",
 	"gifts.send": "Send",
 	"gifts.noItems": "No valentine items in your inventory",
+	"gifts.noItemsHint": "Collect valentines from care packages and expeditions!",
 	"gifts.sent": "Gift sent to {name}!",
 	"gifts.failedSend": "Failed to send gift",
 	"gifts.sendGift": "Gift",

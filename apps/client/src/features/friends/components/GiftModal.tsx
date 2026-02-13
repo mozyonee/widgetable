@@ -111,7 +111,10 @@ export const GiftModal = ({ isOpen, onClose, friend }: GiftModalProps) => {
 							))}
 						</div>
 					) : (
-						<p className="text-center text-secondary py-6">{t('gifts.noItems')}</p>
+						<div className="text-center py-6">
+								<p className="text-secondary">{t('gifts.noItems')}</p>
+								<p className="text-secondary/60 text-sm mt-1">{t('gifts.noItemsHint')}</p>
+							</div>
 					)}
 				</div>
 			</div>
