@@ -1,15 +1,16 @@
 import { Skeleton } from '@/components/ui/Skeleton';
 import PetSprite, { getPetIdleSprite } from '@/features/pets/components/PetSprite';
+import { setSelectedPet } from '@/features/pets/slices/petsSlice';
 import { useTranslation } from '@/i18n/useTranslation';
 import { callError } from '@/lib/functions';
 import { useImagesLoaded } from '@/lib/useImagesLoaded';
 import { useAppDispatch, useAppSelector } from '@/store';
-import { setSelectedPet } from '@/features/pets/slices/petsSlice';
 import { Clock, Plus, Users } from '@nsmr/pixelart-react';
 import {
 	EGG_ITEM_NAME,
 	EXPEDITION_BASE_DURATION,
 	EXPEDITION_LEVEL_MULTIPLIER,
+	VALENTINE_GIFT_ITEM_NAMES,
 } from '@widgetable/types';
 import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
@@ -109,6 +110,11 @@ const PetsPage = () => {
 	const eggCount = user?.inventory?.[EGG_ITEM_NAME] ?? 0;
 	const canAddPet = eggCount > 0;
 
+	const valentineCount = useMemo(() => {
+		if (!user?.inventory) return 0;
+		return VALENTINE_GIFT_ITEM_NAMES.reduce((sum, name) => sum + (user.inventory![name] ?? 0), 0);
+	}, [user?.inventory]);
+
 	const handleAddPet = () => {
 		if (!canAddPet) {
 			callError(t('pets.needEggs'));
@@ -120,7 +126,10 @@ const PetsPage = () => {
 	return (
 		<div className="flex flex-col gap-6 h-full">
 			<div className="grid grid-cols-[1fr_auto_1fr] items-center flex-shrink-0">
-				<div></div>
+				<div className="flex items-center gap-2 bg-white rounded-full px-4 py-2 shadow-md border border-secondary/20 w-fit">
+					<img src="/valentine/arrow_pink_heart.png" alt="Valentines" className="w-5 h-5 object-contain" style={{ imageRendering: 'pixelated' }} />
+					<span className="font-bold text-foreground text-xl">{valentineCount}</span>
+				</div>
 				<h1 className="font-bold text-3xl text-foreground text-center">{t('pets.title')}</h1>
 				<div className="flex items-center gap-2 bg-white rounded-full px-4 py-2 shadow-md border border-secondary/20 justify-self-end">
 					<img src="/assets/egg_white.png" alt="Egg" className="w-5 h-5 object-contain" />

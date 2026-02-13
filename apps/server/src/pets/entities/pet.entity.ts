@@ -53,6 +53,7 @@ export class Pet {
 		hygiene: Array<{ name: string; quantity: number; tier: number }>;
 		care: Array<{ name: string; quantity: number; tier: number }>;
 		eggs: number;
+		valentines?: Array<{ name: string; quantity: number; tier: number }>;
 	};
 }
 
