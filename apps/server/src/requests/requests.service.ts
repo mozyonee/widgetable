@@ -52,8 +52,9 @@ export class RequestsService {
 			};
 		});
 
-		const sent = transformedRequests.filter((req) => (req.senderId as any)._id.toString() === userId);
-		const received = transformedRequests.filter((req) => (req.recipientId as any)._id.toString() === userId);
+		const valid = transformedRequests.filter((req) => req.senderId && req.recipientId);
+		const sent = valid.filter((req) => (req.senderId as any)._id.toString() === userId);
+		const received = valid.filter((req) => (req.recipientId as any)._id.toString() === userId);
 
 		return { sent, received };
 	}

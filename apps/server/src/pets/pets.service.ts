@@ -15,6 +15,7 @@ import {
 	PetAction,
 	PetActionCategory,
 	PetType,
+	VALENTINE_GIFT_ITEMS,
 } from '@widgetable/types';
 import { clamp, random } from 'lodash';
 import { Model, Types } from 'mongoose';
@@ -269,6 +270,9 @@ export class PetsService {
 		if (rewards.eggs > 0) {
 			await this.usersService.addInventory(userId.toString(), EGG_ITEM_NAME, rewards.eggs);
 		}
+		for (const item of rewards.valentines || []) {
+			await this.usersService.addInventory(userId.toString(), item.name, item.quantity);
+		}
 
 		// Clear expedition state
 		await this.petModel.findByIdAndUpdate(petId, {
@@ -278,7 +282,8 @@ export class PetsService {
 		});
 
 		// Return ClaimResult format (compatible with RewardsModal)
-		const totalItems = [...rewards.food, ...rewards.drinks, ...rewards.hygiene, ...(rewards.care || [])].reduce((sum, item) => sum + item.quantity, rewards.eggs);
+		const valentineCount = (rewards.valentines || []).reduce((sum, item) => sum + item.quantity, 0);
+		const totalItems = [...rewards.food, ...rewards.drinks, ...rewards.hygiene, ...(rewards.care || [])].reduce((sum, item) => sum + item.quantity, rewards.eggs) + valentineCount;
 
 		return {
 			success: true,
@@ -314,10 +319,20 @@ export class PetsService {
 		const eggChance = Math.min(MIN_EGG_CHANCE + (MAX_EGG_CHANCE - MIN_EGG_CHANCE) * (1 - 1 / (1 + pet.level * 0.3)), MAX_EGG_CHANCE);
 		const earnedEggs = Math.random() < eggChance ? 1 : 0;
 
+		// Valentine bonus (February only)
+		const valentineItems = this.isValentineSeason()
+			? this.selectRandomValentineItems(Math.floor(1 * levelMultiplier))
+			: [];
+
+		const valentineCount = valentineItems.reduce((sum, item) => sum + item.quantity, 0);
+
 		return {
 			success: true,
-			rewards: { food: foodItems, drinks: drinkItems, hygiene: hygieneItems, care: careItems, eggs: earnedEggs },
-			totalItems: foodCount + drinkCount + hygieneCount + careCount + earnedEggs,
+			rewards: {
+				food: foodItems, drinks: drinkItems, hygiene: hygieneItems, care: careItems, eggs: earnedEggs,
+				valentines: valentineItems.length > 0 ? valentineItems : undefined,
+			},
+			totalItems: foodCount + drinkCount + hygieneCount + careCount + earnedEggs + valentineCount,
 			nextClaimTime: new Date(),
 		};
 	}
@@ -367,5 +382,39 @@ export class PetsService {
 		if (rand < this.TIER_WEIGHTS[ItemTier.BASIC] + this.TIER_WEIGHTS[ItemTier.COMMON] + this.TIER_WEIGHTS[ItemTier.PREMIUM])
 			return ItemTier.PREMIUM;
 		return ItemTier.LEGENDARY;
+	}
+
+	private isValentineSeason(): boolean {
+		return new Date().getMonth() === 1;
+	}
+
+	private selectRandomValentineItems(count: number): ItemReward[] {
+		const itemCounts = new Map<string, { count: number; tier: ItemTier }>();
+
+		const itemsByTier = new Map<ItemTier, (typeof VALENTINE_GIFT_ITEMS)[number][]>();
+		VALENTINE_GIFT_ITEMS.forEach((item) => {
+			if (!itemsByTier.has(item.tier)) itemsByTier.set(item.tier, []);
+			itemsByTier.get(item.tier)!.push(item);
+		});
+
+		for (let i = 0; i < count; i++) {
+			const tier = this.selectWeightedTier();
+			const tierItems = itemsByTier.get(tier) || [];
+			if (tierItems.length === 0) continue;
+
+			const selected = tierItems[Math.floor(Math.random() * tierItems.length)];
+			const existing = itemCounts.get(selected.name);
+			if (existing) {
+				existing.count++;
+			} else {
+				itemCounts.set(selected.name, { count: 1, tier: selected.tier });
+			}
+		}
+
+		const result: ItemReward[] = [];
+		itemCounts.forEach(({ count: qty, tier }, name) => {
+			result.push({ name, quantity: qty, tier });
+		});
+		return result;
 	}
 }
