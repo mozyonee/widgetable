@@ -121,7 +121,7 @@ const Friends = () => {
 				<div className="flex flex-col gap-4">
 					{friends.map((friend) => (
 						<FriendCard
-							key={friend._id}
+							key={friend.requestId || friend._id}
 							user={friend}
 							status={friend.status}
 							onCancel={() => friend.requestId && cancelRequest(friend.requestId)}
