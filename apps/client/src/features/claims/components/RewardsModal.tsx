@@ -30,6 +30,7 @@ const getTierColor = (tier: ItemTier): string => {
 };
 
 const ItemDisplay = ({ item, index }: { item: ItemReward; index: number }) => {
+	const { t } = useTranslation();
 	const spritePath = ACTION_SPRITES[item.name];
 
 	return (
@@ -46,7 +47,7 @@ const ItemDisplay = ({ item, index }: { item: ItemReward; index: number }) => {
 					<Image src={`/assets_new/${spritePath}`} alt={item.name} fill className="object-contain pixelated" />
 				</div>
 			)}
-			<div className="text-xs font-semibold text-center">{item.name}</div>
+			<div className="text-xs font-semibold text-center">{t(`action.${item.name}`)}</div>
 			<div className="text-xs text-muted-foreground">x{item.quantity}</div>
 		</div>
 	);
@@ -185,7 +186,7 @@ export const RewardsModal = ({ rewards, onClose }: RewardsModalProps) => {
 													<Image src={spritePath} alt={item.name} fill className="object-contain pixelated" />
 												</div>
 											)}
-											<div className="text-xs font-semibold text-center">{item.name}</div>
+											<div className="text-xs font-semibold text-center">{t(`action.${item.name}`)}</div>
 											<div className="text-xs text-muted-foreground">x{item.quantity}</div>
 										</div>
 									);
