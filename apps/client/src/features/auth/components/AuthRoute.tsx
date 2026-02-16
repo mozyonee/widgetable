@@ -1,11 +1,10 @@
 'use client';
 
 import { useAuth } from '@/store/hooks/useAuth';
-import { isValentineCompleted, isValentineSeason } from '@/features/valentine/components/ValentineMinigame';
 import { usePathname, useRouter } from 'next/navigation';
 import { ReactNode, useEffect, useState } from 'react';
 
-const PUBLIC_ROUTES = ['/auth', '/pwa', '/valentine'];
+const PUBLIC_ROUTES = ['/auth', '/pwa'];
 
 let authCompleted = false;
 
@@ -28,13 +27,6 @@ const AuthRoute = ({ children }: AuthRouteProps) => {
 		});
 	}, []);
 
-	// Valentine redirect — takes priority over everything
-	useEffect(() => {
-		if (isValentineSeason() && !isValentineCompleted() && pathname !== '/valentine') {
-			router.replace('/valentine');
-		}
-	}, [pathname, router]);
-
 	// Handle redirects whenever pathname or auth state changes
 	useEffect(() => {
 		if (!authChecked) return;
@@ -47,11 +39,10 @@ const AuthRoute = ({ children }: AuthRouteProps) => {
 	}, [authChecked, isAuthenticated, pathname, router]);
 
 	const isPublicRoute = PUBLIC_ROUTES.includes(pathname);
-	const isValentinePage = pathname === '/valentine';
-	const shouldShowContent = isValentinePage || (authChecked && (
+	const shouldShowContent = authChecked && (
 		(isAuthenticated && !isPublicRoute) ||
 		(!isAuthenticated && isPublicRoute)
-	));
+	);
 
 	useEffect(() => {
 		if (shouldShowContent) {
@@ -59,10 +50,7 @@ const AuthRoute = ({ children }: AuthRouteProps) => {
 		}
 	}, [shouldShowContent]);
 
-	// Block rendering while valentine redirect is pending or auth is loading
-	const needsValentineRedirect = isValentineSeason() && !isValentineCompleted() && pathname !== '/valentine';
-
-	if (needsValentineRedirect || !shouldShowContent) {
+	if (!shouldShowContent) {
 		return (
 			<div className="flex flex-col items-center justify-center grow bg-background">
 				<div className="flex flex-col items-center gap-4">

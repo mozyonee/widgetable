@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Database, UserInventory } from '@widgetable/types';
+import { Database, DEFAULT_LANGUAGE, UserInventory } from '@widgetable/types';
 import { Request } from 'express';
 import { HydratedDocument, Schema as MongooseSchema } from 'mongoose';
 
@@ -29,7 +29,7 @@ export class User {
 	@Prop({ type: Date, required: false })
 	lastQuickClaimTime?: Date;
 
-	@Prop({ default: 'en' })
+	@Prop({ default: DEFAULT_LANGUAGE })
 	language?: string;
 }
 

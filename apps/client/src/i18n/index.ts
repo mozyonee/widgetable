@@ -1,12 +1,9 @@
+import { DEFAULT_LANGUAGE, LANGUAGES, Language } from '@widgetable/types';
 import en from './locales/en.json';
 import ru from './locales/ru.json';
 
-export type Language = 'en' | 'ru';
-export const DEFAULT_LANGUAGE: Language = 'ru';
-export const LANGUAGES: { code: Language; nativeLabel: string }[] = [
-	{ code: 'en', nativeLabel: 'English' },
-	{ code: 'ru', nativeLabel: 'Русский' },
-];
+export type { Language };
+export { DEFAULT_LANGUAGE, LANGUAGES };
 
 const translations: Record<Language, Record<string, string>> = { en, ru };
 
