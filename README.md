@@ -24,7 +24,7 @@ npm run dev:client   # start client on port 3000
 npm run dev:server   # start server on port 3001
 ```
 
-Copy `.env.example` to `.env` (server) or `.env.local` (client) in each app and fill in the values before starting.
+Copy `.env.example` to `.env` in each app and fill in the values before starting.
 
 ## Root scripts
 
