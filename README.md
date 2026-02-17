@@ -1,45 +1,37 @@
 # Widgetable
 
-A small virtual-pet web app monorepo (Next.js client, NestJS server). This repository contains two apps and shared packages.
-
-## Features
-
-- Mobile-first PWA virtual pet app with a Next.js frontend and NestJS backend
-- JWT authentication, MongoDB data store, and S3/MinIO-compatible storage for uploads
-- Monorepo using npm workspaces; independent client and server apps for local development
+A small virtual-pet web app monorepo (Next.js client, NestJS server).
 
 ## Repository layout
 
-- apps/client — Next.js 16 frontend (React 19)
-- apps/server — NestJS 11 backend
-- packages — shared packages
+| Path | Description |
+|------|-------------|
+| [apps/client](apps/client/README.md) | Next.js 16 frontend (React 19), port 3000 |
+| [apps/server](apps/server/README.md) | NestJS 11 backend, port 3001 |
+| [packages/types](packages/types/README.md) | Shared TypeScript types & constants (`@widgetable/types`) |
+| [packages/i18n](packages/i18n/README.md) | Shared translation system (`@widgetable/i18n`) |
 
 ## Getting started
 
-Prerequisites:
-
-- Node.js (LTS), npm (or your package manager)
-- A MongoDB instance (or a hosted MongoDB URI)
-- MinIO or other S3-compatible storage for file uploads
-
-Install dependencies from the repository root:
+Prerequisites: Node.js LTS, a MongoDB instance, and MinIO or another S3-compatible storage.
 
 ```bash
 npm install
 ```
 
-Start the client (development):
-
 ```bash
-npm run dev:client
+npm run dev:client   # start client on port 3000
+npm run dev:server   # start server on port 3001
 ```
 
-Start the server (development):
+Copy `.env.example` to `.env` (server) or `.env.local` (client) in each app and fill in the values before starting.
+
+## Root scripts
 
 ```bash
-npm run dev:server
+npm run build            # build all (types → client → server)
+npm run build:types      # build @widgetable/types only
+npm run tsc              # type-check client and server
+npm run format           # format client and server
+npm run test             # run tests across all workspaces
 ```
-
-Configuration: Per-app `*.env.example` files are provided to help with local setup. Copy to a local env file (e.g. `.env` or `.env.local`) and fill values on your machine — do not commit secrets.
-
----
