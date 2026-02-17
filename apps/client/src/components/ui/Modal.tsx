@@ -10,6 +10,7 @@ interface ModalProps {
 	title?: string;
 	titleIcon?: ReactNode;
 	children: ReactNode;
+	footer?: ReactNode;
 	lockScroll?: boolean;
 	clickOutsideToClose?: boolean;
 	preventTouchMove?: boolean;
@@ -32,6 +33,7 @@ export const Modal = ({
 	title,
 	titleIcon,
 	children,
+	footer,
 	lockScroll = false,
 	clickOutsideToClose = true,
 	preventTouchMove = false,
@@ -100,7 +102,7 @@ export const Modal = ({
 		>
 			<div
 				ref={modalRef}
-				className={`bg-white rounded-2xl shadow-xl w-full max-h-[90vh] overflow-hidden flex flex-col animate-[scaleIn_0.3s_ease-out] ${maxWidthClasses[maxWidth]}`}
+				className={`bg-surface rounded-2xl shadow-xl w-full max-h-[90vh] overflow-hidden flex flex-col animate-[scaleIn_0.3s_ease-out] ${maxWidthClasses[maxWidth]}`}
 				onClick={(e) => e.stopPropagation()}
 				onTouchMove={(e) => preventTouchMove && e.stopPropagation()}
 			>
@@ -123,6 +125,7 @@ export const Modal = ({
 				)}
 
 				<div className={`overflow-y-auto ${contentClassName}`}>{children}</div>
+				{footer && <div className="sticky bottom-0 border-t border-secondary bg-surface p-4 rounded-b-2xl">{footer}</div>}
 			</div>
 		</div>
 	);

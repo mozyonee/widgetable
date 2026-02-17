@@ -61,7 +61,7 @@ export function Dropdown({
 						<div className="fixed inset-0 bg-black/50" onClick={onClose} />
 						<div
 							ref={panelRef}
-							className={`relative w-full max-w-sm bg-white rounded-xl shadow-lg border border-secondary/20 max-h-[60vh] overflow-y-auto ${className}`}
+							className={`relative w-full max-w-sm bg-surface rounded-xl shadow-lg border border-secondary/20 max-h-[60vh] overflow-y-auto ${className}`}
 						>
 							{items.length > 0 ? (
 								<div className="py-2">

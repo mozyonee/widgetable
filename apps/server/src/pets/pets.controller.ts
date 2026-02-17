@@ -48,17 +48,24 @@ export class PetsController {
 	) {
 		const userId = user._id;
 
-		if (body.actionName) {
+		if (body.action) {
 			const action = Object.values(PET_ACTIONS_BY_CATEGORY)
 				.flat()
-				.find((a) => a.name === body.actionName);
+				.find((a) => a.name === body.action);
 
-			if (action?.inventoryCost) {
-				await this.usersService.consumeInventory(userId, body.actionName, 1);
+			if (!action) throw new BadRequestException();
+
+			if (action.inventoryCost) {
+				await this.usersService.consumeInventory(userId, body.action, 1);
 			}
 
-			const { actionName, ...petBody } = body;
-			return this.petsService.update(petId, petBody, action?.experience);
+			const currentPet = await this.petsService.getPet(petId);
+			const currentNeedValue = currentPet.needs[action.needKey];
+			const newNeedValue = action.value === 'increment'
+				? Math.min(currentNeedValue + action.amount, 100)
+				: action.value;
+
+			return this.petsService.update(petId, { needs: { [action.needKey]: newNeedValue } }, action.experience);
 		}
 
 		return this.petsService.update(petId, body);

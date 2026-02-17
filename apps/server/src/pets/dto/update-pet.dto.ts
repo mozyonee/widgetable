@@ -1,11 +1,15 @@
-import { IsOptional, IsString } from 'class-validator';
+import { IsInt, IsOptional, IsString } from 'class-validator';
 
 export class UpdatePetDto {
 	@IsString()
 	@IsOptional()
 	name?: string;
 
+	@IsInt()
+	@IsOptional()
+	background?: number;
+
 	@IsString()
 	@IsOptional()
-	actionName?: string;
+	action?: string;
 }

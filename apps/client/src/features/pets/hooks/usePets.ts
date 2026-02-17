@@ -1,6 +1,6 @@
 import { addPet as addPetAction, setPets } from '@/features/pets/slices/petsSlice';
 import api, { isAbortError } from '@/lib/api';
-import { callError } from '@/lib/functions';
+import { callError } from '@/lib/toast';
 import { usePolling } from '@/lib/hooks/usePolling';
 import { useTranslation } from '@/i18n/useTranslation';
 import { useAppDispatch, useAppSelector } from '@/store';

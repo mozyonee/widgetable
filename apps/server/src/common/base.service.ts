@@ -10,9 +10,17 @@ export class BaseService {
 		const session = await this.connection.startSession();
 		try {
 			let result: T;
-			await session.withTransaction(async () => {
-				result = await callback(session);
-			});
+			try {
+				await session.withTransaction(async () => {
+					result = await callback(session);
+				});
+			} catch (err: any) {
+				if (err?.code === 20 || err?.codeName === 'IllegalOperation') {
+					result = await callback(session);
+				} else {
+					throw err;
+				}
+			}
 			return result!;
 		} finally {
 			await session.endSession();

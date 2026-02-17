@@ -46,6 +46,8 @@ export class Pet {
 	isOnExpedition: boolean;
 	@Prop({ required: false })
 	expeditionReturnTime?: Date;
+	@Prop({ type: Date, required: false })
+	urgentNotifiedAt?: Date;
 	@Prop({ type: Object, required: false })
 	expeditionRewards?: {
 		food: Array<{ name: string; quantity: number; tier: number }>;

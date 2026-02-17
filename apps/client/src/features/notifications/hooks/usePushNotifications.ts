@@ -1,7 +1,7 @@
 'use client';
 
 import api from '@/lib/api';
-import { callError } from '@/lib/functions';
+import { callError } from '@/lib/toast';
 import { useTranslation } from '@/i18n/useTranslation';
 import { useAppSelector } from '@/store';
 import { useCallback, useEffect, useState } from 'react';
@@ -82,7 +82,8 @@ export const usePushNotifications = () => {
 			});
 
 			setIsSubscribed(true);
-		} catch {
+		} catch (err) {
+			console.error('[usePushNotifications] subscribe failed:', err);
 			callError(t('account.failedEnableNotifications'));
 		} finally {
 			setLoading(false);

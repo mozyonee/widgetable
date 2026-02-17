@@ -56,9 +56,8 @@ async function bootstrap() {
 
 	if (process.env.NODE_ENV !== 'production') {
 		mongoose.set('debug', true);
+		app.useGlobalInterceptors(new LoggingInterceptor());
 	}
-
-	app.useGlobalInterceptors(new LoggingInterceptor());
 
 	app.enableShutdownHooks();
 

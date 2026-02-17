@@ -3,7 +3,7 @@ import { ICON_SIZES, PET_SPRITE_SIZES } from '@/config/constants';
 import PetSprite, { getPetIdleSprite } from '@/features/pets/components/PetSprite';
 import { setSelectedPet } from '@/features/pets/slices/petsSlice';
 import { useTranslation } from '@/i18n/useTranslation';
-import { callError } from '@/lib/functions';
+import { callError } from '@/lib/toast';
 import { useImagesLoaded } from '@/lib/useImagesLoaded';
 import { useAppDispatch, useAppSelector } from '@/store';
 import { Clock, Plus, Users } from '@nsmr/pixelart-react';
@@ -11,6 +11,7 @@ import {
 	EGG_ITEM_NAME,
 	EXPEDITION_BASE_DURATION,
 	EXPEDITION_LEVEL_MULTIPLIER,
+	formatTime,
 	VALENTINE_GIFT_ITEM_NAMES,
 } from '@widgetable/types';
 import { useRouter } from 'next/navigation';
@@ -54,7 +55,7 @@ const PetCard = ({ pet, userName }: { pet: any; userName?: string }) => {
 	return (
 		<div
 			key={pet._id}
-			className="bg-white rounded-2xl px-4 py-2 flex flex-col items-center justify-between gap-1 cursor-pointer relative shadow-md border border-secondary/20 hover:scale-105 transition-transform duration-300"
+			className="bg-surface rounded-2xl px-4 py-2 flex flex-col items-center justify-between gap-1 cursor-pointer relative shadow-md border border-secondary/20 hover:scale-105 transition-transform duration-300"
 			onClick={handleClick}
 		>
 			<div className="h-[100px] flex items-end justify-center overflow-hidden">
@@ -71,7 +72,7 @@ const PetCard = ({ pet, userName }: { pet: any; userName?: string }) => {
 			)}
 			{isExpeditionReady && (
 				<div className="w-full mt-2">
-					<div className="text-center text-sm font-semibold text-green-600">{t('pets.ready')}</div>
+					<div className="text-center text-sm font-semibold text-success">{t('pets.ready')}</div>
 				</div>
 			)}
 			<p
@@ -123,7 +124,7 @@ const PetsPage = () => {
 	return (
 		<div className="flex flex-col gap-6 h-full">
 			<div className="grid grid-cols-[1fr_auto_1fr] items-center flex-shrink-0">
-				<div className="flex items-center gap-2 bg-white rounded-full px-4 py-2 shadow-md border border-secondary/20 w-fit">
+				<div className="flex items-center gap-2 bg-surface rounded-full px-4 py-2 shadow-md border border-secondary/20 w-fit">
 					<img
 						src="/valentine/arrow_pink_heart.png"
 						alt="Valentines"
@@ -133,7 +134,7 @@ const PetsPage = () => {
 					<span className="font-bold text-foreground text-xl">{valentineCount}</span>
 				</div>
 				<h1 className="font-bold text-3xl text-foreground text-center">{t('pets.title')}</h1>
-				<div className="flex items-center gap-2 bg-white rounded-full px-4 py-2 shadow-md border border-secondary/20 justify-self-end">
+				<div className="flex items-center gap-2 bg-surface rounded-full px-4 py-2 shadow-md border border-secondary/20 justify-self-end">
 					<img src="/assets/egg_white.png" alt="Egg" className="w-5 h-5 object-contain" />
 					<span className="font-bold text-foreground text-xl">{eggCount}</span>
 				</div>
@@ -179,15 +180,6 @@ const EggTimer = ({ hatchTime, createdAt }: { hatchTime?: Date; createdAt?: Date
 		const creationTimeMs = new Date(createdAt).getTime();
 		const totalDuration = hatchTimeMs - creationTimeMs;
 
-		const formatTime = (milliseconds: number): string => {
-			const seconds = Math.floor(milliseconds / 1000);
-			const minutes = Math.floor(seconds / 60);
-			const hours = Math.floor(minutes / 60);
-
-			if (hours > 0) return `${hours}h`;
-			if (minutes > 0) return `${minutes}m`;
-			return `${seconds}s`;
-		};
 
 		const updateTimer = () => {
 			const now = Date.now();
@@ -249,17 +241,6 @@ const ExpeditionProgressTimer = ({ returnTime, petLevel }: { returnTime?: Date; 
 		const totalDuration = baseDuration * levelMultiplier;
 		const startTime = returnTimeMs - totalDuration;
 
-		const formatTime = (milliseconds: number): string => {
-			const seconds = Math.floor(milliseconds / 1000);
-			const minutes = Math.floor(seconds / 60);
-			const hours = Math.floor(minutes / 60);
-			const remainingMinutes = minutes % 60;
-
-			if (hours > 0) {
-				return `${hours}h ${remainingMinutes}m`;
-			}
-			return `${minutes}m`;
-		};
 
 		const updateTimer = () => {
 			const now = Date.now();
@@ -290,12 +271,12 @@ const ExpeditionProgressTimer = ({ returnTime, petLevel }: { returnTime?: Date; 
 			<div className="flex-1 bg-secondary/20 rounded-full h-1.5 overflow-hidden">
 				<div
 					className={`h-full rounded-full transition-all duration-1000 ease-linear ${
-						isReady ? 'bg-green-600' : 'bg-primary'
+						isReady ? 'bg-success' : 'bg-primary'
 					}`}
 					style={{ width: `${progress}%` }}
 				/>
 			</div>
-			<div className={`text-xs font-semibold whitespace-nowrap ${isReady ? 'text-green-600' : 'text-primary'}`}>
+			<div className={`text-xs font-semibold whitespace-nowrap ${isReady ? 'text-success' : 'text-primary'}`}>
 				{timeLeft || t('common.calculating')}
 			</div>
 		</div>
@@ -304,7 +285,7 @@ const ExpeditionProgressTimer = ({ returnTime, petLevel }: { returnTime?: Date; 
 
 const PetCardSkeleton = () => {
 	return (
-		<div className="bg-white rounded-2xl p-2 flex flex-col items-center justify-between gap-4 shadow-md border border-secondary/20">
+		<div className="bg-surface rounded-2xl p-2 flex flex-col items-center justify-between gap-4 shadow-md border border-secondary/20">
 			<Skeleton className="aspect-square w-full rounded-full" />
 			<Skeleton className="h-6 w-full" />
 		</div>
@@ -337,8 +318,8 @@ const AddPetButton = ({
 
 	return (
 		<button
-			className={`bg-white/50 border-2 border-dashed border-secondary/50 rounded-2xl p-2 flex flex-col items-center justify-center gap-2 transition-transform duration-300 ${
-				disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:scale-105 hover:bg-white'
+			className={`bg-surface/50 border-2 border-dashed border-secondary/50 rounded-2xl p-2 flex flex-col items-center justify-center gap-2 transition-transform duration-300 ${
+				disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:scale-105 hover:bg-surface'
 			}`}
 			onClick={onClick}
 			disabled={disabled}

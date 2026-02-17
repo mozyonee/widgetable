@@ -22,7 +22,7 @@ export const InviteModal = ({ isOpen, onClose, friends, onInvite }: InviteModalP
 			onClose={onClose}
 			title={t('invite.title')}
 			maxWidth="sm"
-			headerClassName="bg-white text-foreground border-b border-secondary/20"
+			headerClassName="bg-surface text-foreground border-b border-secondary/20"
 		>
 			{friends.length > 0 ? (
 				friends.map((friend) => (

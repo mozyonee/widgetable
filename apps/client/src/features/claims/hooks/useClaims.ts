@@ -1,7 +1,7 @@
 import { setClaimStatus as setClaimStatusAction } from '@/features/claims/slices/claimsSlice';
 import { useTranslation } from '@/i18n/useTranslation';
 import api, { isAbortError } from '@/lib/api';
-import { callError } from '@/lib/functions';
+import { callError } from '@/lib/toast';
 import { usePolling } from '@/lib/hooks/usePolling';
 import { useAppDispatch, useAppSelector } from '@/store';
 import { useRefreshUser } from '@/store/hooks/useRefreshUser';

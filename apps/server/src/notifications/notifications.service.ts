@@ -151,11 +151,12 @@ export class NotificationsService {
 
 		const pets = await this.petModel.find({ isEgg: false, isOnExpedition: false }).lean();
 
-		const urgentUsers = new Map<string, string[]>();
+		const urgentUsers = new Map<string, { names: string[]; petIds: Types.ObjectId[] }>();
 		const zeroUsers = new Map<string, string[]>();
+		const now = Date.now();
 
 		for (const pet of pets) {
-			const timeDiff = Date.now() - (pet.updatedAt?.getTime() || 0);
+			const timeDiff = now - (pet.updatedAt?.getTime() || 0);
 			const intervals = Math.floor(timeDiff / PET_UPDATE_INTERVAL);
 
 			if (intervals <= 0) continue;
@@ -175,11 +176,20 @@ export class NotificationsService {
 				if (stored >= 30 && current < 30) hasNewUrgent = true;
 			}
 
+			if (
+				hasNewUrgent &&
+				pet.urgentNotifiedAt &&
+				now - pet.urgentNotifiedAt.getTime() < NOTIFICATION_CONFIG.PET_NEEDS_COOLDOWN_MS
+			) {
+				hasNewUrgent = false;
+			}
+
 			for (const parentId of pet.parents) {
 				const key = parentId.toString();
 				if (hasNewUrgent) {
-					if (!urgentUsers.has(key)) urgentUsers.set(key, []);
-					urgentUsers.get(key)!.push(pet.name);
+					if (!urgentUsers.has(key)) urgentUsers.set(key, { names: [], petIds: [] });
+					urgentUsers.get(key)!.names.push(pet.name);
+					urgentUsers.get(key)!.petIds.push(pet._id);
 				}
 				if (allZero) {
 					if (!zeroUsers.has(key)) zeroUsers.set(key, []);
@@ -190,21 +200,31 @@ export class NotificationsService {
 
 		// Notify urgent needs (threshold crossing) — prioritize over zero notifications
 		const notifiedUsers = new Set<string>();
+		const notifiedPetIds = new Set<string>();
 
 		const allUserIds = [...new Set([...urgentUsers.keys(), ...zeroUsers.keys()])];
 		const userLangs = await this.batchGetUserLangs(allUserIds);
 
-		for (const [userId, petNames] of urgentUsers) {
+		for (const [userId, { names, petIds }] of urgentUsers) {
 			const lang = userLangs.get(userId) || DEFAULT_LANGUAGE;
-			const one = petNames.length === 1;
+			const one = names.length === 1;
 			await this.sendNotificationToUser(new Types.ObjectId(userId), {
-				title: nt(lang, one ? 'urgent.title.one' : 'urgent.title.many', { name: petNames[0] }),
+				title: nt(lang, one ? 'urgent.title.one' : 'urgent.title.many', { name: names[0] }),
 				body: nt(lang, one ? 'urgent.body.one' : 'urgent.body.many', {
-					name: petNames[0],
-					count: petNames.length,
+					name: names[0],
+					count: names.length,
 				}),
 			});
 			notifiedUsers.add(userId);
+			// A shared pet appears in each parent's list; deduplicate before the bulk write
+			for (const petId of petIds) notifiedPetIds.add(petId.toString());
+		}
+
+		if (notifiedPetIds.size > 0) {
+			await this.petModel.updateMany(
+				{ _id: { $in: [...notifiedPetIds] } },
+				{ $set: { urgentNotifiedAt: new Date(now) } },
+			);
 		}
 
 		// Notify all-zero needs (only for users not already notified above)

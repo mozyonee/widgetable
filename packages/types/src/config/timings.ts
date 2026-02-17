@@ -23,6 +23,7 @@ export const CLAIMS_CONFIG = {
 export const NOTIFICATION_CONFIG = {
 	COOLDOWN_MS: 10 * 60 * 1000,
 	DECAY_TIME_UNIT_MS: 60 * 1000,
+	PET_NEEDS_COOLDOWN_MS: 3 * 60 * 60 * 1000,
 } as const;
 
 export const TIME_CONVERSION = {

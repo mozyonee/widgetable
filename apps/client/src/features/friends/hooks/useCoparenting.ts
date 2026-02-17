@@ -1,5 +1,5 @@
 import api from '@/lib/api';
-import { callError, callSuccess } from '@/lib/functions';
+import { callError, callSuccess } from '@/lib/toast';
 import { usePolling } from '@/lib/hooks/usePolling';
 import { useTranslation } from '@/i18n/useTranslation';
 import { useAppDispatch, useAppSelector } from '@/store';

@@ -2,7 +2,7 @@
 import { Button } from '@/components/ui/Button';
 import { useTranslation } from '@/i18n/useTranslation';
 import api from '@/lib/api';
-import { callError } from '@/lib/functions';
+import { callError } from '@/lib/toast';
 import { useAppDispatch } from '@/store';
 import { setAuthenticated, setToken, setUserData } from '@/store/slices/userSlice';
 import { Eye, EyeClosed } from '@nsmr/pixelart-react';
@@ -41,7 +41,7 @@ export default function AuthPage() {
 
 	return (
 		<main className="p-4 flex flex-col items-center justify-center grow gap-4">
-			<div className="w-full max-w-md bg-white rounded-2xl p-8 shadow-lg border border-secondary/20">
+			<div className="w-full max-w-md bg-surface rounded-2xl p-8 shadow-lg border border-secondary/20">
 				<h2 className="text-center text-3xl font-bold text-foreground mb-6">
 					{isLogin ? t('auth.welcomeBack') : t('auth.createAccount')}
 				</h2>

@@ -49,7 +49,7 @@ const Friends = () => {
 		<div className="flex flex-col gap-4 h-full">
 			<h1 className="font-bold text-3xl text-foreground text-center">{t('friends.title')}</h1>
 
-			<div className="bg-white rounded-2xl shadow-md border border-secondary/20">
+			<div className="bg-surface rounded-2xl shadow-md border border-secondary/20">
 				<label className="relative p-2 flex items-center cursor-text">
 					<Search
 						className="absolute left-[23px] text-secondary pointer-events-none"
@@ -152,7 +152,7 @@ const Friends = () => {
 };
 
 const FriendSkeleton = () => (
-	<div className="bg-white rounded-2xl p-4 shadow-md border border-secondary/20 flex items-center gap-4">
+	<div className="bg-surface rounded-2xl p-4 shadow-md border border-secondary/20 flex items-center gap-4">
 		<Skeleton className="h-12 w-12 shrink-0 rounded-full" />
 		<div className="flex-1">
 			<Skeleton className="h-5 w-3/5 mb-2" />

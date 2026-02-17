@@ -5,3 +5,4 @@ export * from './pet';
 export * from './request';
 export * from './rewards';
 export * from './user';
+export * from './utils';

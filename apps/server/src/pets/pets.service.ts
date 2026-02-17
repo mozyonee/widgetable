@@ -20,6 +20,7 @@ import {
 	PET_UPDATE_INTERVAL,
 	PetActionCategory,
 	PetType,
+	PetUpdate,
 } from '@widgetable/types';
 import { locales } from '@widgetable/i18n';
 import { clamp, random } from 'lodash';
@@ -83,7 +84,7 @@ export class PetsService extends BaseService {
 		return populatedPet;
 	}
 
-	async update(id: PetDocument['_id'], updateData: Partial<Pet>, experienceGain?: number) {
+	async update(id: PetDocument['_id'], updateData: PetUpdate, experienceGain?: number) {
 		const newData: Record<string, unknown> = {
 			...updateData,
 			parents: updateData.parents?.map((p) => new Types.ObjectId(p)),
@@ -161,8 +162,13 @@ export class PetsService extends BaseService {
 			updatedNeeds[key] = clamp(pet.needs[key] - decrease, 0, 100);
 		});
 
+		// Allows the next neglect cycle to trigger a fresh notification
+		const anyNeedRestored = PET_NEED_KEYS.some(
+			(key) => pet.needs[key] < PET_THRESHOLDS.URGENT && updatedNeeds[key] >= PET_THRESHOLDS.URGENT,
+		);
+
 		const updatedPet = await this.petModel
-			.findByIdAndUpdate(pet._id, { needs: updatedNeeds }, { new: true })
+			.findByIdAndUpdate(pet._id, { needs: updatedNeeds, ...(anyNeedRestored && { urgentNotifiedAt: null }) }, { new: true })
 			.populate('parents', this.PARENT_FIELDS);
 
 		return updatedPet || pet;

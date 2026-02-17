@@ -1,7 +1,7 @@
 import { useTranslation } from '@/i18n/useTranslation';
 import { HTTP_STATUS } from '@/config/constants';
 import api from '@/lib/api';
-import { callError, callSuccess } from '@/lib/functions';
+import { callError, callSuccess } from '@/lib/toast';
 import { usePolling } from '@/lib/hooks/usePolling';
 import { useAppDispatch, useAppSelector } from '@/store';
 import { setSelectedPet } from '@/features/pets/slices/petsSlice';
@@ -10,7 +10,6 @@ import { useRefreshUser } from '@/store/hooks/useRefreshUser';
 import {
 	PetActionCategory,
 	PetAnimation,
-	PetUpdate,
 	User,
 	PET_NEED_KEYS,
 	PET_THRESHOLDS,
@@ -56,7 +55,7 @@ export const usePet = () => {
 	usePolling(loadPet, PET_UPDATE_INTERVAL, !!petId);
 
 	const updatePet = useCallback(
-		async (data: PetUpdate, animation?: PetAnimation, actionName?: string) => {
+		async (payload: { name?: string; background?: number; action?: string }, animation?: PetAnimation) => {
 			if (currentAnimation) {
 				callError(t('pets.isBusy', { name: pet?.name || '' }));
 				return;
@@ -67,14 +66,13 @@ export const usePet = () => {
 			}
 
 			try {
-				const payload = actionName ? { ...data, actionName } : data;
 				const response = await api.patch(`/pets/${pet?._id}`, payload);
 				dispatch(setSelectedPet(response.data));
 
-				if (actionName) {
+				if (payload.action) {
 					const action = Object.values(PET_ACTIONS_BY_CATEGORY)
 						.flat()
-						.find((a) => a.name === actionName);
+						.find((a) => a.name === payload.action);
 					if (action?.inventoryCost) {
 						await refreshUser();
 					}
@@ -180,6 +178,7 @@ export const usePet = () => {
 		currentAnimation,
 		selectedCategory,
 
+		loadPet,
 		updatePet,
 		deletePet,
 		sendCoparentingRequest,

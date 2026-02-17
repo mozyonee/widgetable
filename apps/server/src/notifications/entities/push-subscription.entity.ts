@@ -16,8 +16,6 @@ export class PushSubscription {
 		auth: string;
 	};
 
-	@Prop({ type: Date, required: false })
-	lastNotifiedAt?: Date;
 }
 
 export const PushSubscriptionSchema = SchemaFactory.createForClass(PushSubscription);

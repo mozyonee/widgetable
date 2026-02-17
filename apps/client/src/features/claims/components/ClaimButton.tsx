@@ -37,7 +37,7 @@ export const ClaimButton = ({ type, available, claimingType, nextClaimTime, onCl
 		if (isClaiming || available) {
 			return <Check width={ICON_SIZES.LG} height={ICON_SIZES.LG} className="text-white" />;
 		}
-		return <Clock width={ICON_SIZES.LG} height={ICON_SIZES.LG} className="text-secondary" />;
+		return <Clock width={ICON_SIZES.LG} height={ICON_SIZES.LG} className="text-white" />;
 	};
 
 	return (

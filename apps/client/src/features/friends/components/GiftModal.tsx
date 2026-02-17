@@ -1,10 +1,12 @@
 'use client';
 
+import { Skeleton } from '@/components/ui/Skeleton';
 import { Modal } from '@/components/ui/Modal';
 import { getActionSprite } from '@/data/actionSprites';
 import { useTranslation } from '@/i18n/useTranslation';
 import api from '@/lib/api';
-import { callError, callSuccess } from '@/lib/functions';
+import { callError, callSuccess } from '@/lib/toast';
+import { useImagesLoaded } from '@/lib/useImagesLoaded';
 import { useAppSelector } from '@/store';
 import { useRefreshUser } from '@/store/hooks/useRefreshUser';
 import { User, VALENTINE_GIFT_ITEM_NAMES } from '@widgetable/types';
@@ -29,6 +31,9 @@ export const GiftModal = ({ isOpen, onClose, friend }: GiftModalProps) => {
 		count: inventory[name]!,
 		sprite: getActionSprite(name),
 	}));
+
+	const spriteUrls = giftableItems.map((item) => item.sprite).filter(Boolean) as string[];
+	const spritesLoaded = useImagesLoaded(spriteUrls);
 
 	const handleSend = async (itemName: string) => {
 		if (sending) return;
@@ -55,36 +60,44 @@ export const GiftModal = ({ isOpen, onClose, friend }: GiftModalProps) => {
 			onClose={onClose}
 			title={t('gifts.title')}
 			maxWidth="sm"
-			headerClassName="bg-white text-foreground border-b border-secondary/20"
+			headerClassName="bg-surface text-foreground border-b border-secondary/20"
 			contentClassName="p-4"
 		>
 			{giftableItems.length > 0 ? (
-				<div className="grid grid-cols-3 gap-2">
-					{giftableItems.map((item) => (
-						<button
-							key={item.name}
-							onClick={() => handleSend(item.name)}
-							disabled={sending}
-							className="flex flex-col items-center gap-1 p-2 rounded-lg border-2 border-primary/30 bg-white hover:bg-primary/5 transition-colors disabled:opacity-50"
-						>
-							{item.sprite && (
-								<div className="relative w-16 h-16">
-									<Image
-										src={item.sprite}
-										alt={item.name}
-										fill
-										className="object-contain"
-										style={{ imageRendering: 'pixelated' }}
-									/>
+				!spritesLoaded ? (
+					<div className="grid grid-cols-3 gap-2">
+						{Array.from({ length: giftableItems.length }).map((_, i) => (
+							<Skeleton key={i} className="aspect-square rounded-lg" />
+						))}
+					</div>
+				) : (
+					<div className="grid grid-cols-3 gap-2">
+						{giftableItems.map((item) => (
+							<button
+								key={item.name}
+								onClick={() => handleSend(item.name)}
+								disabled={sending}
+								className="flex flex-col items-center gap-1 p-2 rounded-lg border-2 border-primary/30 bg-surface hover:bg-primary/5 transition-colors disabled:opacity-50"
+							>
+								{item.sprite && (
+									<div className="relative w-16 h-16">
+										<Image
+											src={item.sprite}
+											alt={item.name}
+											fill
+											className="object-contain"
+											style={{ imageRendering: 'pixelated' }}
+										/>
+									</div>
+								)}
+								<div className="text-xs font-semibold text-center text-foreground">
+									{t(`action.${item.name}`)}
 								</div>
-							)}
-							<div className="text-xs font-semibold text-center text-foreground">
-								{t(`action.${item.name}`)}
-							</div>
-							<div className="text-xs text-secondary">x{item.count}</div>
-						</button>
-					))}
-				</div>
+								<div className="text-xs text-secondary">x{item.count}</div>
+							</button>
+						))}
+					</div>
+				)
 			) : (
 				<div className="text-center py-6">
 					<p className="text-secondary">{t('gifts.noItems')}</p>

@@ -29,7 +29,7 @@ const AppLoader = () => {
 				flexDirection: 'column',
 				alignItems: 'center',
 				justifyContent: 'center',
-				background: '#FFFBF7',
+				background: 'var(--background)',
 			}}
 		>
 			<img
@@ -47,7 +47,7 @@ const AppLoader = () => {
 						width: '0.75rem',
 						height: '0.75rem',
 						borderRadius: '2px',
-						background: '#b07070',
+						background: 'var(--primary)',
 						animation: 'pulse 2s cubic-bezier(0.4,0,0.6,1) infinite',
 					}}
 				/>
@@ -56,7 +56,7 @@ const AppLoader = () => {
 						width: '0.75rem',
 						height: '0.75rem',
 						borderRadius: '2px',
-						background: '#b07070',
+						background: 'var(--primary)',
 						animation: 'pulse 2s cubic-bezier(0.4,0,0.6,1) infinite',
 						animationDelay: '150ms',
 					}}
@@ -66,7 +66,7 @@ const AppLoader = () => {
 						width: '0.75rem',
 						height: '0.75rem',
 						borderRadius: '2px',
-						background: '#b07070',
+						background: 'var(--primary)',
 						animation: 'pulse 2s cubic-bezier(0.4,0,0.6,1) infinite',
 						animationDelay: '300ms',
 					}}

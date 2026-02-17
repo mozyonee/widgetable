@@ -8,7 +8,7 @@ import { useClaims } from '@/features/claims/hooks/useClaims';
 import { usePushNotifications } from '@/features/notifications/hooks/usePushNotifications';
 import { useTranslation } from '@/i18n/useTranslation';
 import api from '@/lib/api';
-import { callError, callSuccess } from '@/lib/functions';
+import { callError, callSuccess } from '@/lib/toast';
 import { useImagesLoaded } from '@/lib/useImagesLoaded';
 import { useAppDispatch, useAppSelector } from '@/store';
 import { useAuth } from '@/store/hooks/useAuth';
@@ -20,20 +20,20 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 
 const ProfileSkeleton = () => (
 	<>
-		<div className="flex flex-col gap-6 items-center bg-white shadow-lg border border-secondary/20 rounded-2xl p-8 w-full">
+		<div className="flex flex-col gap-6 items-center bg-surface shadow-lg border border-secondary/20 rounded-2xl p-8 w-full">
 			<Skeleton className="h-24 w-24 rounded-full" />
 			<div className="flex flex-col items-center gap-2 w-full">
 				<Skeleton className="h-8 w-3/5" />
 				<Skeleton className="h-6 w-4/5" />
 			</div>
 		</div>
-		<div className="flex flex-col gap-4 bg-white shadow-lg border border-secondary/20 rounded-2xl p-6">
+		<div className="flex flex-col gap-4 bg-surface shadow-lg border border-secondary/20 rounded-2xl p-6">
 			<Skeleton className="h-7 w-2/5" />
 			<Skeleton className="h-4 w-3/5" />
 			<Skeleton className="h-12 w-full rounded-lg" />
 			<Skeleton className="h-12 w-full rounded-lg" />
 		</div>
-		<div className="flex flex-col gap-4 bg-white shadow-lg border border-secondary/20 rounded-2xl p-6">
+		<div className="flex flex-col gap-4 bg-surface shadow-lg border border-secondary/20 rounded-2xl p-6">
 			<Skeleton className="h-7 w-1/3" />
 			<div className="flex gap-2">
 				<Skeleton className="h-12 flex-1 rounded-xl" />
@@ -146,7 +146,7 @@ const Account = () => {
 				<ProfileSkeleton />
 			) : (
 				<>
-					<div className="flex flex-col gap-6 items-center bg-white shadow-lg border border-secondary/20 rounded-2xl p-8">
+					<div className="flex flex-col gap-6 items-center bg-surface shadow-lg border border-secondary/20 rounded-2xl p-8">
 						<div className="relative">
 							<button
 								className="relative"
@@ -199,7 +199,7 @@ const Account = () => {
 						</div>
 					</div>
 
-					<div className="flex flex-col gap-4 bg-white shadow-lg border border-secondary/20 rounded-2xl p-6">
+					<div className="flex flex-col gap-4 bg-surface shadow-lg border border-secondary/20 rounded-2xl p-6">
 						<h2 className="font-bold text-xl text-foreground">{t('account.carePackages')}</h2>
 						<p className="text-secondary text-sm">{t('account.carePackagesDesc')}</p>
 
@@ -223,7 +223,7 @@ const Account = () => {
 						)}
 					</div>
 
-					<div className="flex flex-col gap-4 bg-white shadow-lg border border-secondary/20 rounded-2xl p-6">
+					<div className="flex flex-col gap-4 bg-surface shadow-lg border border-secondary/20 rounded-2xl p-6">
 						<h2 className="font-bold text-xl text-foreground">{t('account.language')}</h2>
 						<div className="flex gap-2">
 							{LANGUAGES.map((lang) => (
@@ -241,7 +241,7 @@ const Account = () => {
 						</div>
 					</div>
 
-					<div className="flex flex-col gap-4 bg-white shadow-lg border border-secondary/20 rounded-2xl p-6">
+					<div className="flex flex-col gap-4 bg-surface shadow-lg border border-secondary/20 rounded-2xl p-6">
 						<h2 className="font-bold text-xl text-foreground">{t('account.notifications')}</h2>
 						{!isSupported ? (
 							<p className="text-secondary text-sm">{t('account.notificationsNotSupported')}</p>

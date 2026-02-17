@@ -9,15 +9,15 @@ export default function Loading() {
 				<Skeleton className="h-10 w-20 rounded-full justify-self-end" />
 			</div>
 			<div className="grid gap-2 [grid-template-columns:repeat(auto-fit,minmax(125px,1fr))]">
-				<div className="bg-white rounded-2xl p-2 flex flex-col items-center justify-between gap-4 shadow-md border border-secondary/20">
+				<div className="bg-surface rounded-2xl p-2 flex flex-col items-center justify-between gap-4 shadow-md border border-secondary/20">
 					<Skeleton className="aspect-square w-full rounded-full" />
 					<Skeleton className="h-6 w-full" />
 				</div>
-				<div className="bg-white rounded-2xl p-2 flex flex-col items-center justify-between gap-4 shadow-md border border-secondary/20">
+				<div className="bg-surface rounded-2xl p-2 flex flex-col items-center justify-between gap-4 shadow-md border border-secondary/20">
 					<Skeleton className="aspect-square w-full rounded-full" />
 					<Skeleton className="h-6 w-full" />
 				</div>
-				<div className="bg-white rounded-2xl p-2 flex flex-col items-center justify-between gap-4 shadow-md border border-secondary/20">
+				<div className="bg-surface rounded-2xl p-2 flex flex-col items-center justify-between gap-4 shadow-md border border-secondary/20">
 					<Skeleton className="aspect-square w-full rounded-full" />
 					<Skeleton className="h-6 w-full" />
 				</div>

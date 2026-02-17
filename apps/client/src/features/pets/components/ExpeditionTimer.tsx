@@ -12,6 +12,6 @@ export const ExpeditionTimer = ({ returnTime }: ExpeditionTimerProps) => {
 	const displayText = isReady ? 'Ready to claim!' : `Returns in ${timeLeft}`;
 
 	return (
-		<div className={`text-sm ${isReady ? 'text-green-600 font-semibold' : 'text-secondary'}`}>{displayText}</div>
+		<div className={`text-sm ${isReady ? 'text-success font-semibold' : 'text-secondary'}`}>{displayText}</div>
 	);
 };

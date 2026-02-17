@@ -21,7 +21,7 @@ export default function Footer() {
 	};
 
 	return (
-		<footer className="sticky bottom-0 mt-auto bg-white border-t border-secondary/20">
+		<footer className="sticky bottom-0 mt-auto bg-surface border-t border-secondary/20">
 			<nav className="flex">
 				<Link href="/friends" replace className={getLinkClassName('/friends')}>
 					<Message width={30} height={30} />
