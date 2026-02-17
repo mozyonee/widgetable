@@ -7,7 +7,11 @@ import { FriendsController } from './friends.controller';
 import { FriendsService } from './friends.service';
 
 @Module({
-	imports: [MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]), RequestsModule, NotificationsModule],
+	imports: [
+		MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
+		RequestsModule,
+		NotificationsModule,
+	],
 	controllers: [FriendsController],
 	providers: [FriendsService],
 	exports: [FriendsService],

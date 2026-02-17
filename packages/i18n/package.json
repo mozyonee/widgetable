@@ -1,0 +1,10 @@
+{
+	"name": "@widgetable/i18n",
+	"version": "0.1.0",
+	"main": "index.js",
+	"types": "index.d.ts",
+	"exports": {
+		".": "./index.js",
+		"./locales/*": "./locales/*"
+	}
+}

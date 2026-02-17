@@ -7,7 +7,13 @@ import { ClaimsController } from './claims.controller';
 import { ClaimsService } from './claims.service';
 
 @Module({
-	imports: [MongooseModule.forFeature([{ name: User.name, schema: UserSchema }, { name: Pet.name, schema: PetSchema }]), UsersModule],
+	imports: [
+		MongooseModule.forFeature([
+			{ name: User.name, schema: UserSchema },
+			{ name: Pet.name, schema: PetSchema },
+		]),
+		UsersModule,
+	],
 	controllers: [ClaimsController],
 	providers: [ClaimsService],
 	exports: [ClaimsService],

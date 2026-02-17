@@ -42,13 +42,25 @@ export const ACTION_SPRITES: Record<string, string> = {
 	'Wipe Down': 'bathroom/bath_sponge.png',
 	Sponge: 'bathroom/natural_sponge.png',
 
-	// Valentine Chocolates
+	// Valentine Items - Chocolates
 	'Chocolate Bar Red': '/valentine/chocolate_bar_red.png',
 	'Chocolate Bar Brown': '/valentine/chocolate_bar_brown.png',
 	'Chocolate Bar Blue': '/valentine/chocolate_bar_blue.png',
 	'Chocolate Bar White': '/valentine/chocolate_bar_white.png',
 	'Chocolate Bar Duo': '/valentine/chocolate_bar_red_blue.png',
 	Chocolate: '/valentine/chocolate.png',
+
+	// Valentine Items - Letters & Envelopes
+	'Letter Sealed Red Heart': '/valentine/letter_sealed_red_heart.png',
+	'Letter Sealed Red Border': '/valentine/letter_sealed_red_border.png',
+	'Letter Sealed Pink': '/valentine/letter_sealed_pink.png',
+	'Letter Sealed Small Heart': '/valentine/letter_sealed_small_heart.png',
+	'Letter Sealed Orange': '/valentine/letter_sealed_orange.png',
+	'Letter Sealed Pink Heart': '/valentine/letter_sealed_pink_heart.png',
+	'Letter Sealed Brown': '/valentine/letter_sealed_brown.png',
+	'Letter Sealed Amber': '/valentine/letter_sealed_amber.png',
+	'Envelope White': '/valentine/envelope_white.png',
+	'Envelope Pink': '/valentine/envelope_pink.png',
 
 	// Care Actions
 	Toilet: 'bathroom/toilet.png',

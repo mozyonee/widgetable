@@ -1,6 +1,7 @@
-import { Controller, Get, Post, Request, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
-import { UserRequest } from 'src/users/entities/user.entity';
+import { GetUser } from 'src/common/decorators/get-user.decorator';
+import { User, UserDocument } from 'src/users/entities/user.entity';
 import { ClaimsService } from './claims.service';
 
 @Controller('claims')
@@ -9,22 +10,22 @@ export class ClaimsController {
 	constructor(private readonly claimsService: ClaimsService) {}
 
 	@Get('status')
-	async getStatus(@Request() req: UserRequest) {
-		return this.claimsService.getClaimStatus(req.user._id);
+	async getStatus(@GetUser() user: UserDocument) {
+		return this.claimsService.getClaimStatus(user._id);
 	}
 
 	@Post('daily')
-	async claimDaily(@Request() req: UserRequest) {
-		return this.claimsService.claimDaily(req.user._id);
+	async claimDaily(@GetUser() user: UserDocument) {
+		return this.claimsService.claimDaily(user._id);
 	}
 
 	@Post('quick')
-	async claimQuick(@Request() req: UserRequest) {
-		return this.claimsService.claimQuick(req.user._id);
+	async claimQuick(@GetUser() user: UserDocument) {
+		return this.claimsService.claimQuick(user._id);
 	}
 
 	@Post('debug')
-	async claimDebug(@Request() req: UserRequest) {
-		return this.claimsService.claimDebug(req.user._id);
+	async claimDebug(@GetUser() user: UserDocument) {
+		return this.claimsService.claimDebug(user._id);
 	}
 }

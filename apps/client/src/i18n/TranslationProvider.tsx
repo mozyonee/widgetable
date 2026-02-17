@@ -1,9 +1,10 @@
 'use client';
 
-import { createContext, useCallback, useEffect, useState, ReactNode } from 'react';
-import { Language, DEFAULT_LANGUAGE, translate } from './index';
 import api from '@/lib/api';
 import { useAppSelector } from '@/store';
+import { translate } from '@widgetable/i18n';
+import { DEFAULT_LANGUAGE, Language } from '@widgetable/types';
+import { createContext, ReactNode, useCallback, useEffect, useState } from 'react';
 
 const LANGUAGE_STORAGE_KEY = 'widgetable_language';
 
@@ -49,9 +50,5 @@ export const TranslationProvider = ({ children }: { children: ReactNode }) => {
 		[language],
 	);
 
-	return (
-		<TranslationContext.Provider value={{ language, setLanguage, t }}>
-			{children}
-		</TranslationContext.Provider>
-	);
+	return <TranslationContext.Provider value={{ language, setLanguage, t }}>{children}</TranslationContext.Provider>;
 };

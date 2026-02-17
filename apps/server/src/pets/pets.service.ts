@@ -1,55 +1,53 @@
-import { BadRequestException, ConflictException, Injectable, NotFoundException, UnprocessableEntityException } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
+import {
+	BadRequestException,
+	ConflictException,
+	Injectable,
+	NotFoundException,
+	UnprocessableEntityException,
+} from '@nestjs/common';
+import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 
 import {
 	calculateLevel,
-	EGG_ITEM_NAME,
+	ClaimResult,
+	DEFAULT_LANGUAGE,
 	EXPEDITION_BASE_DURATION,
 	EXPEDITION_LEVEL_MULTIPLIER,
-	ItemReward,
-	ItemTier,
-	PET_ACTIONS_BY_CATEGORY,
+	HATCH_DURATIONS,
 	PET_NEED_KEYS,
 	PET_NEEDS_CONFIG,
+	PET_THRESHOLDS,
 	PET_UPDATE_INTERVAL,
-	PetAction,
 	PetActionCategory,
 	PetType,
-	VALENTINE_GIFT_ITEMS,
 } from '@widgetable/types';
+import { locales } from '@widgetable/i18n';
 import { clamp, random } from 'lodash';
-import { Model, Types } from 'mongoose';
-import { ClaimResult } from 'src/claims/interfaces/claim.interface';
+import { Connection, Model, Types } from 'mongoose';
+import { BaseService } from 'src/common/base.service';
+import { PET_CONFIG } from 'src/shared/constants';
+import { RewardsService } from 'src/shared/rewards.service';
 import { UserDocument } from 'src/users/entities/user.entity';
 import { UsersService } from 'src/users/users.service';
 import { Pet, PetDocument } from './entities/pet.entity';
 
-const PET_TYPE_NAMES: Record<string, Record<string, string>> = {
-	en: { fox: 'Fox', cat: 'Cat', dog: 'Dog', bunny: 'Bunny', chicken: 'Chicken', panda: 'Panda', turtle: 'Turtle', parrot: 'Parrot' },
-	ru: { fox: 'Лиса', cat: 'Кот', dog: 'Собака', bunny: 'Кролик', chicken: 'Курица', panda: 'Панда', turtle: 'Черепаха', parrot: 'Попугай' },
-};
-
 @Injectable()
-export class PetsService {
+export class PetsService extends BaseService {
 	private readonly PARENT_FIELDS = '_id name email picture';
-
-	// Tier weights for reward generation (must sum to 100)
-	private readonly TIER_WEIGHTS = {
-		[ItemTier.BASIC]: 60,
-		[ItemTier.COMMON]: 25,
-		[ItemTier.PREMIUM]: 10,
-		[ItemTier.LEGENDARY]: 5,
-	};
 
 	constructor(
 		@InjectModel(Pet.name) private petModel: Model<PetDocument>,
+		@InjectConnection() connection: Connection,
 		private readonly usersService: UsersService,
-	) {}
+		private readonly rewardsService: RewardsService,
+	) {
+		super(connection);
+	}
 
 	async getPet(petId: PetDocument['_id']) {
 		const pet = await this.petModel.findById(petId).populate('parents', this.PARENT_FIELDS);
 		if (!pet) throw new NotFoundException();
-		return await this.processPet(pet);
+		return this.processPet(pet);
 	}
 
 	async getPetsForUser(userId: UserDocument['_id']) {
@@ -57,28 +55,19 @@ export class PetsService {
 
 		if (!pets.length) return [];
 
-		return await Promise.all(pets.map((pet) => this.processPet(pet)));
+		return Promise.all(pets.map((pet) => this.processPet(pet)));
 	}
 
 	async create(userId: UserDocument['_id']) {
 		const pets = Object.values(PetType);
 		const randomType = pets[random(pets.length - 1)];
 
-		const user = await this.usersService.findById(userId.toString());
-		const lang = user?.language || 'en';
-		const petName = PET_TYPE_NAMES[lang]?.[randomType] || PET_TYPE_NAMES['en'][randomType] || randomType;
+		const user = await this.usersService.findById(userId);
+		const lang = user?.language || DEFAULT_LANGUAGE;
+		const translationKey = `pets.type.${randomType}`;
+		const petName = locales[lang]?.[translationKey] || locales[DEFAULT_LANGUAGE]?.[translationKey] || randomType;
 
 		const existingPets = await this.petModel.countDocuments({ parents: { $in: [userId] }, isEgg: false });
-		const HATCH_DURATIONS = [
-			30 * 1000,			// 0 pets: 30s
-			5 * 60 * 1000,		// 1 pet: 5 min
-			30 * 60 * 1000,		// 2 pets: 30 min
-			60 * 60 * 1000,		// 3 pets: 1 hour
-			2 * 60 * 60 * 1000,	// 4 pets: 2 hours
-			4 * 60 * 60 * 1000,	// 5 pets: 4 hours
-			8 * 60 * 60 * 1000,	// 6 pets: 8 hours
-			16 * 60 * 60 * 1000,	// 7+ pets: 16 hours (cap)
-		];
 		const hatchDuration = HATCH_DURATIONS[Math.min(existingPets, HATCH_DURATIONS.length - 1)];
 
 		const result = await this.petModel.create({
@@ -95,12 +84,11 @@ export class PetsService {
 	}
 
 	async update(id: PetDocument['_id'], updateData: Partial<Pet>, experienceGain?: number) {
-		const newData: any = {
+		const newData: Record<string, unknown> = {
 			...updateData,
 			parents: updateData.parents?.map((p) => new Types.ObjectId(p)),
 		};
-
-		// Use dot notation for needs to merge instead of replace
+		// Dot notation merges needs instead of replacing entire object
 		if (updateData.needs) {
 			delete newData.needs;
 			PET_NEED_KEYS.forEach((key) => {
@@ -120,10 +108,12 @@ export class PetsService {
 			}
 		}
 
-		const pet = await this.petModel.findByIdAndUpdate(id, newData, { new: true }).populate('parents', this.PARENT_FIELDS);
+		const pet = await this.petModel
+			.findByIdAndUpdate(id, newData, { new: true })
+			.populate('parents', this.PARENT_FIELDS);
 
 		if (!pet) throw new NotFoundException();
-		return await this.processPet(pet);
+		return this.processPet(pet);
 	}
 
 	async remove(id: PetDocument['_id'], userId: UserDocument['_id']) {
@@ -147,7 +137,6 @@ export class PetsService {
 	}
 
 	private async processPet(pet: PetDocument): Promise<PetDocument> {
-		// Check if egg should hatch
 		if (pet.isEgg && pet.hatchTime && new Date() >= pet.hatchTime) {
 			const hatchedPet = await this.petModel
 				.findByIdAndUpdate(pet._id, { isEgg: false, hatchTime: undefined }, { new: true })
@@ -158,15 +147,13 @@ export class PetsService {
 
 		if (pet.isEgg) return pet;
 
-		// Calculate stat decay
 		const timeDiff = Date.now() - (pet.updatedAt?.getTime() || 0);
 		const intervals = Math.floor(timeDiff / PET_UPDATE_INTERVAL);
 
 		if (intervals <= 0) return pet;
-
-		// Decay rates are per DECAY_TIME_UNIT, so convert to per-interval rate
+		// Convert per-minute decay to per-interval rate
 		const DECAY_TIME_UNIT = 60 * 1000;
-		const updatedNeeds = {} as any;
+		const updatedNeeds: Record<string, number> = {};
 
 		PET_NEED_KEYS.forEach((key) => {
 			const config = PET_NEEDS_CONFIG[key];
@@ -181,51 +168,40 @@ export class PetsService {
 		return updatedPet || pet;
 	}
 
-	// ============================================================================
-	// EXPEDITION METHODS
-	// ============================================================================
-
 	async startExpedition(petId: PetDocument['_id'], userId: UserDocument['_id']): Promise<PetDocument> {
 		const pet = await this.getPet(petId);
-
-		// Validations (each uses a distinct status code so the frontend can map to i18n keys)
+		// Distinct status codes allow frontend to map errors to i18n keys
 		if (pet.isEgg) throw new UnprocessableEntityException();
 		if (pet.isOnExpedition) throw new ConflictException();
 
-		// Check for urgent needs (any need below 30)
 		if (pet.needs) {
 			const urgentNeeds: string[] = [];
-			if (pet.needs.hunger < 30) urgentNeeds.push('hunger');
-			if (pet.needs.thirst < 30) urgentNeeds.push('thirst');
-			if (pet.needs.hygiene < 30) urgentNeeds.push('hygiene');
-			if (pet.needs.energy < 30) urgentNeeds.push('energy');
-			if (pet.needs.toilet < 30) urgentNeeds.push('toilet');
+			if (pet.needs.hunger < PET_THRESHOLDS.URGENT) urgentNeeds.push('hunger');
+			if (pet.needs.thirst < PET_THRESHOLDS.URGENT) urgentNeeds.push('thirst');
+			if (pet.needs.hygiene < PET_THRESHOLDS.URGENT) urgentNeeds.push('hygiene');
+			if (pet.needs.energy < PET_THRESHOLDS.URGENT) urgentNeeds.push('energy');
+			if (pet.needs.toilet < PET_THRESHOLDS.URGENT) urgentNeeds.push('toilet');
 
 			if (urgentNeeds.length > 0) throw new BadRequestException();
 		}
-
-		// Check expedition slots (only count pets that are actively away, not returned-but-unclaimed)
+		// Only count pets still away, not returned but unclaimed
 		const now = new Date();
 		const allPets = await this.getPetsForUser(userId);
 		const activePets = allPets.filter((p) => !p.isEgg);
-		const maxSlots = Math.ceil(activePets.length * 0.3);
-		const usedSlots = allPets.filter((p) =>
-			p.isOnExpedition && p.expeditionReturnTime && new Date(p.expeditionReturnTime) > now,
+		const maxSlots = Math.ceil(activePets.length * PET_CONFIG.MAX_EXPEDITION_SLOTS_RATIO);
+		const usedSlots = allPets.filter(
+			(p) => p.isOnExpedition && p.expeditionReturnTime && new Date(p.expeditionReturnTime) > now,
 		).length;
 
 		if (usedSlots >= maxSlots) throw new ConflictException();
 
-
-		// Calculate duration (1 hour + 10% per level)
 		const baseDuration = EXPEDITION_BASE_DURATION;
 		const levelMultiplier = 1 + pet.level * EXPEDITION_LEVEL_MULTIPLIER;
 		const duration = baseDuration * levelMultiplier;
 		const returnTime = new Date(Date.now() + duration);
 
-		// Generate rewards
 		const rewards = this.calculateExpeditionRewards(pet);
 
-		// Update pet
 		const updatedPet = await this.petModel
 			.findByIdAndUpdate(
 				petId,
@@ -245,64 +221,51 @@ export class PetsService {
 	async claimExpedition(petId: PetDocument['_id'], userId: UserDocument['_id']): Promise<ClaimResult> {
 		const pet = await this.getPet(petId);
 
-		// Validations
 		if (!pet.isOnExpedition) throw new ConflictException();
 		if (!pet.expeditionReturnTime) throw new UnprocessableEntityException();
 		if (new Date() < pet.expeditionReturnTime) {
 			throw new ConflictException();
 		}
 		if (!pet.expeditionRewards) throw new UnprocessableEntityException();
-
-		// Transfer rewards to user inventory
+		// Atomic transaction ensures rewards and state update together
 		const rewards = pet.expeditionRewards;
-		for (const item of rewards.food) {
-			await this.usersService.addInventory(userId.toString(), item.name, item.quantity);
-		}
-		for (const item of rewards.drinks) {
-			await this.usersService.addInventory(userId.toString(), item.name, item.quantity);
-		}
-		for (const item of rewards.hygiene) {
-			await this.usersService.addInventory(userId.toString(), item.name, item.quantity);
-		}
-		for (const item of rewards.care || []) {
-			await this.usersService.addInventory(userId.toString(), item.name, item.quantity);
-		}
-		if (rewards.eggs > 0) {
-			await this.usersService.addInventory(userId.toString(), EGG_ITEM_NAME, rewards.eggs);
-		}
-		for (const item of rewards.valentines || []) {
-			await this.usersService.addInventory(userId.toString(), item.name, item.quantity);
-		}
+		await this.withTransaction(async (session) => {
+			await this.usersService.applyRewards(userId, rewards, session);
 
-		// Clear expedition state
-		await this.petModel.findByIdAndUpdate(petId, {
-			isOnExpedition: false,
-			expeditionReturnTime: undefined,
-			expeditionRewards: undefined,
+			await this.petModel.findByIdAndUpdate(
+				petId,
+				{
+					isOnExpedition: false,
+					expeditionReturnTime: undefined,
+					expeditionRewards: undefined,
+				},
+				{ session },
+			);
 		});
 
-		// Return ClaimResult format (compatible with RewardsModal)
 		const valentineCount = (rewards.valentines || []).reduce((sum, item) => sum + item.quantity, 0);
-		const totalItems = [...rewards.food, ...rewards.drinks, ...rewards.hygiene, ...(rewards.care || [])].reduce((sum, item) => sum + item.quantity, rewards.eggs) + valentineCount;
+		const totalItems =
+			[...rewards.food, ...rewards.drinks, ...rewards.hygiene, ...(rewards.care || [])].reduce(
+				(sum, item) => sum + item.quantity,
+				rewards.eggs,
+			) + valentineCount;
 
 		return {
 			success: true,
 			rewards,
 			totalItems,
-			nextClaimTime: new Date(), // Can restart immediately
+			nextClaimTime: new Date(),
 		};
 	}
 
 	private calculateExpeditionRewards(pet: PetDocument): ClaimResult {
-		// Base rewards for single pet (slightly less than global system)
 		const BASE_FOOD_ITEMS = 4;
 		const BASE_DRINK_ITEMS = 4;
 		const BASE_HYGIENE_ITEMS = 3;
 		const BASE_CARE_ITEMS = 3;
 		const MIN_EGG_CHANCE = 0.05;
 		const MAX_EGG_CHANCE = 0.18;
-
-		// Level scaling (+10% per level, capped at +100%)
+		// Exponential scaling caps at +100%
 		const levelMultiplier = 1 + Math.min(pet.level * 0.1, 1.0);
 
 		const foodCount = Math.floor(BASE_FOOD_ITEMS * levelMultiplier);
@@ -310,18 +273,19 @@ export class PetsService {
 		const hygieneCount = Math.floor(BASE_HYGIENE_ITEMS * levelMultiplier);
 		const careCount = Math.floor(BASE_CARE_ITEMS * levelMultiplier);
 
-		const foodItems = this.selectRandomItems(PetActionCategory.FEED, foodCount);
-		const drinkItems = this.selectRandomItems(PetActionCategory.DRINK, drinkCount);
-		const hygieneItems = this.selectRandomItems(PetActionCategory.WASH, hygieneCount);
-		const careItems = this.selectRandomItems(PetActionCategory.CARE, careCount);
-
-		// Egg chance (increases with level: 5% → 18%)
-		const eggChance = Math.min(MIN_EGG_CHANCE + (MAX_EGG_CHANCE - MIN_EGG_CHANCE) * (1 - 1 / (1 + pet.level * 0.3)), MAX_EGG_CHANCE);
+		const foodItems = this.rewardsService.selectRandomItems(PetActionCategory.FEED, foodCount);
+		const drinkItems = this.rewardsService.selectRandomItems(PetActionCategory.DRINK, drinkCount);
+		const hygieneItems = this.rewardsService.selectRandomItems(PetActionCategory.WASH, hygieneCount);
+		const careItems = this.rewardsService.selectRandomItems(PetActionCategory.CARE, careCount);
+		// Logarithmic growth from 5% to 18% based on level
+		const eggChance = Math.min(
+			MIN_EGG_CHANCE + (MAX_EGG_CHANCE - MIN_EGG_CHANCE) * (1 - 1 / (1 + pet.level * 0.3)),
+			MAX_EGG_CHANCE,
+		);
 		const earnedEggs = Math.random() < eggChance ? 1 : 0;
-
-		// Valentine bonus (February only)
-		const valentineItems = this.isValentineSeason()
-			? this.selectRandomValentineItems(Math.floor(1 * levelMultiplier))
+		// February-only valentine items
+		const valentineItems = this.rewardsService.isValentineSeason()
+			? this.rewardsService.selectRandomValentineItems(Math.floor(1 * levelMultiplier))
 			: [];
 
 		const valentineCount = valentineItems.reduce((sum, item) => sum + item.quantity, 0);
@@ -329,92 +293,15 @@ export class PetsService {
 		return {
 			success: true,
 			rewards: {
-				food: foodItems, drinks: drinkItems, hygiene: hygieneItems, care: careItems, eggs: earnedEggs,
+				food: foodItems,
+				drinks: drinkItems,
+				hygiene: hygieneItems,
+				care: careItems,
+				eggs: earnedEggs,
 				valentines: valentineItems.length > 0 ? valentineItems : undefined,
 			},
 			totalItems: foodCount + drinkCount + hygieneCount + careCount + earnedEggs + valentineCount,
 			nextClaimTime: new Date(),
 		};
-	}
-
-	private selectRandomItems(category: PetActionCategory, count: number): ItemReward[] {
-		const actions = PET_ACTIONS_BY_CATEGORY[category].filter((a) => a.inventoryCost !== undefined);
-		const itemCounts = new Map<string, number>();
-
-		// Group items by tier
-		const itemsByTier = new Map<ItemTier, PetAction[]>();
-		actions.forEach((action) => {
-			const tier = (action.inventoryCost || 1) as ItemTier;
-			if (!itemsByTier.has(tier)) itemsByTier.set(tier, []);
-			itemsByTier.get(tier)!.push(action);
-		});
-
-		// Select items with weighted randomness
-		for (let i = 0; i < count; i++) {
-			const tier = this.selectWeightedTier();
-			const tierItems = itemsByTier.get(tier) || [];
-			if (tierItems.length === 0) continue;
-
-			// Pick random item from tier, avoiding too many duplicates
-			const availableItems = tierItems.filter((item) => (itemCounts.get(item.name) || 0) < 2);
-			const selectedItem =
-				availableItems.length > 0
-					? availableItems[Math.floor(Math.random() * availableItems.length)]
-					: tierItems[Math.floor(Math.random() * tierItems.length)];
-
-			itemCounts.set(selectedItem.name, (itemCounts.get(selectedItem.name) || 0) + 1);
-		}
-
-		// Convert to ItemReward format
-		const result: ItemReward[] = [];
-		itemCounts.forEach((quantity, name) => {
-			const action = actions.find((a) => a.name === name)!;
-			result.push({ name, quantity, tier: (action.inventoryCost || 1) as ItemTier });
-		});
-
-		return result;
-	}
-
-	private selectWeightedTier(): ItemTier {
-		const rand = Math.random() * 100;
-		if (rand < this.TIER_WEIGHTS[ItemTier.BASIC]) return ItemTier.BASIC;
-		if (rand < this.TIER_WEIGHTS[ItemTier.BASIC] + this.TIER_WEIGHTS[ItemTier.COMMON]) return ItemTier.COMMON;
-		if (rand < this.TIER_WEIGHTS[ItemTier.BASIC] + this.TIER_WEIGHTS[ItemTier.COMMON] + this.TIER_WEIGHTS[ItemTier.PREMIUM])
-			return ItemTier.PREMIUM;
-		return ItemTier.LEGENDARY;
-	}
-
-	private isValentineSeason(): boolean {
-		return new Date().getMonth() === 1;
-	}
-
-	private selectRandomValentineItems(count: number): ItemReward[] {
-		const itemCounts = new Map<string, { count: number; tier: ItemTier }>();
-
-		const itemsByTier = new Map<ItemTier, (typeof VALENTINE_GIFT_ITEMS)[number][]>();
-		VALENTINE_GIFT_ITEMS.forEach((item) => {
-			if (!itemsByTier.has(item.tier)) itemsByTier.set(item.tier, []);
-			itemsByTier.get(item.tier)!.push(item);
-		});
-
-		for (let i = 0; i < count; i++) {
-			const tier = this.selectWeightedTier();
-			const tierItems = itemsByTier.get(tier) || [];
-			if (tierItems.length === 0) continue;
-
-			const selected = tierItems[Math.floor(Math.random() * tierItems.length)];
-			const existing = itemCounts.get(selected.name);
-			if (existing) {
-				existing.count++;
-			} else {
-				itemCounts.set(selected.name, { count: 1, tier: selected.tier });
-			}
-		}
-
-		const result: ItemReward[] = [];
-		itemCounts.forEach(({ count: qty, tier }, name) => {
-			result.push({ name, quantity: qty, tier });
-		});
-		return result;
 	}
 }

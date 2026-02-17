@@ -1,54 +1,50 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { isValentineGiftItem } from '@widgetable/types';
-import { Model } from 'mongoose';
-import { NotificationsService } from 'src/notifications/notifications.service';
+import { InjectModel, InjectConnection } from '@nestjs/mongoose';
+import { DEFAULT_LANGUAGE, isValentineGiftItem } from '@widgetable/types';
+import { Model, Connection, Types } from 'mongoose';
+import { NotificationsService, nt } from 'src/notifications/notifications.service';
 import { User, UserDocument } from 'src/users/entities/user.entity';
 import { UsersService } from 'src/users/users.service';
-
-const GIFT_NOTIF_I18N: Record<string, Record<string, string>> = {
-	en: {
-		title: 'Valentine Gift!',
-		body: '{sender} sent you a valentine!',
-	},
-	ru: {
-		title: 'Валентинка!',
-		body: '{sender} отправил вам валентинку!',
-	},
-};
+import { BaseService } from 'src/common/base.service';
 
 @Injectable()
-export class GiftsService {
+export class GiftsService extends BaseService {
 	constructor(
 		@InjectModel(User.name) private userModel: Model<UserDocument>,
+		@InjectConnection() connection: Connection,
 		private readonly usersService: UsersService,
 		private readonly notificationsService: NotificationsService,
-	) {}
+	) {
+		super(connection);
+	}
 
-	async sendGift(senderId: string, recipientId: string, itemName: string, quantity: number) {
-		if (senderId === recipientId) throw new BadRequestException('Cannot send gift to yourself');
-		if (quantity < 1) throw new BadRequestException('Quantity must be at least 1');
-		if (!isValentineGiftItem(itemName)) throw new BadRequestException('Item is not giftable');
+	async sendGift(senderId: Types.ObjectId, recipientId: string, itemName: string, quantity: number) {
+		if (senderId.toString() === recipientId) throw new BadRequestException();
+		if (quantity < 1) throw new BadRequestException();
+		if (!isValentineGiftItem(itemName)) throw new BadRequestException();
 
-		const sender = await this.userModel.findById(senderId).exec();
-		if (!sender) throw new NotFoundException('Sender not found');
+		const sender = await this.userModel.findById(senderId);
+		if (!sender) throw new NotFoundException();
 
 		const isFriend = sender.friends?.some((id) => id.toString() === recipientId);
-		if (!isFriend) throw new BadRequestException('Recipient is not a friend');
+		if (!isFriend) throw new BadRequestException();
+
+		const recipientObjectId = new Types.ObjectId(recipientId);
 
 		const hasItem = await this.usersService.hasInventory(senderId, itemName, quantity);
-		if (!hasItem) throw new BadRequestException('Insufficient inventory');
+		if (!hasItem) throw new BadRequestException();
 
-		await this.usersService.consumeInventory(senderId, itemName, quantity);
-		await this.usersService.addInventory(recipientId, itemName, quantity);
+		await this.withTransaction(async (session) => {
+			await this.usersService.consumeInventory(senderId, itemName, quantity, session);
+			await this.usersService.addInventory(recipientObjectId, itemName, quantity, session);
+		});
 
-		const recipient = await this.userModel.findById(recipientId).exec();
-		const lang = recipient?.language || 'en';
-		const i18n = GIFT_NOTIF_I18N[lang] || GIFT_NOTIF_I18N.en;
+		const recipient = await this.userModel.findById(recipientId);
+		const lang = recipient?.language || DEFAULT_LANGUAGE;
 
-		this.notificationsService.sendNotificationToUser(recipientId, {
-			title: i18n.title,
-			body: i18n.body.replace('{sender}', sender.name),
+		this.notificationsService.sendNotificationToUser(recipientObjectId, {
+			title: nt(lang, 'gift.title'),
+			body: nt(lang, 'gift.body', { sender: sender.name }),
 			url: '/friends',
 		});
 

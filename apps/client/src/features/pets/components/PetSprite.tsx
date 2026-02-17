@@ -1,6 +1,13 @@
-import spriteData from '@/data/pets.json';
 import { getPetScale } from '@/data/petScales';
-import { ANIMATION_DURATIONS, Pet, PetAnimation } from '@widgetable/types';
+import { PET_SPRITE_SIZES } from '@/config/constants';
+import {
+	ANIMATION_DURATIONS,
+	Pet,
+	PetAnimation,
+	PET_SPRITE_DATA,
+	PET_THRESHOLDS,
+	SpriteConfig,
+} from '@widgetable/types';
 import Image from 'next/image';
 import { useEffect, useMemo, useState } from 'react';
 import AnimatedSprite from './AnimatedSprite';
@@ -15,11 +22,6 @@ interface PetSpriteProps {
 	forceShow?: boolean; // Show sprite even if on expedition
 }
 
-type SpriteConfig = {
-	sprite: string;
-	fps?: number;
-};
-
 // Simple hash function for stable randomization based on pet ID
 const hashPetId = (id: string): number => {
 	let hash = 0;
@@ -32,10 +34,7 @@ const hashPetId = (id: string): number => {
 };
 
 // Select a random sprite config from an array or return the single config
-const selectSpriteConfig = (
-	spriteData: SpriteConfig | SpriteConfig[] | string,
-	seed?: number
-): SpriteConfig => {
+const selectSpriteConfig = (spriteData: SpriteConfig | SpriteConfig[] | string, seed?: number): SpriteConfig => {
 	// Handle string format (old static sprites)
 	if (typeof spriteData === 'string') {
 		return { sprite: spriteData };
@@ -56,19 +55,20 @@ export const getPetIdleSprite = (pet: Pet, forceShow?: boolean): SpriteConfig =>
 	if (pet.isOnExpedition && !forceShow) return { sprite: '' };
 
 	// Show egg sprite if pet is still an egg
-	if (pet.isEgg) return { sprite: spriteData.egg as string };
+	if (pet.isEgg) return { sprite: PET_SPRITE_DATA.egg as string };
 
-	const petSprites = spriteData[pet.type as keyof typeof spriteData];
+	const petSprites = PET_SPRITE_DATA[pet.type];
 	if (typeof petSprites === 'string') return { sprite: petSprites };
 
 	// Determine which idle state to show based on needs
 	let idleState: 'happy' | 'sad' | 'dirty' | 'sleepy' = 'happy';
 
 	if (pet.needs) {
-		if (pet.needs.hygiene < 30) idleState = 'dirty';
-		else if (pet.needs.toilet < 30) idleState = 'sad';
-		else if (pet.needs.hunger < 30 || pet.needs.thirst < 30) idleState = 'sad';
-		else if (pet.needs.energy < 30) idleState = 'sleepy';
+		if (pet.needs.hygiene < PET_THRESHOLDS.URGENT) idleState = 'dirty';
+		else if (pet.needs.toilet < PET_THRESHOLDS.URGENT) idleState = 'sad';
+		else if (pet.needs.hunger < PET_THRESHOLDS.URGENT || pet.needs.thirst < PET_THRESHOLDS.URGENT)
+			idleState = 'sad';
+		else if (pet.needs.energy < PET_THRESHOLDS.URGENT) idleState = 'sleepy';
 	}
 
 	const idleSprite = (petSprites as any)[idleState];
@@ -78,19 +78,29 @@ export const getPetIdleSprite = (pet: Pet, forceShow?: boolean): SpriteConfig =>
 	return selectSpriteConfig(idleSprite, seed);
 };
 
-const PetSprite = ({ pet, height = 500, width = 200, animation, onAnimationEnd, onLoad, forceShow }: PetSpriteProps) => {
-	const idleSpriteConfig = useMemo(() => getPetIdleSprite(pet, forceShow), [pet.isEgg, pet.isOnExpedition, pet.type, pet.needs, forceShow]);
+const PetSprite = ({
+	pet,
+	height = PET_SPRITE_SIZES.DEFAULT_HEIGHT,
+	width = PET_SPRITE_SIZES.DEFAULT_WIDTH,
+	animation,
+	onAnimationEnd,
+	onLoad,
+	forceShow,
+}: PetSpriteProps) => {
+	const idleSpriteConfig = useMemo(
+		() => getPetIdleSprite(pet, forceShow),
+		[pet.isEgg, pet.isOnExpedition, pet.type, pet.needs, forceShow],
+	);
 	const [currentSpriteConfig, setCurrentSpriteConfig] = useState<SpriteConfig>(idleSpriteConfig);
 	const [isAnimating, setIsAnimating] = useState(false);
 
 	useEffect(() => {
-		// Don't animate eggs or pets on expedition
 		if (pet.isEgg || pet.isOnExpedition || !animation) {
 			setCurrentSpriteConfig(idleSpriteConfig);
 			return;
 		}
 
-		const petSprites = spriteData[pet.type as keyof typeof spriteData];
+		const petSprites = PET_SPRITE_DATA[pet.type];
 		if (typeof petSprites === 'string') return;
 
 		const animationData = (petSprites as any)[animation];
@@ -102,7 +112,6 @@ const PetSprite = ({ pet, height = 500, width = 200, animation, onAnimationEnd, 
 			setIsAnimating(true);
 			setCurrentSpriteConfig(selectedSprite);
 
-			// Set timeout for animation duration from ANIMATION_DURATIONS config
 			const duration = ANIMATION_DURATIONS[animation];
 			const timer = setTimeout(() => {
 				setIsAnimating(false);
@@ -120,45 +129,47 @@ const PetSprite = ({ pet, height = 500, width = 200, animation, onAnimationEnd, 
 		}
 	}, [idleSpriteConfig, isAnimating]);
 
-	// Don't render anything if sprite is empty (pet on expedition)
 	if (!currentSpriteConfig.sprite) {
 		return null;
 	}
 
-	// Get scale for this pet type
 	const petType = pet.isEgg ? 'egg' : pet.type;
 	const scale = getPetScale(petType as any);
 
-	// If sprite has fps, it's an animated sprite
 	if (currentSpriteConfig.fps) {
 		return (
-			<div className="w-full h-full flex items-center justify-center" style={{ transform: `scale(${scale})`, transformOrigin: 'center bottom' }}>
+			<div
+				className="w-full h-full flex items-center justify-center"
+				style={{ transform: `scale(${scale})`, transformOrigin: 'center bottom' }}
+			>
 				<AnimatedSprite
 					sprite={currentSpriteConfig.sprite}
 					fps={currentSpriteConfig.fps}
 					loop={true}
 					height={height}
 					alt={pet.name}
-				onLoad={onLoad}
+					onLoad={onLoad}
 				/>
 			</div>
 		);
 	}
 
-	// Fallback to static image for old-style sprites
-	const heightNum = typeof height === 'number' ? height : 500;
-	const widthNum = typeof width === 'number' ? width : 200;
+	const heightNum = typeof height === 'number' ? height : PET_SPRITE_SIZES.DEFAULT_HEIGHT;
+	const widthNum = typeof width === 'number' ? width : PET_SPRITE_SIZES.DEFAULT_WIDTH;
 	const heightStyle = typeof height === 'number' ? `${height}px` : height;
 
 	return (
-		<div className="w-full h-full flex items-center justify-center" style={{ transform: `scale(${scale})`, transformOrigin: 'center bottom' }}>
+		<div
+			className="w-full h-full flex items-center justify-center"
+			style={{ transform: `scale(${scale})`, transformOrigin: 'center bottom' }}
+		>
 			<Image
 				src={currentSpriteConfig.sprite}
 				alt={pet.name}
 				height={heightNum}
 				width={widthNum}
 				style={{ width: 'auto', height: heightStyle }}
-			onLoad={onLoad}
+				onLoad={onLoad}
 			/>
 		</div>
 	);

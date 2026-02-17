@@ -1,45 +1,48 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { RequestType, RequestStatus } from '@widgetable/types';
-import { Model } from 'mongoose';
-import { NotificationsService } from 'src/notifications/notifications.service';
+import { USER_POPULATE_FIELDS } from 'src/shared/constants';
+import { InjectModel, InjectConnection } from '@nestjs/mongoose';
+import { RequestType, RequestStatus, DEFAULT_LANGUAGE } from '@widgetable/types';
+import { Model, Connection, Types } from 'mongoose';
+import { NotificationsService, nt } from 'src/notifications/notifications.service';
 import { RequestsService } from 'src/requests/requests.service';
 import { User, UserDocument } from 'src/users/entities/user.entity';
+import { BaseService } from 'src/common/base.service';
 
 @Injectable()
-export class FriendsService {
+export class FriendsService extends BaseService {
 	constructor(
 		@InjectModel(User.name) private userModel: Model<UserDocument>,
+		@InjectConnection() connection: Connection,
 		private requestsService: RequestsService,
 		private notificationsService: NotificationsService,
-	) {}
+	) {
+		super(connection);
+	}
 
-	async getFriends(userId: string): Promise<Partial<UserDocument>[]> {
-		const user = await this.userModel.findById(userId).populate('friends', '_id name email picture').exec();
+	async getFriends(userId: Types.ObjectId): Promise<Partial<UserDocument>[]> {
+		const user = await this.userModel.findById(userId).populate('friends', USER_POPULATE_FIELDS);
 
 		if (!user) throw new NotFoundException();
 
 		return user.friends as unknown as Partial<UserDocument>[];
 	}
 
-	async removeFriend(userId: string, friendId: string): Promise<UserDocument> {
-		await Promise.all([
-			this.userModel.findByIdAndUpdate(userId, {
-				$pull: { friends: friendId },
-			}),
-			this.userModel.findByIdAndUpdate(friendId, {
-				$pull: { friends: userId },
-			}),
-		]);
+	async removeFriend(userId: Types.ObjectId, friendId: Types.ObjectId): Promise<UserDocument> {
+		await this.withTransaction(async (session) => {
+			await Promise.all([
+				this.userModel.findByIdAndUpdate(userId, { $pull: { friends: friendId } }, { session }),
+				this.userModel.findByIdAndUpdate(friendId, { $pull: { friends: userId } }, { session }),
+			]);
+		});
 
-		const user = await this.userModel.findById(userId).populate('friends', '_id name email picture').exec();
+		const user = await this.userModel.findById(userId).populate('friends', USER_POPULATE_FIELDS);
 
 		if (!user) throw new NotFoundException();
 		return user;
 	}
 
-	async addFriends(userId: string, friendId: string): Promise<void> {
-		if (userId === friendId) throw new BadRequestException();
+	async addFriends(userId: Types.ObjectId, friendId: Types.ObjectId): Promise<void> {
+		if (userId.equals(friendId)) throw new BadRequestException();
 
 		await Promise.all([
 			this.userModel.findByIdAndUpdate(userId, { $addToSet: { friends: friendId } }),
@@ -47,8 +50,8 @@ export class FriendsService {
 		]);
 	}
 
-	async sendFriendRequest(senderId: string, recipientId: string) {
-		if (senderId === recipientId) throw new BadRequestException();
+	async sendFriendRequest(senderId: Types.ObjectId, recipientId: Types.ObjectId) {
+		if (senderId.equals(recipientId)) throw new BadRequestException();
 
 		const [sender, recipient] = await Promise.all([
 			this.userModel.findById(senderId),
@@ -56,7 +59,7 @@ export class FriendsService {
 		]);
 
 		if (!sender || !recipient) throw new NotFoundException();
-		if (sender.friends?.some((id) => id.toString() === recipientId)) throw new BadRequestException();
+		if (sender.friends?.some((id) => id.toString() === recipientId.toString())) throw new BadRequestException();
 
 		const [existingRequest, reverseRequest] = await Promise.all([
 			this.requestsService.findPendingRequest(RequestType.FRIEND_REQUEST, senderId, recipientId),
@@ -67,54 +70,50 @@ export class FriendsService {
 
 		const request = await this.requestsService.createRequest(RequestType.FRIEND_REQUEST, senderId, recipientId);
 
+		const lang = recipient.language || DEFAULT_LANGUAGE;
 		this.notificationsService.sendNotificationToUser(recipientId, {
-			title: 'New Friend Request',
-			body: `${sender.name} sent you a friend request!`,
+			title: nt(lang, 'friend.title'),
+			body: nt(lang, 'friend.body', { sender: sender.name }),
 			url: '/friends',
 		});
 
 		return request;
 	}
 
-	async acceptFriendRequest(requestId: string, userId: string): Promise<void> {
-		const request = await this.requestsService.findRequestById(requestId);
-		if (!request) throw new NotFoundException();
-		if (
-			request.recipientId.toString() !== userId ||
-			request.type !== RequestType.FRIEND_REQUEST ||
-			request.status !== RequestStatus.PENDING
-		) {
-			throw new BadRequestException();
-		}
+	async acceptFriendRequest(requestId: Types.ObjectId, userId: Types.ObjectId): Promise<void> {
+		const request = await this.requestsService.validateRequestAction(
+			requestId,
+			userId,
+			RequestType.FRIEND_REQUEST,
+			'recipient',
+		);
 
-		await this.requestsService.updateRequestStatus(requestId, RequestStatus.ACCEPTED);
-		await this.addFriends(request.recipientId.toString(), request.senderId.toString());
+		await this.withTransaction(async (session) => {
+			await this.requestsService.updateRequestStatus(requestId, RequestStatus.ACCEPTED, session);
+
+			await Promise.all([
+				this.userModel.findByIdAndUpdate(
+					request.recipientId,
+					{ $addToSet: { friends: request.senderId } },
+					{ session },
+				),
+				this.userModel.findByIdAndUpdate(
+					request.senderId,
+					{ $addToSet: { friends: request.recipientId } },
+					{ session },
+				),
+			]);
+		});
 	}
 
-	async declineFriendRequest(requestId: string, userId: string): Promise<void> {
-		const request = await this.requestsService.findRequestById(requestId);
-		if (!request) throw new NotFoundException();
-		if (
-			request.recipientId.toString() !== userId ||
-			request.type !== RequestType.FRIEND_REQUEST ||
-			request.status !== RequestStatus.PENDING
-		) {
-			throw new BadRequestException();
-		}
+	async declineFriendRequest(requestId: Types.ObjectId, userId: Types.ObjectId): Promise<void> {
+		await this.requestsService.validateRequestAction(requestId, userId, RequestType.FRIEND_REQUEST, 'recipient');
 
 		await this.requestsService.updateRequestStatus(requestId, RequestStatus.DECLINED);
 	}
 
-	async cancelFriendRequest(requestId: string, userId: string): Promise<void> {
-		const request = await this.requestsService.findRequestById(requestId);
-		if (!request) throw new NotFoundException();
-		if (
-			request.senderId.toString() !== userId ||
-			request.type !== RequestType.FRIEND_REQUEST ||
-			request.status !== RequestStatus.PENDING
-		) {
-			throw new BadRequestException();
-		}
+	async cancelFriendRequest(requestId: Types.ObjectId, userId: Types.ObjectId): Promise<void> {
+		await this.requestsService.validateRequestAction(requestId, userId, RequestType.FRIEND_REQUEST, 'sender');
 
 		await this.requestsService.updateRequestStatus(requestId, RequestStatus.CANCELLED);
 	}

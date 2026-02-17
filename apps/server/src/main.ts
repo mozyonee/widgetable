@@ -46,7 +46,13 @@ async function bootstrap() {
 		}),
 	);
 
-	app.useGlobalPipes(new ValidationPipe());
+	app.useGlobalPipes(
+		new ValidationPipe({
+			whitelist: true,
+			forbidNonWhitelisted: true,
+			transform: true,
+		}),
+	);
 
 	if (process.env.NODE_ENV !== 'production') {
 		mongoose.set('debug', true);

@@ -1,4 +1,4 @@
-import { ItemReward } from '@widgetable/types';
+import { ItemReward } from '../rewards';
 
 export interface ClaimStatus {
 	dailyAvailable: boolean;

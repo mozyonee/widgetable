@@ -20,7 +20,10 @@ export class NotificationsController {
 	}
 
 	@Post('subscribe')
-	subscribe(@GetUser() user: UserDocument, @Body() body: { endpoint: string; keys: { p256dh: string; auth: string } }) {
+	subscribe(
+		@GetUser() user: UserDocument,
+		@Body() body: { endpoint: string; keys: { p256dh: string; auth: string } },
+	) {
 		return this.notificationsService.subscribe(user._id, body);
 	}
 

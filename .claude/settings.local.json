@@ -111,7 +111,16 @@
       "mcp__mongodb__connect",
       "Bash(git log:*)",
       "Bash(gh pr create:*)",
-      "Bash(git cherry-pick:*)"
+      "Bash(git cherry-pick:*)",
+      "Bash(git commit:*)",
+      "Bash(wc:*)",
+      "Bash(grep:*)",
+      "Bash(find:*)",
+      "Bash(git restore:*)",
+      "Bash(bun run:*)",
+      "Bash(/home/mozyonee/Projects/widgetable/packages/types/src/pet/actions.ts:*)",
+      "Bash(/home/mozyonee/Projects/widgetable/packages/types/src/pet/constants.ts:*)",
+      "Bash(/home/mozyonee/Projects/widgetable/packages/types/src/pet/utils.ts:*)"
     ],
     "deny": [],
     "ask": []

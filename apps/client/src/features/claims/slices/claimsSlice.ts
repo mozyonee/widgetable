@@ -1,12 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-
-export interface ClaimStatus {
-	dailyAvailable: boolean;
-	quickAvailable: boolean;
-	nextDailyTime?: Date;
-	nextQuickTime?: Date;
-	petCount: number;
-}
+import { ClaimStatus } from '@widgetable/types';
 
 interface ClaimsState {
 	claimStatus: ClaimStatus | null;

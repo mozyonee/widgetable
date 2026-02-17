@@ -7,11 +7,7 @@ import { GiftsController } from './gifts.controller';
 import { GiftsService } from './gifts.service';
 
 @Module({
-	imports: [
-		MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
-		UsersModule,
-		NotificationsModule,
-	],
+	imports: [MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]), UsersModule, NotificationsModule],
 	controllers: [GiftsController],
 	providers: [GiftsService],
 })

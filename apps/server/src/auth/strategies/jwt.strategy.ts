@@ -27,8 +27,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
 		if (!user) {
 			throw new UnauthorizedException();
 		}
-
-		// Initialize empty inventory for existing users who don't have it
+		// Migration path for users created before inventory feature
 		if (!user.inventory) {
 			await this.userModel.findByIdAndUpdate(user._id, { inventory: {} });
 			user.inventory = {};

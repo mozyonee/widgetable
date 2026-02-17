@@ -2,6 +2,7 @@ import { combineReducers, configureStore } from '@reduxjs/toolkit';
 import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux';
 import { persistReducer, persistStore } from 'redux-persist';
 import storage from '@/store/storage';
+import { setApiStore } from '@/lib/api';
 
 import claimsReducer from '@/features/claims/slices/claimsSlice';
 import petsReducer from '@/features/pets/slices/petsSlice';
@@ -30,6 +31,8 @@ export const store = configureStore({
 			},
 		}),
 });
+
+setApiStore(store);
 
 export const persistor = persistStore(store);
 

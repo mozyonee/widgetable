@@ -2,46 +2,20 @@ import { setClaimStatus as setClaimStatusAction } from '@/features/claims/slices
 import { useTranslation } from '@/i18n/useTranslation';
 import api, { isAbortError } from '@/lib/api';
 import { callError } from '@/lib/functions';
+import { usePolling } from '@/lib/hooks/usePolling';
 import { useAppDispatch, useAppSelector } from '@/store';
-import { setUserData } from '@/store/slices/userSlice';
+import { useRefreshUser } from '@/store/hooks/useRefreshUser';
+import { ClaimResult } from '@widgetable/types';
 import { useCallback, useEffect, useState } from 'react';
-
-export type { ClaimStatus } from '@/features/claims/slices/claimsSlice';
-
-export enum ItemTier {
-	BASIC = 1,
-	COMMON = 2,
-	PREMIUM = 3,
-	LEGENDARY = 4,
-}
-
-export interface ItemReward {
-	name: string;
-	quantity: number;
-	tier: ItemTier;
-}
-
-export interface ClaimResult {
-	success: boolean;
-	rewards: {
-		food: ItemReward[];
-		drinks: ItemReward[];
-		hygiene: ItemReward[];
-		care: ItemReward[];
-		eggs: number;
-		valentines?: ItemReward[];
-	};
-	totalItems: number;
-	nextClaimTime: Date;
-}
 
 export const useClaims = () => {
 	const { t } = useTranslation();
 	const dispatch = useAppDispatch();
 	const claimStatus = useAppSelector((state) => state.claims.claimStatus);
 	const loaded = useAppSelector((state) => state.claims.loaded);
+	const refreshUser = useRefreshUser();
 
-	const [claimingType, setClaimingType] = useState<'daily' | 'quick' | 'debug' | null>(null);
+	const [claimingType, setClaimingType] = useState<'daily' | 'quick' | null>(null);
 	const [lastRewards, setLastRewards] = useState<ClaimResult | null>(null);
 
 	const loadClaimStatus = useCallback(async () => {
@@ -53,24 +27,19 @@ export const useClaims = () => {
 		}
 	}, [dispatch]);
 
-	const executeClaim = async (endpoint: string, toastMessage: string, type: 'daily' | 'quick' | 'debug') => {
+	const executeClaim = async (endpoint: string, type: 'daily' | 'quick') => {
 		if (claimingType) return;
 
 		setClaimingType(type);
 
 		try {
-			// Simulate collection animation (2.5 seconds)
-			await new Promise((resolve) => setTimeout(resolve, 2500));
-
 			const response = await api.post(endpoint);
 			const result: ClaimResult = response.data;
 
 			setLastRewards(result);
 			await loadClaimStatus();
 
-			// Refresh user data to update inventory
-			const userResponse = await api.get('/auth/me');
-			dispatch(setUserData(userResponse.data));
+			await refreshUser();
 		} catch (error: any) {
 			callError(t('claims.failedClaim'));
 		} finally {
@@ -79,22 +48,18 @@ export const useClaims = () => {
 	};
 
 	const claimDaily = useCallback(async () => {
-		await executeClaim('/claims/daily', 'Collected', 'daily');
-	}, [claimingType, loadClaimStatus, dispatch]);
+		await executeClaim('/claims/daily', 'daily');
+	}, [claimingType, loadClaimStatus, dispatch, refreshUser]);
 
 	const claimQuick = useCallback(async () => {
-		await executeClaim('/claims/quick', 'Collected', 'quick');
-	}, [claimingType, loadClaimStatus, dispatch]);
-
-	const claimDebug = useCallback(async () => {
-		await executeClaim('/claims/debug', 'Debug claim:', 'debug');
-	}, [claimingType, loadClaimStatus, dispatch]);
+		await executeClaim('/claims/quick', 'quick');
+	}, [claimingType, loadClaimStatus, dispatch, refreshUser]);
 
 	useEffect(() => {
 		loadClaimStatus();
-		const interval = setInterval(loadClaimStatus, 60000);
-		return () => clearInterval(interval);
 	}, [loadClaimStatus]);
+
+	usePolling(loadClaimStatus, 60000);
 
 	return {
 		claimStatus,
@@ -103,7 +68,6 @@ export const useClaims = () => {
 		loading: !loaded,
 		claimDaily,
 		claimQuick,
-		claimDebug,
 		refreshStatus: loadClaimStatus,
 		closeRewardsModal: () => setLastRewards(null),
 	};

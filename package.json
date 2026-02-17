@@ -2,7 +2,8 @@
 	"name": "@widgetable/root",
 	"private": true,
 	"workspaces": [
-		"packages/*",
+		"packages/types",
+		"packages/i18n",
 		"apps/*"
 	],
 	"version": "0.1.0",
@@ -25,5 +26,8 @@
 	},
 	"keywords": [],
 	"author": "",
-	"license": "ISC"
+	"license": "ISC",
+	"devDependencies": {
+		"@types/web-push": "^3.6.4"
+	}
 }

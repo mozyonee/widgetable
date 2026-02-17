@@ -1,5 +1,6 @@
 'use client';
 
+import { ICON_SIZES } from '@/config/constants';
 import { User as UserIcon } from '@nsmr/pixelart-react';
 import type { User } from '@widgetable/types';
 import Image from 'next/image';
@@ -34,7 +35,7 @@ const UserCard = ({ user, actions, variant = 'default' }: UserCardProps) => {
 						onError={() => setImageError(true)}
 					/>
 				) : (
-					<UserIcon width={35} height={35} className="text-secondary" />
+					<UserIcon width={ICON_SIZES.XXL} height={ICON_SIZES.XXL} className="text-secondary" />
 				)}
 			</div>
 

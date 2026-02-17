@@ -1,0 +1,243 @@
+import { PetType } from './enums';
+
+export interface SpriteConfig {
+	sprite: string;
+	fps?: number;
+}
+
+export type PetSpriteState = 'happy' | 'sad' | 'dirty' | 'sleepy' | 'eat' | 'drink' | 'toilet' | 'bath' | 'sleep';
+
+export type PetSprites = {
+	[key in PetSpriteState]?: SpriteConfig | SpriteConfig[];
+};
+
+export const PET_SPRITE_DATA: Record<PetType | 'egg', string | PetSprites> = {
+	egg: '/pets/egg.png',
+	[PetType.FOX]: {
+		happy: [
+			{ sprite: '/pets/fox/FoxSitting.png', fps: 3 },
+			{ sprite: '/pets/fox/FoxIdle.png', fps: 3 },
+		],
+		sad: [
+			{ sprite: '/pets/fox/FoxHurt.png', fps: 3 },
+			{ sprite: '/pets/fox/FoxDie.png', fps: 3 },
+		],
+		dirty: { sprite: '/pets/fox/FoxHurt.png', fps: 3 },
+		sleepy: [
+			{ sprite: '/pets/fox/FoxSitting.png', fps: 3 },
+			{ sprite: '/pets/fox/FoxSleep.png', fps: 3 },
+		],
+		eat: [
+			{ sprite: '/pets/fox/FoxAttack.png', fps: 3 },
+			{ sprite: '/pets/fox/FoxWalking.png', fps: 3 },
+		],
+		drink: { sprite: '/pets/fox/FoxWalking.png', fps: 3 },
+		toilet: { sprite: '/pets/fox/FoxSitting.png', fps: 3 },
+		bath: [
+			{ sprite: '/pets/fox/FoxJump.png', fps: 3 },
+			{ sprite: '/pets/fox/FoxWalking.png', fps: 3 },
+		],
+		sleep: { sprite: '/pets/fox/FoxSleep.png', fps: 3 },
+	},
+	[PetType.CAT]: {
+		happy: [
+			{ sprite: '/pets/cat/Idle.png', fps: 3 },
+			{ sprite: '/pets/cat/Idle2.png', fps: 3 },
+			{ sprite: '/pets/cat/Waiting.png', fps: 3 },
+		],
+		sad: [
+			{ sprite: '/pets/cat/Sad.png', fps: 3 },
+			{ sprite: '/pets/cat/Cry.png', fps: 3 },
+		],
+		dirty: { sprite: '/pets/cat/Cry.png', fps: 3 },
+		sleepy: [
+			{ sprite: '/pets/cat/Sleepy.png', fps: 3 },
+			{ sprite: '/pets/cat/LayDown.png', fps: 3 },
+		],
+		eat: [
+			{ sprite: '/pets/cat/Eating.png', fps: 7 },
+			{ sprite: '/pets/cat/Excited.png', fps: 3 },
+		],
+		drink: { sprite: '/pets/cat/Eating.png', fps: 3 },
+		toilet: [
+			{ sprite: '/pets/cat/Idle2.png', fps: 3 },
+			{ sprite: '/pets/cat/Waiting.png', fps: 3 },
+		],
+		bath: [
+			{ sprite: '/pets/cat/Dance.png', fps: 3 },
+			{ sprite: '/pets/cat/Surprised.png', fps: 3 },
+		],
+		sleep: { sprite: '/pets/cat/Sleep.png', fps: 3 },
+	},
+	[PetType.BUNNY]: {
+		happy: [
+			{ sprite: '/pets/bunny/BunnyIdle-Sheet.png', fps: 3 },
+			{ sprite: '/pets/bunny/BunnySitting-Sheet.png', fps: 3 },
+		],
+		sad: [
+			{ sprite: '/pets/bunny/BunnyHurt-Sheet.png', fps: 3 },
+			{ sprite: '/pets/bunny/BunnyDead-Sheet.png', fps: 3 },
+		],
+		dirty: { sprite: '/pets/bunny/BunnyHurt-Sheet.png', fps: 3 },
+		sleepy: [
+			{ sprite: '/pets/bunny/BunnyLieDown-Sheet.png', fps: 3 },
+			{ sprite: '/pets/bunny/BunnySleep-Sheet.png', fps: 3 },
+		],
+		eat: [
+			{ sprite: '/pets/bunny/BunnyCarrotSkill-Sheet.png', fps: 7 },
+			{ sprite: '/pets/bunny/BunnyAttack-Sheet.png', fps: 3 },
+		],
+		drink: { sprite: '/pets/bunny/BunnyRun-Sheet.png', fps: 3 },
+		toilet: { sprite: '/pets/bunny/BunnySitting-Sheet.png', fps: 3 },
+		bath: [
+			{ sprite: '/pets/bunny/BunnyAttack-Sheet.png', fps: 7 },
+			{ sprite: '/pets/bunny/BunnyRun-Sheet.png', fps: 3 },
+		],
+		sleep: { sprite: '/pets/bunny/BunnySleep-Sheet.png', fps: 3 },
+	},
+	[PetType.CHICKEN]: {
+		happy: [
+			{ sprite: '/pets/chicken/WhiteChickenIdle-Sheet.png', fps: 3 },
+			{ sprite: '/pets/chicken/WhiteChickenWalking-Sheet.png', fps: 3 },
+		],
+		sad: { sprite: '/pets/chicken/ChikenHurtWhite.png', fps: 3 },
+		dirty: { sprite: '/pets/chicken/ChikenHurtWhite.png', fps: 3 },
+		sleepy: [
+			{ sprite: '/pets/chicken/SittingWhite.png', fps: 3 },
+			{ sprite: '/pets/chicken/WhiteChickenSleeping.png', fps: 3 },
+		],
+		eat: [
+			{ sprite: '/pets/chicken/WhiteChickenEating-Sheet.png', fps: 3 },
+			{ sprite: '/pets/chicken/SittingWhite.png', fps: 3 },
+		],
+		drink: { sprite: '/pets/chicken/WhiteChickenWalking-Sheet.png', fps: 3 },
+		toilet: { sprite: '/pets/chicken/SittingWhite.png', fps: 3 },
+		bath: [
+			{ sprite: '/pets/chicken/WhiteChickenWalking-Sheet.png', fps: 3 },
+			{ sprite: '/pets/chicken/ChikenHurtWhite.png', fps: 3 },
+		],
+		sleep: { sprite: '/pets/chicken/WhiteChickenSleeping.png', fps: 3 },
+	},
+	[PetType.DOG]: {
+		happy: [
+			{ sprite: '/pets/dog/IdleDog.png', fps: 3 },
+			{ sprite: '/pets/dog/Sitting.png', fps: 3 },
+		],
+		sad: [
+			{ sprite: '/pets/dog/HurtDog.png', fps: 3 },
+			{ sprite: '/pets/dog/DieDog.png', fps: 3 },
+		],
+		dirty: { sprite: '/pets/dog/HurtDog.png', fps: 3 },
+		sleepy: [
+			{ sprite: '/pets/dog/LieDown.png', fps: 3 },
+			{ sprite: '/pets/dog/SleepDog.png', fps: 3 },
+		],
+		eat: [
+			{ sprite: '/pets/dog/SniffDog.png', fps: 7 },
+			{ sprite: '/pets/dog/BarkingDog.png', fps: 3 },
+			{ sprite: '/pets/dog/AttackDog.png', fps: 3 },
+		],
+		drink: [
+			{ sprite: '/pets/dog/RunDog.png', fps: 3 },
+			{ sprite: '/pets/dog/SniffDog.png', fps: 3 },
+		],
+		toilet: { sprite: '/pets/dog/Sitting.png', fps: 3 },
+		bath: [
+			{ sprite: '/pets/dog/BarkingDog.png', fps: 3 },
+			{ sprite: '/pets/dog/RunDog.png', fps: 7 },
+		],
+		sleep: { sprite: '/pets/dog/SleepDog.png', fps: 3 },
+	},
+	[PetType.PANDA]: {
+		happy: [
+			{ sprite: '/pets/panda/PandaThinking.png', fps: 3 },
+			{ sprite: '/pets/panda/PandaIdle.png', fps: 3 },
+			{ sprite: '/pets/panda/Happy.png', fps: 3 },
+			{ sprite: '/pets/panda/PandaIdleBlinking.png', fps: 3 },
+		],
+		sad: [
+			{ sprite: '/pets/panda/PandaCry.png', fps: 3 },
+			{ sprite: '/pets/panda/PandaTalkingSitting.png', fps: 3 },
+		],
+		dirty: { sprite: '/pets/panda/PandaCry.png', fps: 3 },
+		sleepy: [
+			{ sprite: '/pets/panda/PandaResting.png', fps: 3 },
+			{ sprite: '/pets/panda/PandaSleep.png', fps: 3 },
+		],
+		eat: [
+			{ sprite: '/pets/panda/PandaEating.png', fps: 7 },
+			{ sprite: '/pets/panda/PandaSoFull.png', fps: 3 },
+		],
+		drink: { sprite: '/pets/panda/PandaEating.png', fps: 3 },
+		toilet: [
+			{ sprite: '/pets/panda/PandaSitting.png', fps: 3 },
+			{ sprite: '/pets/panda/PandaYoga1.png', fps: 3 },
+			{ sprite: '/pets/panda/PandaYoga2.png', fps: 3 },
+			{ sprite: '/pets/panda/PandaYoga3.png', fps: 3 },
+		],
+		bath: [
+			{ sprite: '/pets/panda/PandaWave.png', fps: 6 },
+			{ sprite: '/pets/panda/Happy.png', fps: 3 },
+		],
+		sleep: { sprite: '/pets/panda/PandaSleep.png', fps: 3 },
+	},
+	[PetType.TURTLE]: {
+		happy: [
+			{ sprite: '/pets/turtle/Idle.png', fps: 3 },
+			{ sprite: '/pets/turtle/Walking.png', fps: 3 },
+		],
+		sad: [
+			{ sprite: '/pets/turtle/Hurt.png', fps: 3 },
+			{ sprite: '/pets/turtle/Die.png', fps: 3 },
+		],
+		dirty: [
+			{ sprite: '/pets/turtle/Hurt.png', fps: 3 },
+			{ sprite: '/pets/turtle/Hide.png', fps: 3 },
+		],
+		sleepy: [
+			{ sprite: '/pets/turtle/Sit.png', fps: 3 },
+			{ sprite: '/pets/turtle/LieDown.png', fps: 3 },
+		],
+		eat: [
+			{ sprite: '/pets/turtle/Walking.png', fps: 3 },
+			{ sprite: '/pets/turtle/Attack.png', fps: 7 },
+		],
+		drink: { sprite: '/pets/turtle/Walking.png', fps: 7 },
+		toilet: [
+			{ sprite: '/pets/turtle/Sit.png', fps: 4 },
+			{ sprite: '/pets/turtle/Hide.png', fps: 3 },
+		],
+		bath: [
+			{ sprite: '/pets/turtle/Jump.png', fps: 6 },
+			{ sprite: '/pets/turtle/Walking.png', fps: 3 },
+		],
+		sleep: { sprite: '/pets/turtle/Sleep.png', fps: 3 },
+	},
+	[PetType.PARROT]: {
+		happy: [
+			{ sprite: '/pets/parrot/Idle.png', fps: 3 },
+			{ sprite: '/pets/parrot/Fly.png', fps: 3 },
+			{ sprite: '/pets/parrot/Walk.png', fps: 3 },
+		],
+		sad: [
+			{ sprite: '/pets/parrot/Hurt.png', fps: 3 },
+			{ sprite: '/pets/parrot/Die.png', fps: 3 },
+		],
+		dirty: { sprite: '/pets/parrot/Hurt.png', fps: 3 },
+		sleepy: [
+			{ sprite: '/pets/parrot/Sitting.png', fps: 3 },
+			{ sprite: '/pets/parrot/Sleeping.png', fps: 3 },
+		],
+		eat: [
+			{ sprite: '/pets/parrot/Attack.png', fps: 7 },
+			{ sprite: '/pets/parrot/FlyAttack.png', fps: 3 },
+		],
+		drink: { sprite: '/pets/parrot/Walk.png', fps: 3 },
+		toilet: { sprite: '/pets/parrot/Sitting.png', fps: 3 },
+		bath: [
+			{ sprite: '/pets/parrot/Fly.png', fps: 3 },
+			{ sprite: '/pets/parrot/Dash.png', fps: 7 },
+		],
+		sleep: { sprite: '/pets/parrot/Sleeping.png', fps: 3 },
+	},
+};

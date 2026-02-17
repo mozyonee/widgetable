@@ -2,66 +2,25 @@ import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectModel } from '@nestjs/mongoose';
 import { Cron, CronExpression } from '@nestjs/schedule';
-import { PET_NEED_KEYS, PET_NEEDS_CONFIG, PET_UPDATE_INTERVAL } from '@widgetable/types';
+import { translate } from '@widgetable/i18n';
+import {
+	CLAIMS_CONFIG,
+	DEFAULT_LANGUAGE,
+	NOTIFICATION_CONFIG,
+	PET_NEED_KEYS,
+	PET_NEEDS_CONFIG,
+	PET_UPDATE_INTERVAL,
+} from '@widgetable/types';
 import { clamp } from 'lodash';
 import { Model, Types } from 'mongoose';
 import { Pet, PetDocument } from 'src/pets/entities/pet.entity';
+import { WEBPUSH_CONFIG } from 'src/shared/constants';
 import { User, UserDocument } from 'src/users/entities/user.entity';
 import * as webpush from 'web-push';
 import { PushSubscription, PushSubscriptionDocument } from './entities/push-subscription.entity';
 
-const NOTIFICATION_COOLDOWN = 10 * 60 * 1000; // 10 minutes
-const DECAY_TIME_UNIT = 60 * 1000;
-
-const NOTIF_I18N: Record<string, Record<string, string>> = {
-	en: {
-		'urgent.title.one': '{name} is sad!',
-		'urgent.title.many': 'Your pets are sad!',
-		'urgent.body.one': '{name} needs your attention!',
-		'urgent.body.many': '{count} pets need your attention!',
-		'zero.title': 'Your pets need you!',
-		'zero.body.one': '{name} needs your attention — all needs are at zero!',
-		'zero.body.many': '{count} pets need your attention!',
-		'expedition.title': 'Expedition Complete!',
-		'expedition.body.one': '{name} has returned from the expedition!',
-		'expedition.body.many': '{count} pets have returned from their expeditions!',
-		'egg.title': 'Egg Hatched!',
-		'egg.body.one': '{name} has hatched!',
-		'egg.body.many': '{count} eggs have hatched!',
-		'claims.title': 'Goodies Available!',
-		'claims.both': 'Your daily and quick goodies are ready to collect!',
-		'claims.daily': 'Your daily goodies are ready to collect!',
-		'claims.quick': 'Your quick goodies are ready to collect!',
-		'test.title': 'Test Notification',
-		'test.body': 'If you see this, push notifications are working!',
-	},
-	ru: {
-		'urgent.title.one': '{name} грустит!',
-		'urgent.title.many': 'Ваши питомцы грустят!',
-		'urgent.body.one': '{name} нуждается в вашем внимании!',
-		'urgent.body.many': '{count} питомцев нуждаются в вашем внимании!',
-		'zero.title': 'Ваши питомцы ждут вас!',
-		'zero.body.one': 'Все показатели {name} на нуле!',
-		'zero.body.many': '{count} питомцев нуждаются в вашем внимании!',
-		'expedition.title': 'Охота завершена!',
-		'expedition.body.one': '{name} вернулся с охоты!',
-		'expedition.body.many': '{count} питомцев вернулись с охоты!',
-		'egg.title': 'Яйцо вылупилось!',
-		'egg.body.one': '{name} вылупился!',
-		'egg.body.many': '{count} яиц вылупились!',
-		'claims.title': 'Припасы готовы!',
-		'claims.both': 'Ежедневные и быстрые припасы готовы к сбору!',
-		'claims.daily': 'Ежедневные припасы готовы к сбору!',
-		'claims.quick': 'Быстрые припасы готовы к сбору!',
-		'test.title': 'Тестовое уведомление',
-		'test.body': 'Если вы видите это, уведомления работают!',
-	},
-};
-
-const nt = (lang: string, key: string, params?: Record<string, string | number>): string => {
-	const str = NOTIF_I18N[lang]?.[key] || NOTIF_I18N['en'][key] || key;
-	if (!params) return str;
-	return Object.entries(params).reduce((s, [k, v]) => s.replace(`{${k}}`, String(v)), str);
+export const nt = (lang: string, key: string, params?: Record<string, string | number>): string => {
+	return translate(lang, `notif.${key}`, params);
 };
 
 @Injectable()
@@ -76,14 +35,17 @@ export class NotificationsService {
 	) {
 		const publicKey = this.configService.get<string>('VAPID_PUBLIC_KEY');
 		const privateKey = this.configService.get<string>('VAPID_PRIVATE_KEY');
-		const subject = this.configService.get<string>('VAPID_SUBJECT', 'mailto:admin@widgetable.app');
+		const subject = this.configService.get<string>('VAPID_SUBJECT', 'mailto:vadym.abakumov@gmail.com');
 
 		if (publicKey && privateKey) {
 			webpush.setVapidDetails(subject, publicKey, privateKey);
 		}
 	}
 
-	async subscribe(userId: Types.ObjectId, subscription: { endpoint: string; keys: { p256dh: string; auth: string } }) {
+	async subscribe(
+		userId: Types.ObjectId,
+		subscription: { endpoint: string; keys: { p256dh: string; auth: string } },
+	) {
 		return this.subscriptionModel.findOneAndUpdate(
 			{ endpoint: subscription.endpoint },
 			{ userId, endpoint: subscription.endpoint, keys: subscription.keys },
@@ -96,12 +58,29 @@ export class NotificationsService {
 	}
 
 	private async getUserLang(userId: string | Types.ObjectId): Promise<string> {
-		const user = await this.userModel.findById(userId).select('language').lean().exec();
-		return user?.language || 'en';
+		const user = await this.userModel.findById(userId).select('language').lean();
+		return user?.language || DEFAULT_LANGUAGE;
+	}
+
+	private async batchGetUserLangs(userIds: string[]): Promise<Map<string, string>> {
+		const users = await this.userModel
+			.find({ _id: { $in: userIds } })
+			.select('_id language')
+			.lean();
+		const langMap = new Map<string, string>();
+		users.forEach((user) => {
+			langMap.set(user._id.toString(), user.language || DEFAULT_LANGUAGE);
+		});
+		userIds.forEach((id) => {
+			if (!langMap.has(id)) {
+				langMap.set(id, DEFAULT_LANGUAGE);
+			}
+		});
+		return langMap;
 	}
 
 	async sendTestNotification(userId: Types.ObjectId) {
-		const subscriptions = await this.subscriptionModel.find({ userId }).exec();
+		const subscriptions = await this.subscriptionModel.find({ userId });
 
 		if (subscriptions.length === 0) {
 			return { sent: 0, message: 'No subscriptions found for this user' };
@@ -120,12 +99,16 @@ export class NotificationsService {
 			try {
 				await webpush.sendNotification({ endpoint: sub.endpoint, keys: sub.keys as any }, payload);
 				sent++;
-			} catch (error: any) {
-				if (error.statusCode === 410 || error.statusCode === 404) {
+			} catch (error) {
+				const err = error as { statusCode?: number; message?: string };
+				if (
+					err.statusCode &&
+					(WEBPUSH_CONFIG.INVALID_SUBSCRIPTION_CODES as readonly number[]).includes(err.statusCode)
+				) {
 					await this.subscriptionModel.deleteOne({ _id: sub._id });
 					this.logger.debug(`Removed expired subscription: ${sub.endpoint}`);
 				} else {
-					this.logger.error(`Failed to send test notification: ${error.message}`);
+					this.logger.error(`Failed to send test notification: ${err.message || 'Unknown error'}`);
 				}
 			}
 		}
@@ -134,13 +117,10 @@ export class NotificationsService {
 	}
 
 	async sendNotificationToUser(
-		userId: string | Types.ObjectId,
+		userId: Types.ObjectId,
 		payload: { title: string; body: string; icon?: string; url?: string },
 	): Promise<void> {
-		const subscriptions = await this.subscriptionModel
-			.find({ userId: new Types.ObjectId(userId.toString()) })
-			.exec();
-
+		const subscriptions = await this.subscriptionModel.find({ userId });
 		const data = JSON.stringify({
 			...payload,
 			icon: payload.icon ?? '/icon-192x192.png',
@@ -150,8 +130,12 @@ export class NotificationsService {
 		for (const sub of subscriptions) {
 			try {
 				await webpush.sendNotification({ endpoint: sub.endpoint, keys: sub.keys as any }, data);
-			} catch (error: any) {
-				if (error.statusCode === 410 || error.statusCode === 404) {
+			} catch (error) {
+				const err = error as { statusCode?: number };
+				if (
+					err.statusCode &&
+					(WEBPUSH_CONFIG.INVALID_SUBSCRIPTION_CODES as readonly number[]).includes(err.statusCode)
+				) {
 					await this.subscriptionModel.deleteOne({ _id: sub._id });
 					this.logger.debug(`Removed expired subscription: ${sub.endpoint}`);
 				} else {
@@ -165,7 +149,7 @@ export class NotificationsService {
 	async checkPetNeeds() {
 		this.logger.debug('Checking pet needs for notifications...');
 
-		const pets = await this.petModel.find({ isEgg: false, isOnExpedition: false }).lean().exec();
+		const pets = await this.petModel.find({ isEgg: false, isOnExpedition: false }).lean();
 
 		const urgentUsers = new Map<string, string[]>();
 		const zeroUsers = new Map<string, string[]>();
@@ -181,12 +165,13 @@ export class NotificationsService {
 
 			for (const key of PET_NEED_KEYS) {
 				const config = PET_NEEDS_CONFIG[key];
-				const decrease = intervals * config.decayRate * (PET_UPDATE_INTERVAL / DECAY_TIME_UNIT);
+				const decrease =
+					intervals * config.decayRate * (PET_UPDATE_INTERVAL / NOTIFICATION_CONFIG.DECAY_TIME_UNIT_MS);
 				const stored = pet.needs[key];
 				const current = clamp(stored - decrease, 0, 100);
 
 				if (current !== 0) allZero = false;
-				// Detect threshold crossing: stored was >=30 but decayed below 30
+				// Only notify when crossing threshold to avoid spam
 				if (stored >= 30 && current < 30) hasNewUrgent = true;
 			}
 
@@ -206,12 +191,18 @@ export class NotificationsService {
 		// Notify urgent needs (threshold crossing) — prioritize over zero notifications
 		const notifiedUsers = new Set<string>();
 
+		const allUserIds = [...new Set([...urgentUsers.keys(), ...zeroUsers.keys()])];
+		const userLangs = await this.batchGetUserLangs(allUserIds);
+
 		for (const [userId, petNames] of urgentUsers) {
-			const lang = await this.getUserLang(userId);
+			const lang = userLangs.get(userId) || DEFAULT_LANGUAGE;
 			const one = petNames.length === 1;
-			await this.sendNotificationToUser(userId, {
+			await this.sendNotificationToUser(new Types.ObjectId(userId), {
 				title: nt(lang, one ? 'urgent.title.one' : 'urgent.title.many', { name: petNames[0] }),
-				body: nt(lang, one ? 'urgent.body.one' : 'urgent.body.many', { name: petNames[0], count: petNames.length }),
+				body: nt(lang, one ? 'urgent.body.one' : 'urgent.body.many', {
+					name: petNames[0],
+					count: petNames.length,
+				}),
 			});
 			notifiedUsers.add(userId);
 		}
@@ -220,9 +211,9 @@ export class NotificationsService {
 		for (const [userId, petNames] of zeroUsers) {
 			if (notifiedUsers.has(userId)) continue;
 
-			const lang = await this.getUserLang(userId);
+			const lang = userLangs.get(userId) || DEFAULT_LANGUAGE;
 			const one = petNames.length === 1;
-			await this.sendNotificationToUser(userId, {
+			await this.sendNotificationToUser(new Types.ObjectId(userId), {
 				title: nt(lang, 'zero.title'),
 				body: nt(lang, one ? 'zero.body.one' : 'zero.body.many', { name: petNames[0], count: petNames.length }),
 			});
@@ -239,16 +230,14 @@ export class NotificationsService {
 		this.logger.debug('Checking expedition returns for notifications...');
 
 		const now = new Date();
-		const windowStart = new Date(now.getTime() - NOTIFICATION_COOLDOWN);
+		const windowStart = new Date(now.getTime() - NOTIFICATION_CONFIG.COOLDOWN_MS);
 
 		const pets = await this.petModel
 			.find({
 				isOnExpedition: true,
 				expeditionReturnTime: { $lte: now, $gte: windowStart },
 			})
-			.lean()
-			.exec();
-
+			.lean();
 		const usersToNotify = new Map<string, string[]>();
 
 		for (const pet of pets) {
@@ -259,12 +248,17 @@ export class NotificationsService {
 			}
 		}
 
+		const userLangs = await this.batchGetUserLangs([...usersToNotify.keys()]);
+
 		for (const [userId, petNames] of usersToNotify) {
-			const lang = await this.getUserLang(userId);
+			const lang = userLangs.get(userId) || DEFAULT_LANGUAGE;
 			const one = petNames.length === 1;
-			this.sendNotificationToUser(userId, {
+			this.sendNotificationToUser(new Types.ObjectId(userId), {
 				title: nt(lang, 'expedition.title'),
-				body: nt(lang, one ? 'expedition.body.one' : 'expedition.body.many', { name: petNames[0], count: petNames.length }),
+				body: nt(lang, one ? 'expedition.body.one' : 'expedition.body.many', {
+					name: petNames[0],
+					count: petNames.length,
+				}),
 			});
 		}
 
@@ -278,16 +272,14 @@ export class NotificationsService {
 		this.logger.debug('Checking egg hatching for notifications...');
 
 		const now = new Date();
-		const windowStart = new Date(now.getTime() - NOTIFICATION_COOLDOWN);
+		const windowStart = new Date(now.getTime() - NOTIFICATION_CONFIG.COOLDOWN_MS);
 
 		const pets = await this.petModel
 			.find({
 				isEgg: true,
 				hatchTime: { $lte: now, $gte: windowStart },
 			})
-			.lean()
-			.exec();
-
+			.lean();
 		const usersToNotify = new Map<string, string[]>();
 
 		for (const pet of pets) {
@@ -298,10 +290,12 @@ export class NotificationsService {
 			}
 		}
 
+		const userLangs = await this.batchGetUserLangs([...usersToNotify.keys()]);
+
 		for (const [userId, petNames] of usersToNotify) {
-			const lang = await this.getUserLang(userId);
+			const lang = userLangs.get(userId) || DEFAULT_LANGUAGE;
 			const one = petNames.length === 1;
-			this.sendNotificationToUser(userId, {
+			this.sendNotificationToUser(new Types.ObjectId(userId), {
 				title: nt(lang, 'egg.title'),
 				body: nt(lang, one ? 'egg.body.one' : 'egg.body.many', { name: petNames[0], count: petNames.length }),
 			});
@@ -317,15 +311,14 @@ export class NotificationsService {
 		this.logger.debug('Checking claim availability for notifications...');
 
 		const now = new Date();
-		const dailyCooldownMs = 24 * 60 * 60 * 1000;
-		const quickCooldownMs = 4 * 60 * 60 * 1000;
+		const dailyCooldownMs = CLAIMS_CONFIG.DAILY_COOLDOWN_HOURS * 60 * 60 * 1000;
+		const quickCooldownMs = CLAIMS_CONFIG.QUICK_COOLDOWN_HOURS * 60 * 60 * 1000;
 
-		// Daily became available if lastDailyClaimTime is between (now - 24h - 10min) and (now - 24h)
 		const dailyWindowEnd = new Date(now.getTime() - dailyCooldownMs);
-		const dailyWindowStart = new Date(dailyWindowEnd.getTime() - NOTIFICATION_COOLDOWN);
+		const dailyWindowStart = new Date(dailyWindowEnd.getTime() - NOTIFICATION_CONFIG.COOLDOWN_MS);
 
 		const quickWindowEnd = new Date(now.getTime() - quickCooldownMs);
-		const quickWindowStart = new Date(quickWindowEnd.getTime() - NOTIFICATION_COOLDOWN);
+		const quickWindowStart = new Date(quickWindowEnd.getTime() - NOTIFICATION_CONFIG.COOLDOWN_MS);
 
 		const users = await this.userModel
 			.find({
@@ -334,9 +327,7 @@ export class NotificationsService {
 					{ lastQuickClaimTime: { $gte: quickWindowStart, $lte: quickWindowEnd } },
 				],
 			})
-			.lean()
-			.exec();
-
+			.lean();
 		for (const user of users) {
 			const dailyReady =
 				user.lastDailyClaimTime &&
@@ -347,10 +338,10 @@ export class NotificationsService {
 				user.lastQuickClaimTime >= quickWindowStart &&
 				user.lastQuickClaimTime <= quickWindowEnd;
 
-			const lang = user.language || 'en';
+			const lang = user.language || DEFAULT_LANGUAGE;
 			const bodyKey = dailyReady && quickReady ? 'claims.both' : dailyReady ? 'claims.daily' : 'claims.quick';
 
-			this.sendNotificationToUser(user._id.toString(), {
+			this.sendNotificationToUser(user._id, {
 				title: nt(lang, 'claims.title'),
 				body: nt(lang, bodyKey),
 			});

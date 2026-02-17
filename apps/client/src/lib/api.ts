@@ -1,4 +1,5 @@
 import axios from 'axios';
+import type { RootState } from '@/store';
 
 const api = axios.create({
 	baseURL: process.env.NEXT_PUBLIC_SERVER_URL,
@@ -6,8 +7,17 @@ const api = axios.create({
 
 const pendingRequests = new Set<AbortController>();
 
+let storeRef: { getState: () => RootState } | null = null;
+
+export const setApiStore = (store: { getState: () => RootState }) => {
+	storeRef = store;
+};
+
 const getToken = (): string | null => {
 	if (typeof window === 'undefined') return null;
+	if (storeRef) {
+		return storeRef.getState().user.token || null;
+	}
 	try {
 		const persisted = localStorage.getItem('persist:root');
 		if (!persisted) return null;

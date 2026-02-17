@@ -42,9 +42,35 @@ const AppLoader = () => {
 				}}
 			/>
 			<div style={{ display: 'flex', gap: '0.5rem', marginTop: '1rem' }}>
-				<div style={{ width: '0.75rem', height: '0.75rem', borderRadius: '2px', background: '#b07070', animation: 'pulse 2s cubic-bezier(0.4,0,0.6,1) infinite' }} />
-				<div style={{ width: '0.75rem', height: '0.75rem', borderRadius: '2px', background: '#b07070', animation: 'pulse 2s cubic-bezier(0.4,0,0.6,1) infinite', animationDelay: '150ms' }} />
-				<div style={{ width: '0.75rem', height: '0.75rem', borderRadius: '2px', background: '#b07070', animation: 'pulse 2s cubic-bezier(0.4,0,0.6,1) infinite', animationDelay: '300ms' }} />
+				<div
+					style={{
+						width: '0.75rem',
+						height: '0.75rem',
+						borderRadius: '2px',
+						background: '#b07070',
+						animation: 'pulse 2s cubic-bezier(0.4,0,0.6,1) infinite',
+					}}
+				/>
+				<div
+					style={{
+						width: '0.75rem',
+						height: '0.75rem',
+						borderRadius: '2px',
+						background: '#b07070',
+						animation: 'pulse 2s cubic-bezier(0.4,0,0.6,1) infinite',
+						animationDelay: '150ms',
+					}}
+				/>
+				<div
+					style={{
+						width: '0.75rem',
+						height: '0.75rem',
+						borderRadius: '2px',
+						background: '#b07070',
+						animation: 'pulse 2s cubic-bezier(0.4,0,0.6,1) infinite',
+						animationDelay: '300ms',
+					}}
+				/>
 			</div>
 		</div>
 	);

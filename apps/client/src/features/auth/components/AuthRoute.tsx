@@ -18,7 +18,6 @@ const AuthRoute = ({ children }: AuthRouteProps) => {
 	const { checkAuth, isAuthenticated } = useAuth();
 	const [authChecked, setAuthChecked] = useState(authCompleted || isAuthenticated);
 
-	// eslint-disable-next-line react-hooks/exhaustive-deps
 	useEffect(() => {
 		if (authCompleted) return;
 		checkAuth().then(() => {
@@ -27,7 +26,6 @@ const AuthRoute = ({ children }: AuthRouteProps) => {
 		});
 	}, []);
 
-	// Handle redirects whenever pathname or auth state changes
 	useEffect(() => {
 		if (!authChecked) return;
 
@@ -39,10 +37,8 @@ const AuthRoute = ({ children }: AuthRouteProps) => {
 	}, [authChecked, isAuthenticated, pathname, router]);
 
 	const isPublicRoute = PUBLIC_ROUTES.includes(pathname);
-	const shouldShowContent = authChecked && (
-		(isAuthenticated && !isPublicRoute) ||
-		(!isAuthenticated && isPublicRoute)
-	);
+	const shouldShowContent =
+		authChecked && ((isAuthenticated && !isPublicRoute) || (!isAuthenticated && isPublicRoute));
 
 	useEffect(() => {
 		if (shouldShowContent) {
@@ -56,9 +52,18 @@ const AuthRoute = ({ children }: AuthRouteProps) => {
 				<div className="flex flex-col items-center gap-4">
 					<img src="/pets/egg.png" alt="Loading" className="w-24 h-auto bounce-squash" />
 					<div className="flex gap-2">
-						<div className="rounded-xs size-3 bg-primary brightness-75 animate-pulse" style={{ animationDelay: '0ms' }} />
-						<div className="rounded-xs size-3 bg-primary brightness-75 animate-pulse" style={{ animationDelay: '150ms' }} />
-						<div className="rounded-xs size-3 bg-primary brightness-75 animate-pulse" style={{ animationDelay: '300ms' }} />
+						<div
+							className="rounded-xs size-3 bg-primary brightness-75 animate-pulse"
+							style={{ animationDelay: '0ms' }}
+						/>
+						<div
+							className="rounded-xs size-3 bg-primary brightness-75 animate-pulse"
+							style={{ animationDelay: '150ms' }}
+						/>
+						<div
+							className="rounded-xs size-3 bg-primary brightness-75 animate-pulse"
+							style={{ animationDelay: '300ms' }}
+						/>
 					</div>
 				</div>
 			</div>

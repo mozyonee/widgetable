@@ -51,7 +51,11 @@ const Friends = () => {
 
 			<div className="bg-white rounded-2xl shadow-md border border-secondary/20">
 				<label className="relative p-2 flex items-center cursor-text">
-					<Search className="absolute left-[23px] text-secondary pointer-events-none" width={25} height={25} />
+					<Search
+						className="absolute left-[23px] text-secondary pointer-events-none"
+						width={25}
+						height={25}
+					/>
 					<input
 						type="text"
 						placeholder={t('friends.searchPlaceholder')}
@@ -142,13 +146,7 @@ const Friends = () => {
 				</div>
 			)}
 
-			{giftTarget && (
-				<GiftModal
-					isOpen={!!giftTarget}
-					onClose={() => setGiftTarget(null)}
-					friend={giftTarget}
-				/>
-			)}
+			{giftTarget && <GiftModal isOpen={!!giftTarget} onClose={() => setGiftTarget(null)} friend={giftTarget} />}
 		</div>
 	);
 };

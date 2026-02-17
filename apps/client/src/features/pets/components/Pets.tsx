@@ -1,4 +1,5 @@
 import { Skeleton } from '@/components/ui/Skeleton';
+import { ICON_SIZES, PET_SPRITE_SIZES } from '@/config/constants';
 import PetSprite, { getPetIdleSprite } from '@/features/pets/components/PetSprite';
 import { setSelectedPet } from '@/features/pets/slices/petsSlice';
 import { useTranslation } from '@/i18n/useTranslation';
@@ -17,7 +18,6 @@ import { useEffect, useMemo, useState } from 'react';
 import { usePets } from '../hooks/usePets';
 import { getParentNames } from '../utils/functions';
 
-// Hook to check if expedition is ready (updates every second)
 const useExpeditionReady = (returnTime?: Date) => {
 	const [isReady, setIsReady] = useState(false);
 
@@ -59,7 +59,7 @@ const PetCard = ({ pet, userName }: { pet: any; userName?: string }) => {
 		>
 			<div className="h-[100px] flex items-end justify-center overflow-hidden">
 				{pet.isOnExpedition && !isExpeditionReady ? (
-					<Clock width={64} height={64} className="text-primary" />
+					<Clock width={PET_SPRITE_SIZES.MEDIUM} height={PET_SPRITE_SIZES.MEDIUM} className="text-primary" />
 				) : (
 					<PetSprite pet={pet} height={100} forceShow={isExpeditionReady} />
 				)}
@@ -71,12 +71,12 @@ const PetCard = ({ pet, userName }: { pet: any; userName?: string }) => {
 			)}
 			{isExpeditionReady && (
 				<div className="w-full mt-2">
-					<div className="text-center text-sm font-semibold text-green-600">
-						{t('pets.ready')}
-					</div>
+					<div className="text-center text-sm font-semibold text-green-600">{t('pets.ready')}</div>
 				</div>
 			)}
-			<p className={`text-2xl font-bold text-foreground text-center w-full truncate ${isExpeditionReady ? "" : "mt-2"}`}>
+			<p
+				className={`text-2xl font-bold text-foreground text-center w-full truncate ${isExpeditionReady ? '' : 'mt-2'}`}
+			>
 				{pet.isEgg ? t('pets.egg') : pet.name}
 			</p>
 			{pet.isEgg ? (
@@ -86,7 +86,7 @@ const PetCard = ({ pet, userName }: { pet: any; userName?: string }) => {
 					<div className="text-sm text-secondary font-semibold">{t('pets.level', { level: pet.level })}</div>
 					{!pet.isOnExpedition && parentNames.length > 0 && (
 						<div className="flex items-center justify-center gap-1 text-secondary text-xs">
-							<Users width={12} height={12} />
+							<Users width={ICON_SIZES.XS} height={ICON_SIZES.XS} />
 							{parentNames.join(', ')}
 						</div>
 					)}
@@ -101,10 +101,7 @@ const PetsPage = () => {
 	const user = useAppSelector((state) => state.user.userData);
 	const { pets, loading, addPet } = usePets();
 
-	const spriteUrls = useMemo(
-		() => pets.map((pet) => getPetIdleSprite(pet, true).sprite),
-		[pets],
-	);
+	const spriteUrls = useMemo(() => pets.map((pet) => getPetIdleSprite(pet, true).sprite), [pets]);
 	const spritesLoaded = useImagesLoaded(spriteUrls);
 
 	const eggCount = user?.inventory?.[EGG_ITEM_NAME] ?? 0;
@@ -127,7 +124,12 @@ const PetsPage = () => {
 		<div className="flex flex-col gap-6 h-full">
 			<div className="grid grid-cols-[1fr_auto_1fr] items-center flex-shrink-0">
 				<div className="flex items-center gap-2 bg-white rounded-full px-4 py-2 shadow-md border border-secondary/20 w-fit">
-					<img src="/valentine/arrow_pink_heart.png" alt="Valentines" className="w-5 h-5 object-contain" style={{ imageRendering: 'pixelated' }} />
+					<img
+						src="/valentine/arrow_pink_heart.png"
+						alt="Valentines"
+						className="w-5 h-5 object-contain"
+						style={{ imageRendering: 'pixelated' }}
+					/>
 					<span className="font-bold text-foreground text-xl">{valentineCount}</span>
 				</div>
 				<h1 className="font-bold text-3xl text-foreground text-center">{t('pets.title')}</h1>
@@ -225,7 +227,9 @@ const EggTimer = ({ hatchTime, createdAt }: { hatchTime?: Date; createdAt?: Date
 					style={{ width: `${progress}%` }}
 				/>
 			</div>
-			<div className="text-primary text-xs font-semibold whitespace-nowrap">{timeLeft || t('common.calculating')}</div>
+			<div className="text-primary text-xs font-semibold whitespace-nowrap">
+				{timeLeft || t('common.calculating')}
+			</div>
 		</div>
 	);
 };
@@ -240,7 +244,6 @@ const ExpeditionProgressTimer = ({ returnTime, petLevel }: { returnTime?: Date; 
 		if (!returnTime) return;
 
 		const returnTimeMs = new Date(returnTime).getTime();
-		// Calculate expedition duration based on level
 		const baseDuration = EXPEDITION_BASE_DURATION;
 		const levelMultiplier = 1 + petLevel * EXPEDITION_LEVEL_MULTIPLIER;
 		const totalDuration = baseDuration * levelMultiplier;
@@ -271,7 +274,6 @@ const ExpeditionProgressTimer = ({ returnTime, petLevel }: { returnTime?: Date; 
 
 			setTimeLeft(formatTime(diff));
 
-			// Calculate progress (how much time has passed)
 			const elapsed = now - startTime;
 			const progressPercent = Math.min(100, Math.max(0, (elapsed / totalDuration) * 100));
 			setProgress(progressPercent);
@@ -287,8 +289,9 @@ const ExpeditionProgressTimer = ({ returnTime, petLevel }: { returnTime?: Date; 
 		<div className="flex items-center justify-center gap-2 w-full">
 			<div className="flex-1 bg-secondary/20 rounded-full h-1.5 overflow-hidden">
 				<div
-					className={`h-full rounded-full transition-all duration-1000 ease-linear ${isReady ? 'bg-green-600' : 'bg-primary'
-						}`}
+					className={`h-full rounded-full transition-all duration-1000 ease-linear ${
+						isReady ? 'bg-green-600' : 'bg-primary'
+					}`}
 					style={{ width: `${progress}%` }}
 				/>
 			</div>
@@ -321,8 +324,9 @@ const AddPetButton = ({
 	if (variant === 'centered') {
 		return (
 			<button
-				className={`bg-primary text-white font-bold rounded-lg py-3 px-6 transition-colors ${disabled ? 'opacity-50 cursor-not-allowed' : 'hover:bg-opacity-90'
-					}`}
+				className={`bg-primary text-white font-bold rounded-lg py-3 px-6 transition-colors ${
+					disabled ? 'opacity-50 cursor-not-allowed' : 'hover:bg-opacity-90'
+				}`}
 				onClick={onClick}
 				disabled={disabled}
 			>
@@ -333,8 +337,9 @@ const AddPetButton = ({
 
 	return (
 		<button
-			className={`bg-white/50 border-2 border-dashed border-secondary/50 rounded-2xl p-2 flex flex-col items-center justify-center gap-2 transition-transform duration-300 ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:scale-105 hover:bg-white'
-				}`}
+			className={`bg-white/50 border-2 border-dashed border-secondary/50 rounded-2xl p-2 flex flex-col items-center justify-center gap-2 transition-transform duration-300 ${
+				disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:scale-105 hover:bg-white'
+			}`}
 			onClick={onClick}
 			disabled={disabled}
 		>

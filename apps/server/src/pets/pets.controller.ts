@@ -1,11 +1,13 @@
-import { BadRequestException, Body, Controller, Delete, Get, Param, Patch, Post, Request, UseGuards } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Delete, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
 import { EGG_ITEM_NAME, PET_ACTIONS_BY_CATEGORY } from '@widgetable/types';
 import { Types } from 'mongoose';
+import { GetUser } from 'src/common/decorators/get-user.decorator';
 import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
+import { ParseObjectIdPipe } from 'src/common/pipes/parse-objectid.pipe';
+import { UserDocument } from 'src/users/entities/user.entity';
 import { UsersService } from 'src/users/users.service';
-import { Pet } from './entities/pet.entity';
+import { UpdatePetDto } from './dto/update-pet.dto';
 import { PetsService } from './pets.service';
-import { UserRequest } from 'src/users/entities/user.entity';
 
 @Controller('pets')
 export class PetsController {
@@ -16,35 +18,35 @@ export class PetsController {
 
 	@Get('user')
 	@UseGuards(JwtAuthGuard)
-	getPetsForUser(@Request() req: UserRequest) {
-		return this.petsService.getPetsForUser(req.user._id);
+	getPetsForUser(@GetUser() user: UserDocument) {
+		return this.petsService.getPetsForUser(user._id);
 	}
 
 	@Get(':id')
-	getPet(@Param('id') id: string) {
-		const petId = new Types.ObjectId(id);
+	getPet(@Param('id', ParseObjectIdPipe) petId: Types.ObjectId) {
 		return this.petsService.getPet(petId);
 	}
 
 	@Post()
 	@UseGuards(JwtAuthGuard)
-	async create(@Request() req: UserRequest) {
-		const userId = req.user._id;
+	async create(@GetUser() user: UserDocument) {
+		const userId = user._id;
 
-		const hasEgg = await this.usersService.hasInventory(userId.toString(), EGG_ITEM_NAME, 1);
-		if (!hasEgg) {
-			throw new BadRequestException('No eggs available in inventory');
-		}
+		const hasEgg = await this.usersService.hasInventory(userId, EGG_ITEM_NAME, 1);
+		if (!hasEgg) throw new BadRequestException();
 
-		await this.usersService.consumeInventory(userId.toString(), EGG_ITEM_NAME, 1);
+		await this.usersService.consumeInventory(userId, EGG_ITEM_NAME, 1);
 		return this.petsService.create(userId);
 	}
 
 	@Patch(':id')
 	@UseGuards(JwtAuthGuard)
-	async update(@Param('id') id: string, @Body() body: Partial<Pet> & { actionName?: string }, @Request() req: UserRequest) {
-		const petId = new Types.ObjectId(id);
-		const userId = req.user._id.toString();
+	async update(
+		@Param('id', ParseObjectIdPipe) petId: Types.ObjectId,
+		@Body() body: UpdatePetDto,
+		@GetUser() user: UserDocument,
+	) {
+		const userId = user._id;
 
 		if (body.actionName) {
 			const action = Object.values(PET_ACTIONS_BY_CATEGORY)
@@ -64,23 +66,20 @@ export class PetsController {
 
 	@Delete(':id')
 	@UseGuards(JwtAuthGuard)
-	remove(@Param('id') id: string, @Request() req: UserRequest) {
-		const petId = new Types.ObjectId(id);
-		const userId = req.user._id;
+	remove(@Param('id', ParseObjectIdPipe) petId: Types.ObjectId, @GetUser() user: UserDocument) {
+		const userId = user._id;
 		return this.petsService.remove(petId, userId);
 	}
 
 	@Post(':id/expedition/start')
 	@UseGuards(JwtAuthGuard)
-	async startExpedition(@Param('id') id: string, @Request() req: UserRequest) {
-		const petId = new Types.ObjectId(id);
-		return this.petsService.startExpedition(petId, req.user._id);
+	async startExpedition(@Param('id', ParseObjectIdPipe) petId: Types.ObjectId, @GetUser() user: UserDocument) {
+		return this.petsService.startExpedition(petId, user._id);
 	}
 
 	@Post(':id/expedition/claim')
 	@UseGuards(JwtAuthGuard)
-	async claimExpedition(@Param('id') id: string, @Request() req: UserRequest) {
-		const petId = new Types.ObjectId(id);
-		return this.petsService.claimExpedition(petId, req.user._id);
+	async claimExpedition(@Param('id', ParseObjectIdPipe) petId: Types.ObjectId, @GetUser() user: UserDocument) {
+		return this.petsService.claimExpedition(petId, user._id);
 	}
 }

@@ -1,5 +1,16 @@
 import { useEffect, useRef, useState } from 'react';
-import { InputTextHiddenProps } from '@/types/buttons.types';
+
+interface InputTextHiddenProps {
+	id: string;
+	name?: string;
+	placeholder?: string;
+	value?: string;
+	inputStyles?: string;
+	onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+	onBlur?: (e: React.FocusEvent<HTMLInputElement>) => void;
+	readOnly?: boolean;
+	maxLength?: number;
+}
 
 export const Button = ({
 	children,

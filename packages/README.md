@@ -1,19 +1,95 @@
-# packages
+# Shared Packages
 
-This folder contains workspace packages used by the monorepo.
+This directory contains shared packages used across the monorepo.
 
-## `@widgetable/types` (packages/types)
+## Packages
 
-- Contains shared TypeScript types used by `client` and `server`.
-- Published locally via workspace/file dependency during development.
-- Build notes:
-  - `composite: true` in `tsconfig.json` is enabled to support project references.
-  - Build with `npm run build --prefix packages/types` (root helper: `npm run build:types`).
+### `@widgetable/types`
 
-Usage:
-- Import shared types with `import type { User } from "@widgetable/types";` in other packages.
-- Prefer to update the shared `types` package when adding cross-cutting types, and then rebuild the package.
+TypeScript type definitions and constants shared between client and server.
 
-Tips:
-- Use `npm run build` at repo root to ensure `packages/types` is built before the server.
-- Consider switching to a package manager with workspace protocol (pnpm/yarn) if you want to use `workspace:*` conventions.
+**Structure:**
+- `src/claims/` - Claim-related types (ClaimResult, ClaimStatus)
+- `src/config/` - Configuration constants (thresholds, timings)
+- `src/database/` - Database-related types
+- `src/pet/` - Pet-related types, enums, and constants
+  - `actions.ts` - Pet actions organized by category
+  - `config.ts` - Pet configuration (animation durations, needs config, scales)
+  - `constants.ts` - Pet constants (update interval, expedition settings)
+  - `enums.ts` - Pet enums (PetType, PetNeed, PetAnimation, etc.)
+  - `sprites.ts` - Type-safe pet sprite configurations
+  - `types.ts` - Pet interface definitions
+  - `utils.ts` - Pet utility functions (level calculations)
+  - `valentine.ts` - Valentine gift items
+- `src/request/` - Request-related types
+- `src/rewards/` - Reward system types and constants
+- `src/user/` - User-related types
+
+**Build:**
+```bash
+npm run build:types
+```
+
+Outputs compiled JavaScript and type definitions to `dist/`.
+
+**Usage:**
+```typescript
+import { Pet, PetType, PET_THRESHOLDS } from '@widgetable/types';
+```
+
+### `@widgetable/i18n`
+
+Translation system shared between client and server.
+
+**Structure:**
+- `locales/en.json` - English translations
+- `locales/ru.json` - Russian translations
+- `index.js` - Main entry point with `translate()` function
+- `index.d.ts` - TypeScript definitions
+
+**Usage:**
+```typescript
+import { translate } from '@widgetable/i18n';
+
+const text = translate('en', 'pets.type.cat'); // "Cat"
+const withParams = translate('en', 'pets.level', { level: 5 }); // "Level: 5"
+```
+
+**No build step required** - pure JavaScript package.
+
+## Adding a New Shared Package
+
+1. Create package directory: `packages/your-package/`
+2. Add `package.json` with package name `@widgetable/your-package`
+3. Update root `package.json` workspaces array
+4. Run `npm install` from root
+5. Import in apps: `import { ... } from '@widgetable/your-package'`
+
+## Guidelines
+
+### What to Share
+
+- Type definitions used by both client and server
+- Constants referenced in multiple apps
+- Utility functions needed across apps
+- Translation files
+
+### What NOT to Share
+
+- UI components (client-specific)
+- API routes (server-specific)
+- Database models (server-specific)
+- Asset paths (client-specific)
+- Environment-specific configuration
+
+### When to Create a New Package
+
+Consider creating a new shared package when:
+- Multiple apps need the same functionality
+- Code is being duplicated across apps
+- A clear domain boundary exists (types, i18n, validation, etc.)
+
+Avoid creating packages for:
+- Single-use code
+- App-specific business logic
+- Premature abstractions

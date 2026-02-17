@@ -1,4 +1,5 @@
 'use client';
+import { ICON_SIZES } from '@/config/constants';
 
 import { Button } from '@/components/ui/Button';
 import { useTranslation } from '@/i18n/useTranslation';
@@ -34,9 +35,9 @@ export const ClaimButton = ({ type, available, claimingType, nextClaimTime, onCl
 
 	const getIcon = () => {
 		if (isClaiming || available) {
-			return <Check width={24} height={24} className="text-white" />;
+			return <Check width={ICON_SIZES.LG} height={ICON_SIZES.LG} className="text-white" />;
 		}
-		return <Clock width={24} height={24} className="text-secondary" />;
+		return <Clock width={ICON_SIZES.LG} height={ICON_SIZES.LG} className="text-secondary" />;
 	};
 
 	return (
@@ -46,7 +47,7 @@ export const ClaimButton = ({ type, available, claimingType, nextClaimTime, onCl
 				disabled={!available || isClaiming}
 				className={` ${available && !isClaiming ? 'animate-pulse shadow-lg hover:shadow-xl' : ''}`}
 			>
-				<div className='flex items-center justify-center gap-2 w-full'>
+				<div className="flex items-center justify-center gap-2 w-full">
 					<span>{getIcon()}</span>
 					<span>{getButtonText()}</span>
 				</div>

@@ -1,5 +1,4 @@
-import { TFunction } from '@/i18n';
-import { Pet, PET_NEED_KEYS, PET_NEEDS_CONFIG, STAT_THRESHOLD, USERNAME_INCLUSION_CHANCE } from '@widgetable/types';
+import { Pet, PET_NEED_KEYS, PET_THRESHOLDS, TFunction, USERNAME_INCLUSION_CHANCE } from '@widgetable/types';
 
 // Sums pet needs in 10-point buckets and incorporates pet ID to create a stable, pet-specific seed
 function getPetStateSeed(pet: Pet): number {
@@ -13,7 +12,7 @@ function hashString(str: string): number {
 	let hash = 0;
 	for (let i = 0; i < str.length; i++) {
 		const char = str.charCodeAt(i);
-		hash = ((hash << 5) - hash) + char;
+		hash = (hash << 5) - hash + char;
 		hash = hash & hash; // Convert to 32-bit integer
 	}
 	return Math.abs(hash);
@@ -31,7 +30,7 @@ export function getPetMessage(pet: Pet, username: string | undefined, t: TFuncti
 	const seed = getPetStateSeed(pet);
 
 	for (const needKey of PET_NEED_KEYS) {
-		if (pet.needs[needKey] < STAT_THRESHOLD) {
+		if (pet.needs[needKey] < PET_THRESHOLDS.URGENT) {
 			const message = t('pets.needs.urgency.' + needKey);
 			return addUsernameToMessage(message, username, seed, t);
 		}

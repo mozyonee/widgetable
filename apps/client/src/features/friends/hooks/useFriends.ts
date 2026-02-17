@@ -1,5 +1,7 @@
 import api, { isAbortError } from '@/lib/api';
 import { callError, callSuccess } from '@/lib/functions';
+import { usePolling } from '@/lib/hooks/usePolling';
+import { useTranslation } from '@/i18n/useTranslation';
 import { useAppDispatch, useAppSelector } from '@/store';
 import {
 	addFriend,
@@ -14,17 +16,15 @@ import { FriendshipStatus, User } from '@widgetable/types';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 export const useFriends = (userId: string) => {
+	const { t } = useTranslation();
 	const dispatch = useAppDispatch();
 	const friends = useAppSelector((state) => state.user.friends || []);
 	const requests = useAppSelector((state) => state.user.friendRequests || { sent: [], received: [] });
+	const friendsLoaded = useAppSelector((state) => state.user.friendsLoaded);
 
 	const [searchResults, setSearchResults] = useState<User[]>([]);
 	const [searchQuery, setSearchQuery] = useState('');
-	const hasCachedData = friends.length > 0 || requests.sent.length > 0 || requests.received.length > 0;
-	const [loading, setLoading] = useState(!hasCachedData);
 	const [searching, setSearching] = useState(false);
-
-	// Fetches
 
 	const loadData = useCallback(async () => {
 		try {
@@ -32,19 +32,15 @@ export const useFriends = (userId: string) => {
 			dispatch(setFriends(friendsRes.data));
 			dispatch(setFriendRequests(requestsRes.data));
 		} catch (error: any) {
-			if (!isAbortError(error)) callError('Failed to load friends');
-		} finally {
-			setLoading(false);
+			if (!isAbortError(error)) callError(t('friends.failedLoad'));
 		}
-	}, [dispatch]);
+	}, [dispatch, t]);
 
 	useEffect(() => {
 		loadData();
-
-		// Poll for new requests every 10 seconds
-		const interval = setInterval(loadData, 10000);
-		return () => clearInterval(interval);
 	}, [loadData]);
+
+	usePolling(loadData, 10000);
 
 	const searchUsers = useCallback(async () => {
 		if (!searchQuery.trim()) {
@@ -57,30 +53,28 @@ export const useFriends = (userId: string) => {
 			const { data } = await api.get('/users/search', { params: { query: searchQuery } });
 			setSearchResults(data.filter((u: User) => u._id !== userId));
 		} catch {
-			callError('Search failed');
+			callError(t('friends.searchFailed'));
 		} finally {
 			setSearching(false);
 		}
-	}, [searchQuery, userId]);
+	}, [searchQuery, userId, t]);
 
 	useEffect(() => {
 		const timer = setTimeout(searchUsers, 300);
 		return () => clearTimeout(timer);
 	}, [searchUsers]);
 
-	// Actions
-
 	const addRequest = useCallback(
 		async (recipientId: string) => {
 			try {
 				const { data } = await api.post('/friends/requests', { recipientId });
 				dispatch(addFriendRequestSent(data));
-				callSuccess('Friend request sent');
+				callSuccess(t('friends.requestSent'));
 			} catch {
-				callError('Failed to send request');
+				callError(t('friends.failedSendRequest'));
 			}
 		},
-		[dispatch],
+		[dispatch, t],
 	);
 
 	const cancelRequest = useCallback(
@@ -88,12 +82,12 @@ export const useFriends = (userId: string) => {
 			try {
 				await api.delete(`/friends/requests/${requestId}/cancel`);
 				dispatch(removeFriendRequestSent(requestId));
-				callSuccess('Request cancelled');
+				callSuccess(t('friends.requestCancelled'));
 			} catch {
-				callError('Failed to cancel request');
+				callError(t('friends.failedCancelRequest'));
 			}
 		},
-		[dispatch],
+		[dispatch, t],
 	);
 
 	const acceptRequest = useCallback(
@@ -105,12 +99,12 @@ export const useFriends = (userId: string) => {
 					dispatch(addFriend(request.sender as User));
 					dispatch(removeFriendRequestReceived(requestId));
 				}
-				callSuccess('Friend added');
+				callSuccess(t('friends.friendAdded'));
 			} catch {
-				callError('Failed to accept request');
+				callError(t('friends.failedAcceptRequest'));
 			}
 		},
-		[requests.received, dispatch],
+		[requests.received, dispatch, t],
 	);
 
 	const declineRequest = useCallback(
@@ -118,12 +112,12 @@ export const useFriends = (userId: string) => {
 			try {
 				await api.delete(`/friends/requests/${requestId}/decline`);
 				dispatch(removeFriendRequestReceived(requestId));
-				callSuccess('Request declined');
+				callSuccess(t('friends.requestDeclined'));
 			} catch {
-				callError('Failed to decline request');
+				callError(t('friends.failedDeclineRequest'));
 			}
 		},
-		[dispatch],
+		[dispatch, t],
 	);
 
 	const remove = useCallback(
@@ -131,15 +125,13 @@ export const useFriends = (userId: string) => {
 			try {
 				await api.delete(`/friends/${id}`);
 				dispatch(removeFriend(id));
-				callSuccess('Friend removed');
+				callSuccess(t('friends.friendRemoved'));
 			} catch {
-				callError('Failed to remove friend');
+				callError(t('friends.failedRemoveFriend'));
 			}
 		},
-		[dispatch],
+		[dispatch, t],
 	);
-
-	// Helpers
 
 	const statusMap = useMemo(() => {
 		const map = new Map<string, FriendshipStatus>();
@@ -178,14 +170,12 @@ export const useFriends = (userId: string) => {
 	}, [friends, requests]);
 
 	return {
-		// State
 		friends: allFriends,
 		searchResults,
 		searchQuery,
-		loading,
+		loading: !friendsLoaded,
 		searching,
 
-		// Actions
 		setSearchQuery,
 		addRequest,
 		cancelRequest,

@@ -1,16 +1,19 @@
 import { useTranslation } from '@/i18n/useTranslation';
+import { HTTP_STATUS } from '@/config/constants';
 import api from '@/lib/api';
 import { callError, callSuccess } from '@/lib/functions';
+import { usePolling } from '@/lib/hooks/usePolling';
 import { useAppDispatch, useAppSelector } from '@/store';
 import { setSelectedPet } from '@/features/pets/slices/petsSlice';
-import { addCoparentingRequestSent, setUserData } from '@/store/slices/userSlice';
+import { addCoparentingRequestSent } from '@/store/slices/userSlice';
+import { useRefreshUser } from '@/store/hooks/useRefreshUser';
 import {
 	PetActionCategory,
 	PetAnimation,
 	PetUpdate,
 	User,
 	PET_NEED_KEYS,
-	STAT_THRESHOLD,
+	PET_THRESHOLDS,
 	PET_ACTIONS_BY_CATEGORY,
 	PET_UPDATE_INTERVAL,
 } from '@widgetable/types';
@@ -24,17 +27,15 @@ export const usePet = () => {
 	const dispatch = useAppDispatch();
 	const pet = useAppSelector((state) => state.pets.selectedPet);
 	const user = useAppSelector((state) => state.user.userData);
+	const friends = useAppSelector((state) => state.user.friends || []);
 	const coparentingRequests = useAppSelector((state) => state.user.coparentingRequests ?? { sent: [], received: [] });
 
-	const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null);
 	const cachedMessageRef = useRef({ message: '', urgentNeeds: '' });
+	const refreshUser = useRefreshUser();
 
-	const [friends, setFriends] = useState<User[]>([]);
 	const [showShareDropdown, setShowShareDropdown] = useState(false);
 	const [currentAnimation, setCurrentAnimation] = useState<PetAnimation>();
 	const [selectedCategory, setSelectedCategory] = useState<PetActionCategory>(PetActionCategory.FEED);
-
-	// Fetches
 
 	const petId = pet?._id || id;
 
@@ -48,40 +49,11 @@ export const usePet = () => {
 		}
 	}, [user?._id, petId, dispatch]);
 
-	const loadFriends = useCallback(async () => {
-		try {
-			const response = await api.get('/friends');
-			setFriends(response.data);
-		} catch {
-			// Silent fail - friends list is optional for this feature
-		}
-	}, []);
-
-	// Initial load
 	useEffect(() => {
 		loadPet();
 	}, [loadPet]);
 
-	useEffect(() => {
-		loadFriends();
-	}, [loadFriends]);
-
-	// Polling mechanism to keep pet stats synced with server
-	useEffect(() => {
-		if (!petId) return;
-
-		pollingIntervalRef.current = setInterval(() => {
-			loadPet();
-		}, PET_UPDATE_INTERVAL);
-
-		return () => {
-			if (pollingIntervalRef.current) {
-				clearInterval(pollingIntervalRef.current);
-			}
-		};
-	}, [petId, loadPet]);
-
-	// Actions
+	usePolling(loadPet, PET_UPDATE_INTERVAL, !!petId);
 
 	const updatePet = useCallback(
 		async (data: PetUpdate, animation?: PetAnimation, actionName?: string) => {
@@ -99,21 +71,19 @@ export const usePet = () => {
 				const response = await api.patch(`/pets/${pet?._id}`, payload);
 				dispatch(setSelectedPet(response.data));
 
-				// If action consumed inventory, refetch user data to update inventory count
 				if (actionName) {
 					const action = Object.values(PET_ACTIONS_BY_CATEGORY)
 						.flat()
 						.find((a) => a.name === actionName);
 					if (action?.inventoryCost) {
-						const userResponse = await api.get('/auth/me');
-						dispatch(setUserData(userResponse.data));
+						await refreshUser();
 					}
 				}
 			} catch (error: any) {
 				callError(error.message);
 			}
 		},
-		[pet, currentAnimation, dispatch],
+		[pet, currentAnimation, dispatch, refreshUser],
 	);
 
 	const deletePet = useCallback(async () => {
@@ -125,7 +95,6 @@ export const usePet = () => {
 			if (response.data && response.data.parents && response.data.parents.length > 0) {
 				callSuccess(t('pets.noLongerParent', { name: pet.name }));
 			}
-
 		} catch (error: any) {
 			callError(error.message);
 		}
@@ -148,9 +117,9 @@ export const usePet = () => {
 				const status = error.response?.status;
 				let errorMessage = t('invite.failedSend');
 
-				if (status === 404) {
+				if (status === HTTP_STATUS.NOT_FOUND) {
 					errorMessage = t('invite.userNotFound');
-				} else if (status === 400) {
+				} else if (status === HTTP_STATUS.BAD_REQUEST) {
 					errorMessage = t('invite.cannotSend');
 				}
 
@@ -159,8 +128,6 @@ export const usePet = () => {
 		},
 		[pet, friends, dispatch],
 	);
-
-	// Computed values
 
 	const availableFriends = useMemo(() => {
 		if (!pet) return [];
@@ -186,7 +153,7 @@ export const usePet = () => {
 	const getMessage = useCallback(() => {
 		if (!pet) return '';
 
-		const urgentNeeds = PET_NEED_KEYS.filter((key) => pet.needs[key] < STAT_THRESHOLD)
+		const urgentNeeds = PET_NEED_KEYS.filter((key) => pet.needs[key] < PET_THRESHOLDS.URGENT)
 			.sort()
 			.join(',');
 
@@ -207,14 +174,12 @@ export const usePet = () => {
 	}, []);
 
 	return {
-		// State
 		availableFriends,
 		parentNames,
 		showShareDropdown,
 		currentAnimation,
 		selectedCategory,
 
-		// Actions
 		updatePet,
 		deletePet,
 		sendCoparentingRequest,
@@ -222,7 +187,6 @@ export const usePet = () => {
 		setSelectedCategory,
 		clearAnimation,
 
-		// Helpers
 		getMessage,
 	};
 };

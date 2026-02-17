@@ -10,6 +10,7 @@ interface UserState {
 		sent: Request[];
 		received: Request[];
 	};
+	friendsLoaded: boolean;
 	coparentingRequests: {
 		sent: Request[];
 		received: Request[];
@@ -25,6 +26,7 @@ const initialState: UserState = {
 		sent: [],
 		received: [],
 	},
+	friendsLoaded: false,
 	coparentingRequests: {
 		sent: [],
 		received: [],
@@ -50,10 +52,12 @@ export const userSlice = createSlice({
 			state.token = null;
 			state.friends = [];
 			state.friendRequests = { sent: [], received: [] };
+			state.friendsLoaded = false;
 			state.coparentingRequests = { sent: [], received: [] };
 		},
 		setFriends: (state, action: PayloadAction<User[]>) => {
 			state.friends = action.payload;
+			state.friendsLoaded = true;
 		},
 		setFriendRequests: (state, action: PayloadAction<{ sent: Request[]; received: Request[] }>) => {
 			state.friendRequests = action.payload;

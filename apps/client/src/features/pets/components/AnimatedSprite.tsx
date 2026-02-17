@@ -29,14 +29,12 @@ const AnimatedSprite = ({
 
 	const frameDelay = 1000 / fps;
 
-	// Load sprite and calculate dimensions
 	useEffect(() => {
 		const image = new Image();
 		image.src = sprite;
 		imageRef.current = image;
 
 		image.onload = () => {
-			// Calculate frame dimensions from image
 			// Frames are square, so frameSize = height
 			const frameSize = image.naturalHeight;
 			const frames = Math.floor(image.naturalWidth / frameSize);
@@ -52,7 +50,6 @@ const AnimatedSprite = ({
 		};
 	}, [sprite]);
 
-	// Animation loop
 	useEffect(() => {
 		if (!dimensions) return;
 
@@ -66,14 +63,11 @@ const AnimatedSprite = ({
 		const drawFrame = (frameIndex: number) => {
 			if (!image.complete) return;
 
-			// Clear the canvas
 			ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-			// Calculate the source position in the sprite sheet
 			const sx = frameIndex * dimensions.frameSize;
 			const sy = 0;
 
-			// Draw the current frame
 			ctx.drawImage(
 				image,
 				sx,
@@ -83,11 +77,10 @@ const AnimatedSprite = ({
 				0,
 				0,
 				dimensions.frameSize,
-				dimensions.frameSize
+				dimensions.frameSize,
 			);
 		};
 
-		// Draw initial frame
 		drawFrame(0);
 
 		let frameCount = 0;
@@ -132,7 +125,6 @@ const AnimatedSprite = ({
 	}, [dimensions, frameDelay, loop, onAnimationEnd]);
 
 	if (!dimensions) {
-		// Return placeholder while loading
 		const heightStyle = typeof height === 'number' ? `${height}px` : height;
 		return <div style={{ width: heightStyle, height: heightStyle }} />;
 	}

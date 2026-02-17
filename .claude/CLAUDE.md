@@ -28,6 +28,7 @@ When rules conflict, follow this order:
 | After 2 failures | Must switch to investigation mode |
 
 **Investigation Mode Requires:**
+
 - WebSearch (documentation, known issues)
 - Codebase search (Read/Grep)
 - Logs / system state analysis
@@ -76,6 +77,7 @@ When an error occurs:
 5. Related module failures
 
 **User clarification is allowed ONLY if:**
+
 - The error is runtime-context dependent
 - The issue cannot be detected programmatically
 
@@ -84,11 +86,13 @@ When an error occurs:
 ## 5. EXAMPLE INTERPRETATION RULE
 
 If user uses phrases:
+
 - "for example"
 - "like"
 - "such as"
 
 Then:
+
 - Extract the **principle**
 - Do **not** copy the literal example
 - Apply the pattern to the real context
@@ -106,6 +110,55 @@ All edits must follow:
 | Formatting | Run project formatter after changes |
 | Style | Match surrounding file exactly |
 | Code quality | Prefer clarity over cleverness |
+| Comments | Follow Section 6.1 below |
+
+### 6.1. COMMENTING STANDARDS
+
+**Principles:**
+
+- Comment the WHY, not the WHAT
+- One line comments only (`//`)
+- Only when providing non-obvious information
+- No JSDoc blocks
+- Keep under 100 characters
+- No blank lines before comments
+
+**When to comment:**
+
+- Non-obvious behavior (silent error handling, special cases)
+- Performance optimizations (memoization/caching rationale)
+- Complex algorithms (hash functions, calculations)
+- Canvas/DOM manipulation details
+- Business logic that isn't obvious
+- Data categorization in large objects
+
+**Never comment:**
+
+- Function purposes (use clear names)
+- Self-explanatory variables
+- Simple type definitions
+- Section headers (State, Actions, etc.)
+- Obvious conditional logic
+- Semantic HTML/JSX tags
+
+**Format:**
+
+```typescript
+// Silent fail - friends list is optional for this feature
+try { ... } catch {}
+
+// Memoized to prevent background flickering on re-renders
+const backgroundId = useMemo(() => { ... });
+
+// Data categorization
+export const SPRITES = {
+ // Feed Actions
+ Sushi: 'food/sushi.png',
+
+ // Drink Actions
+ Latte: 'food/latte.png',
+};
+```
 
 ---
 

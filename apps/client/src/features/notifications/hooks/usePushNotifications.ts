@@ -2,6 +2,7 @@
 
 import api from '@/lib/api';
 import { callError } from '@/lib/functions';
+import { useTranslation } from '@/i18n/useTranslation';
 import { useAppSelector } from '@/store';
 import { useCallback, useEffect, useState } from 'react';
 
@@ -26,6 +27,7 @@ function getSwRegistration(timeoutMs = 3000): Promise<ServiceWorkerRegistration 
 }
 
 export const usePushNotifications = () => {
+	const { t } = useTranslation();
 	const isAuthenticated = useAppSelector((state) => state.user.isAuthenticated);
 	const [permission, setPermission] = useState<NotificationPermission>('default');
 	const [isSubscribed, setIsSubscribed] = useState(false);
@@ -61,7 +63,7 @@ export const usePushNotifications = () => {
 
 			const registration = await getSwRegistration();
 			if (!registration) {
-				callError('Service worker not available');
+				callError(t('account.serviceWorkerNotAvailable'));
 				return;
 			}
 
@@ -81,11 +83,11 @@ export const usePushNotifications = () => {
 
 			setIsSubscribed(true);
 		} catch {
-			callError('Failed to enable notifications');
+			callError(t('account.failedEnableNotifications'));
 		} finally {
 			setLoading(false);
 		}
-	}, []);
+	}, [t]);
 
 	const unsubscribe = useCallback(async () => {
 		setLoading(true);

@@ -1,5 +1,7 @@
 import api from '@/lib/api';
 import { callError, callSuccess } from '@/lib/functions';
+import { usePolling } from '@/lib/hooks/usePolling';
+import { useTranslation } from '@/i18n/useTranslation';
 import { useAppDispatch, useAppSelector } from '@/store';
 import {
 	removeCoparentingRequestReceived,
@@ -9,41 +11,36 @@ import {
 import { useCallback, useEffect } from 'react';
 
 export const useCoparenting = (userId: string) => {
+	const { t } = useTranslation();
 	const dispatch = useAppDispatch();
 	const requests = useAppSelector((state) => state.user.coparentingRequests);
-
-	// Fetches
 
 	const loadRequests = useCallback(async () => {
 		try {
 			const { data } = await api.get('/coparenting/requests');
 			dispatch(setCoparentingRequests(data));
 		} catch {
-			callError('Failed to load requests');
+			callError(t('coparenting.failedLoadRequests'));
 		}
-	}, [dispatch]);
+	}, [dispatch, t]);
 
 	useEffect(() => {
 		loadRequests();
-
-		// Poll for new requests every 10 seconds
-		const interval = setInterval(loadRequests, 10000);
-		return () => clearInterval(interval);
 	}, [loadRequests]);
 
-	// Actions
+	usePolling(loadRequests, 10000);
 
 	const accept = useCallback(
 		async (requestId: string) => {
 			try {
 				await api.post(`/coparenting/requests/${requestId}/accept`);
 				dispatch(removeCoparentingRequestReceived(requestId));
-				callSuccess('Request accepted');
+				callSuccess(t('coparenting.requestAccepted'));
 			} catch {
-				callError('Failed to accept');
+				callError(t('coparenting.failedAccept'));
 			}
 		},
-		[dispatch],
+		[dispatch, t],
 	);
 
 	const decline = useCallback(
@@ -51,12 +48,12 @@ export const useCoparenting = (userId: string) => {
 			try {
 				await api.delete(`/coparenting/requests/${requestId}/decline`);
 				dispatch(removeCoparentingRequestReceived(requestId));
-				callSuccess('Request declined');
+				callSuccess(t('coparenting.requestDeclined'));
 			} catch {
-				callError('Failed to decline');
+				callError(t('coparenting.failedDecline'));
 			}
 		},
-		[dispatch],
+		[dispatch, t],
 	);
 
 	const cancel = useCallback(
@@ -64,12 +61,12 @@ export const useCoparenting = (userId: string) => {
 			try {
 				await api.delete(`/coparenting/requests/${requestId}/cancel`);
 				dispatch(removeCoparentingRequestSent(requestId));
-				callSuccess('Request cancelled');
+				callSuccess(t('coparenting.requestCancelled'));
 			} catch {
-				callError('Failed to cancel');
+				callError(t('coparenting.failedCancel'));
 			}
 		},
-		[dispatch],
+		[dispatch, t],
 	);
 
 	return {

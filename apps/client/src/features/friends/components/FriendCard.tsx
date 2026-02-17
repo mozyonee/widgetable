@@ -1,5 +1,5 @@
 'use client';
-
+import { ICON_SIZES } from '@/config/constants';
 import { Button } from '@/components/ui/Button';
 import { useTranslation } from '@/i18n/useTranslation';
 import { Check, Clock, Close, UserMinus, UserPlus } from '@nsmr/pixelart-react';
@@ -18,34 +18,44 @@ interface FriendCardProps {
 	variant?: 'default' | 'nested';
 }
 
-const FriendCard = ({ user, status, onAdd, onCancel, onAccept, onDecline, onRemove, onGift, variant }: FriendCardProps) => {
+const FriendCard = ({
+	user,
+	status,
+	onAdd,
+	onCancel,
+	onAccept,
+	onDecline,
+	onRemove,
+	onGift,
+	variant,
+}: FriendCardProps) => {
 	const { t } = useTranslation();
 	if (!user._id) return null;
 
 	const actionConfig: Record<FriendshipStatus, React.ReactNode> = {
 		[FriendshipStatus.NONE]: (
 			<Button variant="primary" onClick={() => onAdd?.(user._id!)} className="p-2">
-				<UserPlus width={20} height={20} />
+				<UserPlus width={ICON_SIZES.MD} height={ICON_SIZES.MD} />
 			</Button>
 		),
 		[FriendshipStatus.SENT]: (
 			<div className="flex-1 flex flex-col items-center gap-2">
 				<div className="flex items-center gap-1 text-secondary text-sm">
-					<Clock width={16} height={16} />
+					<Clock width={ICON_SIZES.SM} height={ICON_SIZES.SM} />
 					<span>{t('friends.pending')}</span>
 				</div>
 				<Button variant="secondary" onClick={() => onCancel?.(user._id!)} className="p-2">
-					<Close width={20} height={20} />
+					<Close width={ICON_SIZES.MD} height={ICON_SIZES.MD} />
 				</Button>
 			</div>
 		),
 		[FriendshipStatus.RECEIVED]: (
 			<div className="flex flex-col items-center gap-2">
 				<Button variant="primary" onClick={() => onAccept?.(user._id!)} className="p-2">
-					<Check width={20} height={20} />
+					<Check width={ICON_SIZES.MD} height={ICON_SIZES.MD} />
 				</Button>
 				<Button variant="secondary" onClick={() => onDecline?.(user._id!)} className="p-2">
-					<Close width={20} height={20} />
+					<Close width={ICON_SIZES.MD} height={ICON_SIZES.MD} />
 				</Button>
 			</div>
 		),
@@ -53,11 +63,16 @@ const FriendCard = ({ user, status, onAdd, onCancel, onAccept, onDecline, onRemo
 			<div className="flex items-center gap-2">
 				{onGift && (
 					<Button variant="primary" onClick={() => onGift(user)} className="p-2">
-						<img src="/valentine/red_heard.png" alt={t('gifts.sendGift')} className="w-5 h-5" style={{ imageRendering: 'pixelated' }} />
+						<img
+							src="/valentine/red_heard.png"
+							alt={t('gifts.sendGift')}
+							className="w-5 h-5"
+							style={{ imageRendering: 'pixelated' }}
+						/>
 					</Button>
 				)}
 				<Button variant="secondary" onClick={() => onRemove?.(user._id!)} className="p-2">
-					<UserMinus width={20} height={20} />
+					<UserMinus width={ICON_SIZES.MD} height={ICON_SIZES.MD} />
 				</Button>
 			</div>
 		),

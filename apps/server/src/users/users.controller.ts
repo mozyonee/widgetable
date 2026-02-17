@@ -6,16 +6,22 @@ import {
 	Param,
 	Patch,
 	Query,
-	Request,
 	Res,
 	UploadedFile,
 	UseGuards,
 	UseInterceptors,
 } from '@nestjs/common';
-import { Response } from 'express';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { Response } from 'express';
+import { Types } from 'mongoose';
+import { GetUser } from 'src/common/decorators/get-user.decorator';
 import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
-import { UserRequest } from './entities/user.entity';
+import { ParseObjectIdPipe } from 'src/common/pipes/parse-objectid.pipe';
+import { AddInventoryDto } from './dto/add-inventory.dto';
+import { SearchUsersDto } from './dto/search-users.dto';
+import { UpdateLanguageDto } from './dto/update-language.dto';
+import { UpdateNameDto } from './dto/update-name.dto';
+import { UserDocument } from './entities/user.entity';
 import { UsersService } from './users.service';
 
 @Controller('users')
@@ -23,7 +29,7 @@ export class UsersController {
 	constructor(private readonly usersService: UsersService) {}
 
 	@Get(':id/picture')
-	async getImage(@Param('id') id: string, @Res() res: Response) {
+	async getImage(@Param('id', ParseObjectIdPipe) id: Types.ObjectId, @Res() res: Response) {
 		const url = await this.usersService.getImageUrl(id);
 		res.redirect(url);
 	}
@@ -40,40 +46,32 @@ export class UsersController {
 			},
 		}),
 	)
-	setImage(@Request() req: UserRequest, @UploadedFile() file: Express.Multer.File) {
+	setImage(@GetUser() user: UserDocument, @UploadedFile() file: Express.Multer.File) {
 		if (!file) throw new BadRequestException();
-		const userId = req.user._id.toString();
-		return this.usersService.setImage(userId, file);
+		return this.usersService.setImage(user._id, file);
 	}
 
 	@Patch('name')
 	@UseGuards(JwtAuthGuard)
-	updateName(@Request() req: UserRequest, @Body('name') name: string) {
-		if (!name || name.trim().length === 0) throw new BadRequestException();
-		const userId = req.user._id.toString();
-		return this.usersService.updateName(userId, name.trim());
+	updateName(@GetUser() user: UserDocument, @Body() body: UpdateNameDto) {
+		return this.usersService.updateName(user._id, body.name);
 	}
 
 	@Patch('language')
 	@UseGuards(JwtAuthGuard)
-	updateLanguage(@Request() req: UserRequest, @Body('language') language: string) {
-		if (!language || language.trim().length === 0) throw new BadRequestException();
-		const userId = req.user._id.toString();
-		return this.usersService.updateLanguage(userId, language.trim());
+	updateLanguage(@GetUser() user: UserDocument, @Body() body: UpdateLanguageDto) {
+		return this.usersService.updateLanguage(user._id, body.language);
 	}
 
 	@Get('search')
 	@UseGuards(JwtAuthGuard)
-	searchUsers(@Query('query') query: string) {
-		if (!query || query.trim().length === 0) throw new BadRequestException();
-		return this.usersService.searchUsers(query.trim());
+	searchUsers(@Query() query: SearchUsersDto) {
+		return this.usersService.searchUsers(query.query);
 	}
 
 	@Patch('inventory/add')
 	@UseGuards(JwtAuthGuard)
-	addInventory(@Request() req: UserRequest, @Body('actionName') actionName: string, @Body('amount') amount?: number) {
-		if (!actionName || actionName.trim().length === 0) throw new BadRequestException();
-		const userId = req.user._id.toString();
-		return this.usersService.addInventory(userId, actionName.trim(), amount || 1);
+	addInventory(@GetUser() user: UserDocument, @Body() body: AddInventoryDto) {
+		return this.usersService.addInventory(user._id, body.actionName, body.amount || 1);
 	}
 }

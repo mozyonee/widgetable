@@ -1,9 +1,10 @@
 'use client';
 
 import { Button, InputTextHidden } from '@/components/ui/Button';
+import { HTTP_STATUS } from '@/config/constants';
+import { ClaimResult, PET_THRESHOLDS } from '@widgetable/types';
 import { getActionSprite } from '@/data/actionSprites';
 import { RewardsModal } from '@/features/claims/components/RewardsModal';
-import { ClaimResult } from '@/features/claims/hooks/useClaims';
 import { BackgroundSelector } from '@/features/pets/components/BackgroundSelector';
 import { InviteModal } from '@/features/pets/components/InviteModal';
 import PetSprite from '@/features/pets/components/PetSprite';
@@ -14,14 +15,28 @@ import { callError, callSuccess } from '@/lib/functions';
 import { useImagesLoaded } from '@/lib/useImagesLoaded';
 import { useAppDispatch, useAppSelector } from '@/store';
 import { setUserData } from '@/store/slices/userSlice';
-import { Bed, Check, ChevronLeft, Clock, Close, Coffee, Edit, Image, Menu, Trash, UserPlus, Users, Zap } from '@nsmr/pixelart-react';
+import {
+	Bed,
+	Check,
+	ChevronLeft,
+	Clock,
+	Close,
+	Coffee,
+	Edit,
+	Image,
+	Menu,
+	Trash,
+	UserPlus,
+	Users,
+	Zap,
+} from '@nsmr/pixelart-react';
 
 import {
 	getExpForCurrentLevel,
 	getExpForNextLevel,
 	PET_ACTIONS_BY_CATEGORY,
 	PET_NEEDS_CONFIG,
-	PetActionCategory
+	PetActionCategory,
 } from '@widgetable/types';
 
 import { useRouter } from 'next/navigation';
@@ -43,7 +58,8 @@ const getTierColor = (tier?: number): string => {
 	}
 };
 
-const actionBarBtnClass = 'flex items-center justify-center gap-2 px-4 py-2 bg-white/80 backdrop-blur-sm rounded-xl border border-secondary/20 shadow-sm hover:bg-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed';
+const actionBarBtnClass =
+	'flex items-center justify-center gap-2 px-4 py-2 bg-white/80 backdrop-blur-sm rounded-xl border border-secondary/20 shadow-sm hover:bg-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed';
 
 const PetPage = () => {
 	const { t } = useTranslation();
@@ -73,7 +89,6 @@ const PetPage = () => {
 		getMessage,
 	} = usePet();
 
-	// Egg timer
 	useEffect(() => {
 		if (!pet?.isEgg || !pet.hatchTime) return;
 
@@ -106,7 +121,6 @@ const PetPage = () => {
 		return () => clearInterval(interval);
 	}, [pet?.isEgg, pet?.hatchTime]);
 
-	// Expedition timer
 	useEffect(() => {
 		if (!pet?.isOnExpedition || !pet.expeditionReturnTime) {
 			setExpeditionTimeLeft('');
@@ -141,27 +155,24 @@ const PetPage = () => {
 		return () => clearInterval(interval);
 	}, [pet?.isOnExpedition, pet?.expeditionReturnTime]);
 
-	// Check if pet has urgent needs (any need below 30)
 	const hasUrgentNeeds = pet?.needs
-		? pet.needs.hunger < 30 ||
-		pet.needs.thirst < 30 ||
-		pet.needs.hygiene < 30 ||
-		pet.needs.energy < 30 ||
-		pet.needs.toilet < 30
+		? pet.needs.hunger < PET_THRESHOLDS.URGENT ||
+			pet.needs.thirst < PET_THRESHOLDS.URGENT ||
+			pet.needs.hygiene < PET_THRESHOLDS.URGENT ||
+			pet.needs.energy < PET_THRESHOLDS.URGENT ||
+			pet.needs.toilet < PET_THRESHOLDS.URGENT
 		: false;
 
-	// Expedition handlers
 	const handleStartExpedition = async () => {
 		if (!pet?._id) return;
 
-		// Check for urgent needs before allowing expedition
 		if (pet.needs) {
 			const urgentNeeds = [];
-			if (pet.needs.hunger < 30) urgentNeeds.push('hunger');
-			if (pet.needs.thirst < 30) urgentNeeds.push('thirst');
-			if (pet.needs.hygiene < 30) urgentNeeds.push('hygiene');
-			if (pet.needs.energy < 30) urgentNeeds.push('energy');
-			if (pet.needs.toilet < 30) urgentNeeds.push('toilet');
+			if (pet.needs.hunger < PET_THRESHOLDS.URGENT) urgentNeeds.push('hunger');
+			if (pet.needs.thirst < PET_THRESHOLDS.URGENT) urgentNeeds.push('thirst');
+			if (pet.needs.hygiene < PET_THRESHOLDS.URGENT) urgentNeeds.push('hygiene');
+			if (pet.needs.energy < PET_THRESHOLDS.URGENT) urgentNeeds.push('energy');
+			if (pet.needs.toilet < PET_THRESHOLDS.URGENT) urgentNeeds.push('toilet');
 
 			if (urgentNeeds.length > 0) {
 				callError(t('pets.urgentNeeds', { name: pet.name, needs: urgentNeeds.join(', ') }));
@@ -175,8 +186,8 @@ const PetPage = () => {
 			callSuccess(t('pets.departedExpedition', { name: pet.name }));
 		} catch (error: any) {
 			const status = error.response?.status;
-			if (status === 422) callError(t('pets.expeditionEggError'));
-			else if (status === 409) callError(t('pets.expeditionSlotsFull'));
+			if (status === HTTP_STATUS.UNPROCESSABLE_ENTITY) callError(t('pets.expeditionEggError'));
+			else if (status === HTTP_STATUS.CONFLICT) callError(t('pets.expeditionSlotsFull'));
 			else callError(t('pets.failedStartExpedition'));
 		}
 	};
@@ -187,7 +198,6 @@ const PetPage = () => {
 			const rewards = await api.post(`/pets/${pet._id}/expedition/claim`);
 			setLastRewards(rewards.data);
 
-			// Refresh user inventory
 			const userResponse = await api.get('/auth/me');
 			dispatch(setUserData(userResponse.data));
 
@@ -197,7 +207,7 @@ const PetPage = () => {
 		}
 	};
 
-	// Get background ID - use random if not set (memoized to prevent flickering)
+	// Memoized to prevent flickering on re-renders
 	const backgroundId = useMemo(() => {
 		if (pet?.background != null) {
 			return pet.background;
@@ -208,42 +218,35 @@ const PetPage = () => {
 	const bgUrl = backgroundId ? `/backgrounds/${backgroundId}.png` : '';
 	const bgLoaded = useImagesLoaded(useMemo(() => [bgUrl], [bgUrl]));
 
-	// Save background to database
 	const handleBackgroundSelect = (backgroundId: number | null) => {
 		const newBackground = backgroundId ?? Math.floor(Math.random() * 20) + 1;
 		updatePet({ background: newBackground });
 	};
 
-	// Generate action categories dynamically from configuration
-	const actionCategories = useMemo(
-		() => {
-			if (!pet) return [];
-			return Object.values(PetActionCategory).map((category) => ({
-				categoryName: category,
-				actions: PET_ACTIONS_BY_CATEGORY[category].map((action) => {
-					const needConfig = PET_NEEDS_CONFIG[action.needKey];
-					const currentNeedValue = pet.needs[action.needKey];
-					const newValue = action.value === 'increment' ? currentNeedValue + action.amount : action.value;
-					const inventoryCount = action.inventoryCost !== undefined ? user?.inventory?.[action.name] ?? 0 : Infinity;
-					const isNeedTooHigh = currentNeedValue > 60;
-					const isDisabled = inventoryCount === 0 || isNeedTooHigh;
-					return {
-						name: action.name,
-						sprite: getActionSprite(action.name),
-						inventoryCost: action.inventoryCost,
-						inventoryCount,
-						isDisabled,
-						onClick: () => updatePet(
-							{ needs: { [action.needKey]: newValue } },
-							needConfig.animation,
-							action.name
-						),
-					};
-				}),
-			}));
-		},
-		[pet?.needs, user?.inventory, updatePet],
-	);
+	const actionCategories = useMemo(() => {
+		if (!pet) return [];
+		return Object.values(PetActionCategory).map((category) => ({
+			categoryName: category,
+			actions: PET_ACTIONS_BY_CATEGORY[category].map((action) => {
+				const needConfig = PET_NEEDS_CONFIG[action.needKey];
+				const currentNeedValue = pet.needs[action.needKey];
+				const newValue = action.value === 'increment' ? currentNeedValue + action.amount : action.value;
+				const inventoryCount =
+					action.inventoryCost !== undefined ? (user?.inventory?.[action.name] ?? 0) : Infinity;
+				const isNeedTooHigh = currentNeedValue > PET_THRESHOLDS.HIGH;
+				const isDisabled = inventoryCount === 0 || isNeedTooHigh;
+				return {
+					name: action.name,
+					sprite: getActionSprite(action.name),
+					inventoryCost: action.inventoryCost,
+					inventoryCount,
+					isDisabled,
+					onClick: () =>
+						updatePet({ needs: { [action.needKey]: newValue } }, needConfig.animation, action.name),
+				};
+			}),
+		}));
+	}, [pet?.needs, user?.inventory, updatePet]);
 
 	const selectedActions = actionCategories.find((cat) => cat.categoryName === selectedCategory)?.actions || [];
 
@@ -253,7 +256,8 @@ const PetPage = () => {
 
 	return (
 		<>
-			<div className="h-full flex flex-col overflow-hidden"
+			<div
+				className="h-full flex flex-col overflow-hidden"
 				style={{
 					backgroundImage: `url(/backgrounds/${backgroundId}.png)`,
 					backgroundSize: 'cover',
@@ -286,7 +290,10 @@ const PetPage = () => {
 									<span className="font-semibold">{t('pets.level', { level: pet.level })}</span>
 									<span>•</span>
 									<span>
-										{t('pets.xp', { current: pet.experience - getExpForCurrentLevel(pet.level), next: getExpForNextLevel(pet.level) })}
+										{t('pets.xp', {
+											current: pet.experience - getExpForCurrentLevel(pet.level),
+											next: getExpForNextLevel(pet.level),
+										})}
 									</span>
 								</div>
 							</>
@@ -300,7 +307,15 @@ const PetPage = () => {
 					</div>
 
 					<div className="justify-self-end">
-						<Button style="aspect-square w-fit" variant="danger" size="sm" onClick={async () => { await deletePet(); router.back(); }}>
+						<Button
+							style="aspect-square w-fit"
+							variant="danger"
+							size="sm"
+							onClick={async () => {
+								await deletePet();
+								router.back();
+							}}
+						>
 							<Trash width={20} height={20} className="text-danger" />
 						</Button>
 					</div>
@@ -314,7 +329,9 @@ const PetPage = () => {
 							<div className="bg-white rounded-2xl p-4 shadow-md border border-secondary/20 flex flex-col items-center gap-2">
 								<Clock width={64} height={64} className="text-primary" />
 								<div className="text-2xl font-bold text-center text-foreground">
-									{canClaimExpedition ? t('pets.backFromExpedition', { name: pet.name }) : t('pets.onExpedition', { name: pet.name })}
+									{canClaimExpedition
+										? t('pets.backFromExpedition', { name: pet.name })
+										: t('pets.onExpedition', { name: pet.name })}
 								</div>
 								{canClaimExpedition ? (
 									<Button onClick={handleClaimExpedition} size="lg" style="px-8">
@@ -330,7 +347,10 @@ const PetPage = () => {
 						</div>
 					) : (
 						<>
-							<div className="relative inline-block max-w-[80vw] sm:max-w-md" style={{ minHeight: '44px' }}>
+							<div
+								className="relative inline-block max-w-[80vw] sm:max-w-md"
+								style={{ minHeight: '44px' }}
+							>
 								{!currentAnimation && (
 									<div className="relative bg-white border-2 border-primary rounded-xl px-4 py-2 text-xl break-words text-center">
 										{isEgg ? eggTimeLeft : getMessage()}
@@ -341,7 +361,12 @@ const PetPage = () => {
 							</div>
 
 							<div className="relative h-[200px] w-full flex items-end justify-center">
-								<PetSprite height={200} pet={pet} animation={currentAnimation} onAnimationEnd={clearAnimation} />
+								<PetSprite
+									height={200}
+									pet={pet}
+									animation={currentAnimation}
+									onAnimationEnd={clearAnimation}
+								/>
 							</div>
 						</>
 					)}
@@ -356,26 +381,36 @@ const PetPage = () => {
 								{actionsMenuOpen && (
 									<>
 										<button
-											onClick={() => { setBgSelectorOpen(true); setActionsMenuOpen(false); }}
+											onClick={() => {
+												setBgSelectorOpen(true);
+												setActionsMenuOpen(false);
+											}}
 											className={`${actionBarBtnClass} flex-2`}
 										>
 											<Image width={18} height={18} className="text-primary" />
-											<span className="text-sm font-semibold text-foreground">{t('pets.background')}</span>
+											<span className="text-sm font-semibold text-foreground">
+												{t('pets.background')}
+											</span>
 										</button>
 
 										<button
-											onClick={() => { setShowShareDropdown(true); setActionsMenuOpen(false); }}
+											onClick={() => {
+												setShowShareDropdown(true);
+												setActionsMenuOpen(false);
+											}}
 											className={`${actionBarBtnClass} flex-2`}
 										>
 											<UserPlus width={18} height={18} className="text-primary" />
-											<span className="text-sm font-semibold text-foreground">{t('pets.invite')}</span>
+											<span className="text-sm font-semibold text-foreground">
+												{t('pets.invite')}
+											</span>
 										</button>
 									</>
 								)}
 
 								<button
 									onClick={() => setActionsMenuOpen(!actionsMenuOpen)}
-									className={`${actionBarBtnClass} ml-auto ${actionsMenuOpen ? "flex-1" : ""}`}
+									className={`${actionBarBtnClass} ml-auto ${actionsMenuOpen ? 'flex-1' : ''}`}
 								>
 									{actionsMenuOpen ? (
 										<Close width={18} height={18} className="text-primary" />
@@ -392,7 +427,9 @@ const PetPage = () => {
 									className={`${actionBarBtnClass} w-full justify-center`}
 								>
 									<Zap width={18} height={18} className="text-primary" />
-									<span className="text-sm font-semibold text-foreground">{t('pets.expedition')}</span>
+									<span className="text-sm font-semibold text-foreground">
+										{t('pets.expedition')}
+									</span>
 								</button>
 							)}
 						</div>
@@ -400,10 +437,13 @@ const PetPage = () => {
 					<div className="flex justify-center px-4 flex-shrink-0 gap-4 border-b border-secondary/20">
 						{actionCategories.map((category) => {
 							const Icon =
-								category.categoryName === 'Feed' ? Edit :
-									category.categoryName === 'Drink' ? Coffee :
-										category.categoryName === 'Wash' ? Zap :
-											Bed;
+								category.categoryName === 'Feed'
+									? Edit
+									: category.categoryName === 'Drink'
+										? Coffee
+										: category.categoryName === 'Wash'
+											? Zap
+											: Bed;
 
 							const isSelected = selectedCategory === category.categoryName;
 							const iconColor = isSelected ? 'var(--primary)' : 'var(--secondary)';
@@ -411,19 +451,16 @@ const PetPage = () => {
 							return (
 								<button
 									key={category.categoryName}
-									className={`px-3 py-2 cursor-pointer transition-colors ${isSelected
-										? 'text-primary border-b-2 border-primary'
-										: 'text-secondary hover:text-foreground border-b-2 border-transparent'
-										}`}
+									className={`px-3 py-2 cursor-pointer transition-colors ${
+										isSelected
+											? 'text-primary border-b-2 border-primary'
+											: 'text-secondary hover:text-foreground border-b-2 border-transparent'
+									}`}
 									onClick={() => setSelectedCategory(category.categoryName)}
 									title={t(`pets.category.${category.categoryName}`)}
 									disabled={isEgg}
 								>
-									<Icon
-										width={28}
-										height={28}
-										style={{ color: iconColor }}
-									/>
+									<Icon width={28} height={28} style={{ color: iconColor }} />
 								</button>
 							);
 						})}
@@ -446,7 +483,9 @@ const PetPage = () => {
 											/>
 										</div>
 									)}
-									<div className="text-sm font-semibold text-center text-foreground w-full">{t(`action.${action.name}`)}</div>
+									<div className="text-sm font-semibold text-center text-foreground w-full">
+										{t(`action.${action.name}`)}
+									</div>
 									{action.inventoryCost !== undefined && (
 										<div className="text-xs text-muted-foreground">x{action.inventoryCount}</div>
 									)}
