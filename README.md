@@ -6,10 +6,10 @@ A small virtual-pet web app monorepo (Next.js client, NestJS server).
 
 | Path | Description |
 |------|-------------|
-| [apps/client](apps/client/README.md) | Next.js 16 frontend (React 19), port 3000 |
-| [apps/server](apps/server/README.md) | NestJS 11 backend, port 3001 |
-| [packages/types](packages/types/README.md) | Shared TypeScript types & constants (`@widgetable/types`) |
-| [packages/i18n](packages/i18n/README.md) | Shared translation system (`@widgetable/i18n`) |
+| [apps/client](apps/client) | Next.js 16 frontend (React 19), port 3000 |
+| [apps/server](apps/server) | NestJS 11 backend, port 3001 |
+| [packages/types](packages/types) | Shared TypeScript types & constants (`@widgetable/types`) |
+| [packages/i18n](packages/i18n) | Shared translation system (`@widgetable/i18n`) |
 
 ## Getting started
 
