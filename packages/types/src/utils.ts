@@ -1,4 +1,4 @@
-export const formatTime = (milliseconds: number): string => {
+export const formatTime = (milliseconds: number, length = 2): string => {
 	if (!isFinite(milliseconds) || isNaN(milliseconds) || milliseconds < 0) {
 		return '0m0s';
 	}
@@ -23,7 +23,7 @@ export const formatTime = (milliseconds: number): string => {
 			parts.push(`${amount}${u.label}`);
 			remaining -= amount * u.value;
 
-			if (parts.length === 2) break;
+			if (parts.length === length) break;
 		}
 	}
 

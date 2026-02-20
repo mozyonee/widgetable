@@ -2,9 +2,9 @@ import { Skeleton } from '@/components/ui/Skeleton';
 import { ICON_SIZES, PET_SPRITE_SIZES } from '@/config/constants';
 import PetSprite, { getPetIdleSprite } from '@/features/pets/components/PetSprite';
 import { setSelectedPet } from '@/features/pets/slices/petsSlice';
-import { useTranslation } from '@/i18n/useTranslation';
+import { useTranslation } from '@/i18n/hooks/useTranslation';
+import { useImagesLoaded } from '@/lib/hooks/useImagesLoaded';
 import { callError } from '@/lib/toast';
-import { useImagesLoaded } from '@/lib/useImagesLoaded';
 import { useAppDispatch, useAppSelector } from '@/store';
 import { Clock, Plus, Users } from '@nsmr/pixelart-react';
 import {
@@ -40,7 +40,7 @@ const useExpeditionReady = (returnTime?: Date) => {
 	return isReady;
 };
 
-const PetCard = ({ pet, userName }: { pet: any; userName?: string }) => {
+const PetCard = ({ pet, userName }: { pet: any; userName?: string; }) => {
 	const { t } = useTranslation();
 	const router = useRouter();
 	const dispatch = useAppDispatch();
@@ -75,23 +75,22 @@ const PetCard = ({ pet, userName }: { pet: any; userName?: string }) => {
 					<div className="text-center text-sm font-semibold text-success">{t('pets.ready')}</div>
 				</div>
 			)}
+			{pet.isEgg && (
+				<div className="w-full mt-2">
+					<EggTimer hatchTime={pet.hatchTime} createdAt={pet.createdAt} />
+				</div>
+			)}
 			<p
-				className={`text-2xl font-bold text-foreground text-center w-full truncate ${isExpeditionReady ? '' : 'mt-2'}`}
+				className={`text-2xl font-bold text-foreground text-center w-full truncate ${isExpeditionReady || pet.isEgg ? '' : 'mt-2'}`}
 			>
 				{pet.isEgg ? t('pets.egg') : pet.name}
 			</p>
-			{pet.isEgg ? (
-				<EggTimer hatchTime={pet.hatchTime} createdAt={pet.createdAt} />
-			) : (
-				<>
-					<div className="text-sm text-secondary font-semibold">{t('pets.level', { level: pet.level })}</div>
-					{!pet.isOnExpedition && parentNames.length > 0 && (
-						<div className="flex items-center justify-center gap-1 text-secondary text-xs">
-							<Users width={ICON_SIZES.XS} height={ICON_SIZES.XS} />
-							{parentNames.join(', ')}
-						</div>
-					)}
-				</>
+			<div className="text-sm text-secondary font-semibold">{t('pets.level', { level: pet.level })}</div>
+			{!pet.isEgg && !pet.isOnExpedition && parentNames.length > 0 && (
+				<div className="flex items-center justify-center gap-1 text-secondary text-xs">
+					<Users width={ICON_SIZES.XS} height={ICON_SIZES.XS} />
+					{parentNames.join(', ')}
+				</div>
 			)}
 		</div>
 	);
@@ -167,7 +166,7 @@ const PetsPage = () => {
 	);
 };
 
-const EggTimer = ({ hatchTime, createdAt }: { hatchTime?: Date; createdAt?: Date }) => {
+const EggTimer = ({ hatchTime, createdAt }: { hatchTime?: Date; createdAt?: Date; }) => {
 	const { t } = useTranslation();
 	const [timeLeft, setTimeLeft] = useState<string>('');
 	const [progress, setProgress] = useState<number>(0);
@@ -190,7 +189,7 @@ const EggTimer = ({ hatchTime, createdAt }: { hatchTime?: Date; createdAt?: Date
 				return;
 			}
 
-			setTimeLeft(formatTime(diff));
+			setTimeLeft(formatTime(diff, 1));
 
 			const elapsed = now - creationTimeMs;
 			const progressPercent = Math.min(100, Math.max(0, (elapsed / totalDuration) * 100));
@@ -226,7 +225,7 @@ const EggTimer = ({ hatchTime, createdAt }: { hatchTime?: Date; createdAt?: Date
 	);
 };
 
-const ExpeditionProgressTimer = ({ returnTime, petLevel }: { returnTime?: Date; petLevel: number }) => {
+const ExpeditionProgressTimer = ({ returnTime, petLevel }: { returnTime?: Date; petLevel: number; }) => {
 	const { t } = useTranslation();
 	const [timeLeft, setTimeLeft] = useState<string>('');
 	const [progress, setProgress] = useState<number>(0);
@@ -253,7 +252,7 @@ const ExpeditionProgressTimer = ({ returnTime, petLevel }: { returnTime?: Date; 
 				return;
 			}
 
-			setTimeLeft(formatTime(diff));
+			setTimeLeft(formatTime(diff, 1));
 
 			const elapsed = now - startTime;
 			const progressPercent = Math.min(100, Math.max(0, (elapsed / totalDuration) * 100));
@@ -270,9 +269,8 @@ const ExpeditionProgressTimer = ({ returnTime, petLevel }: { returnTime?: Date; 
 		<div className="flex items-center justify-center gap-2 w-full">
 			<div className="flex-1 bg-secondary/20 rounded-full h-1.5 overflow-hidden">
 				<div
-					className={`h-full rounded-full transition-all duration-1000 ease-linear ${
-						isReady ? 'bg-success' : 'bg-primary'
-					}`}
+					className={`h-full rounded-full transition-all duration-1000 ease-linear ${isReady ? 'bg-success' : 'bg-primary'
+						}`}
 					style={{ width: `${progress}%` }}
 				/>
 			</div>
@@ -305,9 +303,8 @@ const AddPetButton = ({
 	if (variant === 'centered') {
 		return (
 			<button
-				className={`bg-primary text-white font-bold rounded-lg py-3 px-6 transition-colors ${
-					disabled ? 'opacity-50 cursor-not-allowed' : 'hover:bg-opacity-90'
-				}`}
+				className={`bg-primary text-white font-bold rounded-lg py-3 px-6 transition-colors ${disabled ? 'opacity-50 cursor-not-allowed' : 'hover:bg-opacity-90'
+					}`}
 				onClick={onClick}
 				disabled={disabled}
 			>
@@ -318,9 +315,8 @@ const AddPetButton = ({
 
 	return (
 		<button
-			className={`bg-surface/50 border-2 border-dashed border-secondary/50 rounded-2xl p-2 flex flex-col items-center justify-center gap-2 transition-transform duration-300 ${
-				disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:scale-105 hover:bg-surface'
-			}`}
+			className={`bg-surface/50 border-2 border-dashed border-secondary/50 rounded-2xl p-2 flex flex-col items-center justify-center gap-2 transition-transform duration-300 ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:scale-105 hover:bg-surface'
+				}`}
 			onClick={onClick}
 			disabled={disabled}
 		>

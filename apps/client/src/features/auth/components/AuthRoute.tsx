@@ -1,6 +1,6 @@
 'use client';
 
-import { useAuth } from '@/store/hooks/useAuth';
+import { useAuth } from '@/features/auth/hooks/useAuth';
 import { usePathname, useRouter } from 'next/navigation';
 import { ReactNode, useEffect, useState } from 'react';
 
@@ -37,8 +37,9 @@ const AuthRoute = ({ children }: AuthRouteProps) => {
 	}, [authChecked, isAuthenticated, pathname, router]);
 
 	const isPublicRoute = PUBLIC_ROUTES.includes(pathname);
+	// /pwa is accessible regardless of auth state
 	const shouldShowContent =
-		authChecked && ((isAuthenticated && !isPublicRoute) || (!isAuthenticated && isPublicRoute));
+		authChecked && (pathname === '/pwa' || (isAuthenticated && !isPublicRoute) || (!isAuthenticated && isPublicRoute));
 
 	useEffect(() => {
 		if (shouldShowContent) {

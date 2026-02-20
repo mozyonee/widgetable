@@ -65,6 +65,10 @@ const RootLayout = ({ children }: Readonly<{ children: React.ReactNode }>) => {
 								0%, 100% { opacity: 1; }
 								50% { opacity: 0.5; }
 							}
+							@keyframes fadeIn {
+								from { opacity: 0; transform: scale(0.8); }
+								to { opacity: 1; transform: scale(1); }
+							}
 						`,
 					}}
 				/>

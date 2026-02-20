@@ -34,10 +34,7 @@ export class GiftsService extends BaseService {
 		const hasItem = await this.usersService.hasInventory(senderId, itemName, quantity);
 		if (!hasItem) throw new BadRequestException();
 
-		await this.withTransaction(async (session) => {
-			await this.usersService.consumeInventory(senderId, itemName, quantity, session);
-			await this.usersService.addInventory(recipientObjectId, itemName, quantity, session);
-		});
+		await this.usersService.consumeInventory(senderId, itemName, quantity);
 
 		const recipient = await this.userModel.findById(recipientId);
 		const lang = recipient?.language || DEFAULT_LANGUAGE;
