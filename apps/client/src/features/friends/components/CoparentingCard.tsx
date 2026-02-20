@@ -1,8 +1,8 @@
 'use client';
-import { ICON_SIZES } from '@/config/constants';
 import { Button } from '@/components/ui/Button';
+import { ICON_SIZES } from '@/config/constants';
 import PetSprite from '@/features/pets/components/PetSprite';
-import { useTranslation } from '@/i18n/useTranslation';
+import { useTranslation } from '@/i18n/hooks/useTranslation';
 import { Check, Clock, Close, Users } from '@nsmr/pixelart-react';
 import { Request, RequestDirection } from '@widgetable/types';
 

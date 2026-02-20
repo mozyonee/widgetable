@@ -1,10 +1,10 @@
+import { useRefreshUser } from '@/features/auth/hooks/useRefreshUser';
 import { addPet as addPetAction, setPets } from '@/features/pets/slices/petsSlice';
+import { useTranslation } from '@/i18n/hooks/useTranslation';
 import api, { isAbortError } from '@/lib/api';
-import { callError } from '@/lib/toast';
 import { usePolling } from '@/lib/hooks/usePolling';
-import { useTranslation } from '@/i18n/useTranslation';
+import { callError } from '@/lib/toast';
 import { useAppDispatch, useAppSelector } from '@/store';
-import { useRefreshUser } from '@/store/hooks/useRefreshUser';
 import { PET_UPDATE_INTERVAL } from '@widgetable/types';
 import { useCallback, useEffect } from 'react';
 

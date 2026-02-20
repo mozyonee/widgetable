@@ -2,7 +2,7 @@
 import { ICON_SIZES } from '@/config/constants';
 
 import { Button } from '@/components/ui/Button';
-import { useTranslation } from '@/i18n/useTranslation';
+import { useTranslation } from '@/i18n/hooks/useTranslation';
 import { Check, Clock } from '@nsmr/pixelart-react';
 import { ClaimTimer } from './ClaimTimer';
 

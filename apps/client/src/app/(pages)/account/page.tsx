@@ -2,17 +2,17 @@
 
 import { Button, InputTextHidden } from '@/components/ui/Button';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { useAuth } from '@/features/auth/hooks/useAuth';
+import { setUserData } from '@/features/auth/slices/userSlice';
 import { ClaimButton } from '@/features/claims/components/ClaimButton';
 import { RewardsModal } from '@/features/claims/components/RewardsModal';
 import { useClaims } from '@/features/claims/hooks/useClaims';
 import { usePushNotifications } from '@/features/notifications/hooks/usePushNotifications';
-import { useTranslation } from '@/i18n/useTranslation';
+import { useTranslation } from '@/i18n/hooks/useTranslation';
 import api from '@/lib/api';
+import { useImagesLoaded } from '@/lib/hooks/useImagesLoaded';
 import { callError, callSuccess } from '@/lib/toast';
-import { useImagesLoaded } from '@/lib/useImagesLoaded';
 import { useAppDispatch, useAppSelector } from '@/store';
-import { useAuth } from '@/store/hooks/useAuth';
-import { setUserData } from '@/store/slices/userSlice';
 import { Camera, Power, User } from '@nsmr/pixelart-react';
 import { LANGUAGES } from '@widgetable/types';
 import Image from 'next/image';
@@ -231,8 +231,8 @@ const Account = () => {
 									key={lang.code}
 									onClick={() => setLanguage(lang.code)}
 									className={`flex-1 py-3 px-4 rounded-xl font-semibold transition-colors border-2 ${language === lang.code
-											? 'border-primary bg-primary/10 text-primary'
-											: 'border-secondary/20 bg-background text-foreground hover:border-primary/50'
+										? 'border-primary bg-primary/10 text-primary'
+										: 'border-secondary/20 bg-background text-foreground hover:border-primary/50'
 										}`}
 								>
 									{lang.nativeLabel}

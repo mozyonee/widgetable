@@ -1,10 +1,10 @@
+import { useRefreshUser } from '@/features/auth/hooks/useRefreshUser';
 import { setClaimStatus as setClaimStatusAction } from '@/features/claims/slices/claimsSlice';
-import { useTranslation } from '@/i18n/useTranslation';
+import { useTranslation } from '@/i18n/hooks/useTranslation';
 import api, { isAbortError } from '@/lib/api';
-import { callError } from '@/lib/toast';
 import { usePolling } from '@/lib/hooks/usePolling';
+import { callError } from '@/lib/toast';
 import { useAppDispatch, useAppSelector } from '@/store';
-import { useRefreshUser } from '@/store/hooks/useRefreshUser';
 import { ClaimResult } from '@widgetable/types';
 import { useCallback, useEffect, useState } from 'react';
 

@@ -1,10 +1,10 @@
 'use client';
 import { Button } from '@/components/ui/Button';
-import { useTranslation } from '@/i18n/useTranslation';
+import { setAuthenticated, setToken, setUserData } from '@/features/auth/slices/userSlice';
+import { useTranslation } from '@/i18n/hooks/useTranslation';
 import api from '@/lib/api';
 import { callError } from '@/lib/toast';
 import { useAppDispatch } from '@/store';
-import { setAuthenticated, setToken, setUserData } from '@/store/slices/userSlice';
 import { Eye, EyeClosed } from '@nsmr/pixelart-react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';

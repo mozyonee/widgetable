@@ -2,7 +2,7 @@
 
 import { Button } from '@/components/ui/Button';
 import { TranslationProvider } from '@/i18n/TranslationProvider';
-import { useTranslation } from '@/i18n/useTranslation';
+import { useTranslation } from '@/i18n/hooks/useTranslation';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 

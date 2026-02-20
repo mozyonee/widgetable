@@ -1,14 +1,14 @@
 'use client';
 
-import { Skeleton } from '@/components/ui/Skeleton';
 import { Modal } from '@/components/ui/Modal';
+import { Skeleton } from '@/components/ui/Skeleton';
 import { getActionSprite } from '@/data/actionSprites';
-import { useTranslation } from '@/i18n/useTranslation';
+import { useRefreshUser } from '@/features/auth/hooks/useRefreshUser';
+import { useTranslation } from '@/i18n/hooks/useTranslation';
 import api from '@/lib/api';
+import { useImagesLoaded } from '@/lib/hooks/useImagesLoaded';
 import { callError, callSuccess } from '@/lib/toast';
-import { useImagesLoaded } from '@/lib/useImagesLoaded';
 import { useAppSelector } from '@/store';
-import { useRefreshUser } from '@/store/hooks/useRefreshUser';
 import { User, VALENTINE_GIFT_ITEM_NAMES } from '@widgetable/types';
 import Image from 'next/image';
 import { useState } from 'react';

@@ -1,12 +1,12 @@
+import { setApiStore } from '@/lib/api';
+import storage from '@/store/storage';
 import { combineReducers, configureStore } from '@reduxjs/toolkit';
 import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux';
 import { persistReducer, persistStore } from 'redux-persist';
-import storage from '@/store/storage';
-import { setApiStore } from '@/lib/api';
 
+import userReducer from '@/features/auth/slices/userSlice';
 import claimsReducer from '@/features/claims/slices/claimsSlice';
 import petsReducer from '@/features/pets/slices/petsSlice';
-import userReducer from '@/store/slices/userSlice';
 
 const persistConfig = {
 	key: 'root',

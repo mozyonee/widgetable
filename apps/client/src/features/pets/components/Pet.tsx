@@ -4,17 +4,17 @@ import { Button, InputTextHidden } from '@/components/ui/Button';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { HTTP_STATUS } from '@/config/constants';
 import { getActionSprite } from '@/data/actionSprites';
+import { setUserData } from '@/features/auth/slices/userSlice';
 import { RewardsModal } from '@/features/claims/components/RewardsModal';
 import { BackgroundSelector } from '@/features/pets/components/BackgroundSelector';
 import { InviteModal } from '@/features/pets/components/InviteModal';
 import PetSprite from '@/features/pets/components/PetSprite';
 import { setSelectedPet } from '@/features/pets/slices/petsSlice';
-import { useTranslation } from '@/i18n/useTranslation';
+import { useTranslation } from '@/i18n/hooks/useTranslation';
 import api from '@/lib/api';
+import { useImagesLoaded } from '@/lib/hooks/useImagesLoaded';
 import { callError, callSuccess } from '@/lib/toast';
-import { useImagesLoaded } from '@/lib/useImagesLoaded';
 import { useAppDispatch, useAppSelector } from '@/store';
-import { setUserData } from '@/store/slices/userSlice';
 import {
 	Bed,
 	Check,
@@ -270,231 +270,231 @@ const PetPage = () => {
 						{isEgg ? (
 							<h2 className="font-bold text-3xl text-foreground px-2">{t('pets.egg')}</h2>
 						) : (
-								<>
-									<InputTextHidden
-										id={`pet-name-${pet._id}`}
-										inputStyles="font-bold text-3xl text-foreground justify-self-center px-2 truncate"
-										placeholder={pet.name}
-										value={pet.name}
-										maxLength={16}
-										onChange={(e) => {
-											updatePet({ name: e.target.value });
-										}}
-									/>
-									<div className="flex items-center gap-2 text-lg text-secondary">
-										<span className="font-semibold">{t('pets.level', { level: pet.level })}</span>
-										<span>•</span>
-										<span>
-											{t('pets.xp', {
-												current: pet.experience - getExpForCurrentLevel(pet.level),
-												next: getExpForNextLevel(pet.level),
-											})}
-										</span>
-									</div>
-								</>
-							)}
-							{!isEgg && parentNames.length > 0 && (
-								<div className="flex items-center justify-center gap-1 text-secondary text-xs">
-									<Users width={12} height={12} />
-									{parentNames.join(', ')}
-								</div>
-							)}
-						</div>
-	
-						<div className="justify-self-end">
-							<Button
-								style="aspect-square w-fit"
-								variant="danger"
-								size="sm"
-								onClick={async () => {
-									await deletePet();
-									router.back();
-								}}
-							>
-								<Trash width={20} height={20} className="text-danger" />
-							</Button>
-						</div>
-					</div>
-	
-					{/* Content Area */}
-					<div className="flex-1 flex flex-col gap-5 items-center justify-center overflow-y-auto overflow-x-hidden py-8 px-4">
-						{pet.isOnExpedition ? (
-							/* Expedition Status Display */
-							<div className="flex flex-col items-center justify-center gap-4 py-8">
-								<div className="bg-surface rounded-2xl p-4 shadow-md border border-secondary/20 flex flex-col items-center gap-2">
-									<Clock width={64} height={64} className="text-primary" />
-									<div className="text-2xl font-bold text-center text-foreground">
-										{canClaimExpedition
-											? t('pets.backFromExpedition', { name: pet.name })
-											: t('pets.onExpedition', { name: pet.name })}
-									</div>
-									{canClaimExpedition ? (
-										<Button onClick={handleClaimExpedition} size="lg" style="px-8">
-											<Check width={20} height={20} className="inline mr-2" />
-											{t('pets.claimRewards')}
-										</Button>
-									) : (
-										<div className="text-xl text-secondary">
-											{t('pets.willReturn', { time: expeditionTimeLeft })}
-										</div>
-									)}
-								</div>
-							</div>
-						) : (
 							<>
-								<div
-									className="relative inline-block max-w-[80vw] sm:max-w-md"
-									style={{ minHeight: '44px' }}
-								>
-									{!currentAnimation && (
-										<div className="relative bg-surface border-2 border-primary rounded-xl px-4 py-2 text-xl break-words text-center">
-											{isEgg ? eggTimeLeft : getMessage()}
-											<div className="absolute left-1/2 -translate-x-1/2 -bottom-[12px] w-0 h-0 border-l-[12px] border-r-[12px] border-t-[12px] border-l-transparent border-r-transparent border-t-primary" />
-											<div className="absolute left-1/2 -translate-x-1/2 -bottom-[8px] w-0 h-0 border-l-[10px] border-r-[10px] border-t-[10px] border-l-transparent border-r-transparent border-t-surface" />
-										</div>
-									)}
-								</div>
-	
-								<div className="relative h-[200px] w-full flex items-end justify-center">
-									<PetSprite
-										height={200}
-										pet={pet}
-										animation={currentAnimation}
-										onAnimationEnd={clearAnimation}
-									/>
+								<InputTextHidden
+									id={`pet-name-${pet._id}`}
+									inputStyles="font-bold text-3xl text-foreground justify-self-center px-2 truncate"
+									placeholder={pet.name}
+									value={pet.name}
+									maxLength={16}
+									onChange={(e) => {
+										updatePet({ name: e.target.value });
+									}}
+								/>
+								<div className="flex items-center gap-2 text-lg text-secondary">
+									<span className="font-semibold">{t('pets.level', { level: pet.level })}</span>
+									<span>•</span>
+									<span>
+										{t('pets.xp', {
+											current: pet.experience - getExpForCurrentLevel(pet.level),
+											next: getExpForNextLevel(pet.level),
+										})}
+									</span>
 								</div>
 							</>
 						)}
-					</div>
-	
-					{/* Action Menu */}
-					<div className="relative bg-surface backdrop-blur-sm rounded-t-2xl shadow-md border-t border-secondary/20 h-[40dvh] flex flex-col flex-shrink-0">
-						{/* Quick Actions Bar */}
-						{!isEgg && (
-							<div className="absolute bottom-full right-0 left-0 flex flex-col items-end gap-2 px-4 pb-3 z-10">
-								<div className="flex items-center gap-2 w-full flex-wrap">
-									{actionsMenuOpen && (
-										<>
-											<button
-												onClick={() => {
-													setBgSelectorOpen(true);
-													setActionsMenuOpen(false);
-												}}
-												className={`${actionBarBtnClass} flex-2`}
-											>
-												<Image width={18} height={18} className="text-primary" />
-												<span className="text-sm font-semibold text-foreground">
-													{t('pets.background')}
-												</span>
-											</button>
-	
-											<button
-												onClick={() => {
-													setShowShareDropdown(true);
-													setActionsMenuOpen(false);
-												}}
-												className={`${actionBarBtnClass} flex-2`}
-											>
-												<UserPlus width={18} height={18} className="text-primary" />
-												<span className="text-sm font-semibold text-foreground">
-													{t('pets.invite')}
-												</span>
-											</button>
-										</>
-									)}
-	
-									<button
-										onClick={() => setActionsMenuOpen(!actionsMenuOpen)}
-										className={`${actionBarBtnClass} ml-auto ${actionsMenuOpen ? 'flex-1' : ''}`}
-									>
-										{actionsMenuOpen ? (
-											<Close width={18} height={18} className="text-primary" />
-										) : (
-											<Menu width={18} height={18} className="text-primary" />
-										)}
-									</button>
-								</div>
-	
-								{!pet.isOnExpedition && !hasUrgentNeeds && (
-									<button
-										onClick={handleStartExpedition}
-										disabled={!!currentAnimation}
-										className={`${actionBarBtnClass} w-full justify-center`}
-									>
-										<Zap width={18} height={18} className="text-primary" />
-										<span className="text-sm font-semibold text-foreground">
-											{t('pets.expedition')}
-										</span>
-									</button>
-								)}
+						{!isEgg && parentNames.length > 0 && (
+							<div className="flex items-center justify-center gap-1 text-secondary text-xs">
+								<Users width={12} height={12} />
+								{parentNames.join(', ')}
 							</div>
 						)}
-						<div className="flex justify-center px-4 flex-shrink-0 gap-4 border-b border-secondary/20">
-							{actionCategories.map((category) => {
-								const Icon =
-									category.categoryName === 'Feed'
-										? Edit
-										: category.categoryName === 'Drink'
-											? Coffee
-											: category.categoryName === 'Wash'
-												? Zap
-												: Bed;
-	
-								const isSelected = selectedCategory === category.categoryName;
-								const iconColor = isSelected ? 'var(--primary)' : 'var(--secondary)';
-	
-								return (
-									<button
-										key={category.categoryName}
-										className={`px-3 py-2 cursor-pointer transition-colors ${isSelected
-											? 'text-primary border-b-2 border-primary'
-											: 'text-secondary hover:text-foreground border-b-2 border-transparent'
-											}`}
-										onClick={() => setSelectedCategory(category.categoryName)}
-										title={t(`pets.category.${category.categoryName}`)}
-										disabled={isEgg}
-									>
-										<Icon width={28} height={28} style={{ color: iconColor }} />
-									</button>
-								);
-							})}
+					</div>
+
+					<div className="justify-self-end">
+						<Button
+							style="aspect-square w-fit"
+							variant="danger"
+							size="sm"
+							onClick={async () => {
+								await deletePet();
+								router.back();
+							}}
+						>
+							<Trash width={20} height={20} className="text-danger" />
+						</Button>
+					</div>
+				</div>
+
+				{/* Content Area */}
+				<div className="flex-1 flex flex-col gap-5 items-center justify-center overflow-y-auto overflow-x-hidden py-8 px-4">
+					{pet.isOnExpedition ? (
+						/* Expedition Status Display */
+						<div className="flex flex-col items-center justify-center gap-4 py-8">
+							<div className="bg-surface rounded-2xl p-4 shadow-md border border-secondary/20 flex flex-col items-center gap-2">
+								<Clock width={64} height={64} className="text-primary" />
+								<div className="text-2xl font-bold text-center text-foreground">
+									{canClaimExpedition
+										? t('pets.backFromExpedition', { name: pet.name })
+										: t('pets.onExpedition', { name: pet.name })}
+								</div>
+								{canClaimExpedition ? (
+									<Button onClick={handleClaimExpedition} size="lg" style="px-8">
+										<Check width={20} height={20} className="inline mr-2" />
+										{t('pets.claimRewards')}
+									</Button>
+								) : (
+									<div className="text-xl text-secondary">
+										{t('pets.willReturn', { time: expeditionTimeLeft })}
+									</div>
+								)}
+							</div>
 						</div>
-						<div className="overflow-y-auto p-4">
-							{!actionSpritesLoaded ? (
-								<div className="grid grid-cols-3 gap-2">
-									{Array.from({ length: 6 }).map((_, i) => (
-										<Skeleton key={i} className="aspect-square rounded-lg" />
-									))}
-								</div>
-							) : (
-								<div className="grid grid-cols-3 gap-2">
-									{selectedActions.map((action) => (
+					) : (
+						<>
+							<div
+								className="relative inline-block max-w-[80vw] sm:max-w-md"
+								style={{ minHeight: '44px' }}
+							>
+								{!currentAnimation && (
+									<div className="relative bg-surface border-2 border-primary rounded-xl px-4 py-2 text-xl break-words text-center">
+										{isEgg ? eggTimeLeft : getMessage()}
+										<div className="absolute left-1/2 -translate-x-1/2 -bottom-[12px] w-0 h-0 border-l-[12px] border-r-[12px] border-t-[12px] border-l-transparent border-r-transparent border-t-primary" />
+										<div className="absolute left-1/2 -translate-x-1/2 -bottom-[8px] w-0 h-0 border-l-[10px] border-r-[10px] border-t-[10px] border-l-transparent border-r-transparent border-t-surface" />
+									</div>
+								)}
+							</div>
+
+							<div className="relative h-[200px] w-full flex items-end justify-center">
+								<PetSprite
+									height={200}
+									pet={pet}
+									animation={currentAnimation}
+									onAnimationEnd={clearAnimation}
+								/>
+							</div>
+						</>
+					)}
+				</div>
+
+				{/* Action Menu */}
+				<div className="relative bg-surface backdrop-blur-sm rounded-t-2xl shadow-md border-t border-secondary/20 h-[40dvh] flex flex-col flex-shrink-0">
+					{/* Quick Actions Bar */}
+					{!isEgg && (
+						<div className="absolute bottom-full right-0 left-0 flex flex-col items-end gap-2 px-4 pb-3 z-10">
+							<div className="flex items-center gap-2 w-full flex-wrap">
+								{actionsMenuOpen && (
+									<>
 										<button
-											key={action.name}
-											onClick={action.onClick}
-											disabled={isEgg || pet.isOnExpedition || !!currentAnimation || action.isDisabled}
-											className={`flex flex-col items-center justify-center gap-1 p-2 rounded-lg border-2 bg-surface transition-colors ${getTierColor(action.inventoryCost)} ${isEgg || pet.isOnExpedition || currentAnimation || action.isDisabled ? 'opacity-30 cursor-not-allowed' : 'hover:bg-secondary/10 cursor-pointer'}`}
+											onClick={() => {
+												setBgSelectorOpen(true);
+												setActionsMenuOpen(false);
+											}}
+											className={`${actionBarBtnClass} flex-2`}
 										>
-											{action.sprite && (
-												<div className="relative w-16 h-16">
-													<img
-														src={action.sprite}
-														alt={action.name}
-														className="w-full h-full object-contain pixelated"
-														/>
-												</div>
-											)}
-											<div className="text-sm font-semibold text-center text-foreground w-full">
-												{t(`action.${action.name}`)}
-											</div>
-											{action.inventoryCost !== undefined && (
-												<div className="text-xs text-muted-foreground">x{action.inventoryCount}</div>
-											)}
+											<Image width={18} height={18} className="text-primary" />
+											<span className="text-sm font-semibold text-foreground">
+												{t('pets.background')}
+											</span>
 										</button>
-									))}
-								</div>
+
+										<button
+											onClick={() => {
+												setShowShareDropdown(true);
+												setActionsMenuOpen(false);
+											}}
+											className={`${actionBarBtnClass} flex-2`}
+										>
+											<UserPlus width={18} height={18} className="text-primary" />
+											<span className="text-sm font-semibold text-foreground">
+												{t('pets.invite')}
+											</span>
+										</button>
+									</>
+								)}
+
+								<button
+									onClick={() => setActionsMenuOpen(!actionsMenuOpen)}
+									className={`${actionBarBtnClass} ml-auto ${actionsMenuOpen ? 'flex-1' : ''}`}
+								>
+									{actionsMenuOpen ? (
+										<Close width={18} height={18} className="text-primary" />
+									) : (
+										<Menu width={18} height={18} className="text-primary" />
+									)}
+								</button>
+							</div>
+
+							{!pet.isOnExpedition && !hasUrgentNeeds && (
+								<button
+									onClick={handleStartExpedition}
+									disabled={!!currentAnimation}
+									className={`${actionBarBtnClass} w-full justify-center`}
+								>
+									<Zap width={18} height={18} className="text-primary" />
+									<span className="text-sm font-semibold text-foreground">
+										{t('pets.expedition')}
+									</span>
+								</button>
 							)}
 						</div>
+					)}
+					<div className="flex justify-center px-4 flex-shrink-0 gap-4 border-b border-secondary/20">
+						{actionCategories.map((category) => {
+							const Icon =
+								category.categoryName === 'Feed'
+									? Edit
+									: category.categoryName === 'Drink'
+										? Coffee
+										: category.categoryName === 'Wash'
+											? Zap
+											: Bed;
+
+							const isSelected = selectedCategory === category.categoryName;
+							const iconColor = isSelected ? 'var(--primary)' : 'var(--secondary)';
+
+							return (
+								<button
+									key={category.categoryName}
+									className={`px-3 py-2 cursor-pointer transition-colors ${isSelected
+										? 'text-primary border-b-2 border-primary'
+										: 'text-secondary hover:text-foreground border-b-2 border-transparent'
+										}`}
+									onClick={() => setSelectedCategory(category.categoryName)}
+									title={t(`pets.category.${category.categoryName}`)}
+									disabled={isEgg}
+								>
+									<Icon width={28} height={28} style={{ color: iconColor }} />
+								</button>
+							);
+						})}
+					</div>
+					<div className="overflow-y-auto p-4">
+						{!actionSpritesLoaded ? (
+							<div className="grid grid-cols-3 gap-2">
+								{Array.from({ length: 6 }).map((_, i) => (
+									<Skeleton key={i} className="aspect-square rounded-lg" />
+								))}
+							</div>
+						) : (
+							<div className="grid grid-cols-3 gap-2">
+								{selectedActions.map((action) => (
+									<button
+										key={action.name}
+										onClick={action.onClick}
+										disabled={isEgg || pet.isOnExpedition || !!currentAnimation || action.isDisabled}
+										className={`flex flex-col items-center justify-center gap-1 p-2 rounded-lg border-2 bg-surface transition-colors ${getTierColor(action.inventoryCost)} ${isEgg || pet.isOnExpedition || currentAnimation || action.isDisabled ? 'opacity-30 cursor-not-allowed' : 'hover:bg-secondary/10 cursor-pointer'}`}
+									>
+										{action.sprite && (
+											<div className="relative w-16 h-16">
+												<img
+													src={action.sprite}
+													alt={action.name}
+													className="w-full h-full object-contain pixelated"
+												/>
+											</div>
+										)}
+										<div className="text-sm font-semibold text-center text-foreground w-full">
+											{t(`action.${action.name}`)}
+										</div>
+										{action.inventoryCost !== undefined && (
+											<div className="text-xs text-muted-foreground">x{action.inventoryCount}</div>
+										)}
+									</button>
+								))}
+							</div>
+						)}
+					</div>
 				</div>
 			</div>
 

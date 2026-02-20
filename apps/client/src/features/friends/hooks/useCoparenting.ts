@@ -1,13 +1,13 @@
-import api from '@/lib/api';
-import { callError, callSuccess } from '@/lib/toast';
-import { usePolling } from '@/lib/hooks/usePolling';
-import { useTranslation } from '@/i18n/useTranslation';
-import { useAppDispatch, useAppSelector } from '@/store';
 import {
 	removeCoparentingRequestReceived,
 	removeCoparentingRequestSent,
 	setCoparentingRequests,
-} from '@/store/slices/userSlice';
+} from '@/features/auth/slices/userSlice';
+import { useTranslation } from '@/i18n/hooks/useTranslation';
+import api from '@/lib/api';
+import { usePolling } from '@/lib/hooks/usePolling';
+import { callError, callSuccess } from '@/lib/toast';
+import { useAppDispatch, useAppSelector } from '@/store';
 import { useCallback, useEffect } from 'react';
 
 export const useCoparenting = (userId: string) => {

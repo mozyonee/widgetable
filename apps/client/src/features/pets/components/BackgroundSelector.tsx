@@ -1,9 +1,9 @@
 'use client';
 
-import { Skeleton } from '@/components/ui/Skeleton';
 import { Modal } from '@/components/ui/Modal';
-import { useTranslation } from '@/i18n/useTranslation';
-import { useImagesLoaded } from '@/lib/useImagesLoaded';
+import { Skeleton } from '@/components/ui/Skeleton';
+import { useTranslation } from '@/i18n/hooks/useTranslation';
+import { useImagesLoaded } from '@/lib/hooks/useImagesLoaded';
 import { useEffect, useMemo, useState } from 'react';
 
 const BACKGROUNDS = Array.from({ length: 20 }, (_, i) => i + 1);
@@ -52,11 +52,10 @@ export const BackgroundSelector = ({ isOpen, onClose, onSelect, currentBackgroun
 				<div className="grid grid-cols-3 gap-3 mb-4">
 					<button
 						onClick={() => handleSelect(null)}
-						className={`relative aspect-[9/16] rounded-lg border-2 overflow-hidden transition-all ${
-							currentBackground === null
-								? 'border-primary ring-2 ring-primary/20'
-								: 'border-secondary/20 hover:border-primary/50'
-						}`}
+						className={`relative aspect-[9/16] rounded-lg border-2 overflow-hidden transition-all ${currentBackground === null
+							? 'border-primary ring-2 ring-primary/20'
+							: 'border-secondary/20 hover:border-primary/50'
+							}`}
 					>
 						<img
 							src={`/backgrounds/${randomPreview}.png`}
@@ -75,11 +74,10 @@ export const BackgroundSelector = ({ isOpen, onClose, onSelect, currentBackgroun
 						<button
 							key={bgId}
 							onClick={() => handleSelect(bgId)}
-							className={`relative aspect-[9/16] rounded-lg border-2 overflow-hidden transition-all ${
-								currentBackground === bgId
-									? 'border-primary ring-2 ring-primary/20'
-									: 'border-secondary/20 hover:border-primary/50'
-							}`}
+							className={`relative aspect-[9/16] rounded-lg border-2 overflow-hidden transition-all ${currentBackground === bgId
+								? 'border-primary ring-2 ring-primary/20'
+								: 'border-secondary/20 hover:border-primary/50'
+								}`}
 						>
 							<img
 								src={`/backgrounds/${bgId}.png`}

@@ -3,10 +3,10 @@
 import { Modal } from '@/components/ui/Modal';
 import { ICON_SIZES } from '@/config/constants';
 import { getActionSprite } from '@/data/actionSprites';
-import { useTranslation } from '@/i18n/useTranslation';
+import { useTranslation } from '@/i18n/hooks/useTranslation';
+import { Bed, Check, Coffee, Edit, Zap } from '@nsmr/pixelart-react';
 import { ClaimResult, EGG_ITEM_NAME, ItemReward, ItemTier } from '@widgetable/types';
 import Image from 'next/image';
-import { Bed, Edit, Coffee, Zap, Check } from '@nsmr/pixelart-react';
 
 interface RewardsModalProps {
 	rewards: ClaimResult;
@@ -28,7 +28,7 @@ const getTierColor = (tier: ItemTier): string => {
 	}
 };
 
-const ItemDisplay = ({ item, index }: { item: ItemReward; index: number }) => {
+const ItemDisplay = ({ item, index }: { item: ItemReward; index: number; }) => {
 	const { t } = useTranslation();
 	const spritePath = getActionSprite(item.name);
 

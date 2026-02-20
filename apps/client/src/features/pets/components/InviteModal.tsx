@@ -1,8 +1,8 @@
 'use client';
 
-import UserCard from '@/features/friends/components/UserCard';
-import { useTranslation } from '@/i18n/useTranslation';
 import { Modal } from '@/components/ui/Modal';
+import UserCard from '@/features/friends/components/UserCard';
+import { useTranslation } from '@/i18n/hooks/useTranslation';
 import { Clock } from '@nsmr/pixelart-react';
 import Link from 'next/link';
 
@@ -35,9 +35,8 @@ export const InviteModal = ({ isOpen, onClose, friends, onInvite }: InviteModalP
 							}
 						}}
 						disabled={friend.hasPendingRequest}
-						className={`w-full text-left transition ${
-							friend.hasPendingRequest ? 'cursor-not-allowed' : 'hover:bg-secondary/10'
-						}`}
+						className={`w-full text-left transition ${friend.hasPendingRequest ? 'cursor-not-allowed' : 'hover:bg-secondary/10'
+							}`}
 					>
 						<div className={friend.hasPendingRequest ? 'opacity-50' : ''}>
 							<UserCard

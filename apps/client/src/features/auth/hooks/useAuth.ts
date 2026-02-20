@@ -1,10 +1,10 @@
 'use client';
 
-import api from '@/lib/api';
-import { persistor, useAppDispatch, useAppSelector } from '@/store';
+import { logout, setAuthenticated, setUserData } from '@/features/auth/slices/userSlice';
 import { clearClaims } from '@/features/claims/slices/claimsSlice';
 import { clearPets } from '@/features/pets/slices/petsSlice';
-import { logout, setAuthenticated, setUserData } from '@/store/slices/userSlice';
+import api from '@/lib/api';
+import { persistor, useAppDispatch, useAppSelector } from '@/store';
 import { useRouter } from 'next/navigation';
 import { useCallback, useState } from 'react';
 

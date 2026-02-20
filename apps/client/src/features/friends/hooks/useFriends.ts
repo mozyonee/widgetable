@@ -1,8 +1,3 @@
-import api, { isAbortError } from '@/lib/api';
-import { callError, callSuccess } from '@/lib/toast';
-import { usePolling } from '@/lib/hooks/usePolling';
-import { useTranslation } from '@/i18n/useTranslation';
-import { useAppDispatch, useAppSelector } from '@/store';
 import {
 	addFriend,
 	addFriendRequestSent,
@@ -11,7 +6,12 @@ import {
 	removeFriendRequestSent,
 	setFriendRequests,
 	setFriends,
-} from '@/store/slices/userSlice';
+} from '@/features/auth/slices/userSlice';
+import { useTranslation } from '@/i18n/hooks/useTranslation';
+import api, { isAbortError } from '@/lib/api';
+import { usePolling } from '@/lib/hooks/usePolling';
+import { callError, callSuccess } from '@/lib/toast';
+import { useAppDispatch, useAppSelector } from '@/store';
 import { FriendshipStatus, User } from '@widgetable/types';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
@@ -160,11 +160,11 @@ export const useFriends = (userId: string) => {
 
 		return list.sort((a, b) => {
 			const order: Record<FriendshipStatus.RECEIVED | FriendshipStatus.SENT | FriendshipStatus.FRIENDS, number> =
-				{
-					[FriendshipStatus.RECEIVED]: 0,
-					[FriendshipStatus.SENT]: 1,
-					[FriendshipStatus.FRIENDS]: 2,
-				};
+			{
+				[FriendshipStatus.RECEIVED]: 0,
+				[FriendshipStatus.SENT]: 1,
+				[FriendshipStatus.FRIENDS]: 2,
+			};
 			return order[a.status] - order[b.status];
 		});
 	}, [friends, requests]);

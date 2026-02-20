@@ -1,8 +1,8 @@
 'use client';
 
+import { useTranslation } from '@/i18n/hooks/useTranslation';
 import api from '@/lib/api';
 import { callError } from '@/lib/toast';
-import { useTranslation } from '@/i18n/useTranslation';
 import { useAppSelector } from '@/store';
 import { useCallback, useEffect, useState } from 'react';
 

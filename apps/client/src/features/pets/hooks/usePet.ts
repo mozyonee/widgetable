@@ -1,20 +1,19 @@
-import { useTranslation } from '@/i18n/useTranslation';
 import { HTTP_STATUS } from '@/config/constants';
-import api from '@/lib/api';
-import { callError, callSuccess } from '@/lib/toast';
-import { usePolling } from '@/lib/hooks/usePolling';
-import { useAppDispatch, useAppSelector } from '@/store';
+import { useRefreshUser } from '@/features/auth/hooks/useRefreshUser';
+import { addCoparentingRequestSent } from '@/features/auth/slices/userSlice';
 import { setSelectedPet } from '@/features/pets/slices/petsSlice';
-import { addCoparentingRequestSent } from '@/store/slices/userSlice';
-import { useRefreshUser } from '@/store/hooks/useRefreshUser';
+import { useTranslation } from '@/i18n/hooks/useTranslation';
+import api from '@/lib/api';
+import { usePolling } from '@/lib/hooks/usePolling';
+import { callError, callSuccess } from '@/lib/toast';
+import { useAppDispatch, useAppSelector } from '@/store';
 import {
-	PetActionCategory,
-	PetAnimation,
-	User,
+	PET_ACTIONS_BY_CATEGORY,
 	PET_NEED_KEYS,
 	PET_THRESHOLDS,
-	PET_ACTIONS_BY_CATEGORY,
 	PET_UPDATE_INTERVAL,
+	PetActionCategory,
+	PetAnimation
 } from '@widgetable/types';
 import { useParams } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -22,7 +21,7 @@ import { getParentId, getParentNames, getPetMessage } from '../utils/functions';
 
 export const usePet = () => {
 	const { t } = useTranslation();
-	const { id } = useParams<{ id: string }>();
+	const { id } = useParams<{ id: string; }>();
 	const dispatch = useAppDispatch();
 	const pet = useAppSelector((state) => state.pets.selectedPet);
 	const user = useAppSelector((state) => state.user.userData);
@@ -55,7 +54,7 @@ export const usePet = () => {
 	usePolling(loadPet, PET_UPDATE_INTERVAL, !!petId);
 
 	const updatePet = useCallback(
-		async (payload: { name?: string; background?: number; action?: string }, animation?: PetAnimation) => {
+		async (payload: { name?: string; background?: number; action?: string; }, animation?: PetAnimation) => {
 			if (currentAnimation) {
 				callError(t('pets.isBusy', { name: pet?.name || '' }));
 				return;

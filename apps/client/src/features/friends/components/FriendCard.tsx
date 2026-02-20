@@ -1,7 +1,7 @@
 'use client';
-import { ICON_SIZES } from '@/config/constants';
 import { Button } from '@/components/ui/Button';
-import { useTranslation } from '@/i18n/useTranslation';
+import { ICON_SIZES } from '@/config/constants';
+import { useTranslation } from '@/i18n/hooks/useTranslation';
 import { Check, Clock, Close, UserMinus, UserPlus } from '@nsmr/pixelart-react';
 import { FriendshipStatus, User } from '@widgetable/types';
 import UserCard from './UserCard';

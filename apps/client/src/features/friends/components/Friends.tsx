@@ -1,7 +1,7 @@
 'use client';
 
 import { Skeleton } from '@/components/ui/Skeleton';
-import { useTranslation } from '@/i18n/useTranslation';
+import { useTranslation } from '@/i18n/hooks/useTranslation';
 import { useAppSelector } from '@/store';
 import { Search } from '@nsmr/pixelart-react';
 import { RequestDirection, User } from '@widgetable/types';
