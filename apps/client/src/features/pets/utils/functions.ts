@@ -23,9 +23,11 @@ function addUsernameToMessage(message: string, username: string | undefined, see
 		return message;
 	}
 
-	// Strip trailing punctuation so templates can control it
-	const cleaned = message.replace(/[.!,]+$/, '').toLowerCase();
-	return t(`pets.usernameVariation.${seed % 4}`, { username, message: cleaned });
+	const cleaned = message.replace(/[.!,]+$/, '');
+	const result = t(`pets.usernameVariation.${seed % 4}`, { username, message: cleaned });
+
+	// Capitalize after sentence boundaries (start, after . ! ?)
+	return result.replace(/(^|[.!?]\s+)(\S)/g, (_, prefix, char) => prefix + char.toUpperCase());
 }
 
 export function getPetMessage(pet: Pet, username: string | undefined, t: TFunction): string {
