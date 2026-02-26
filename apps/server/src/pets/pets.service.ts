@@ -22,7 +22,7 @@ import {
 	PetType,
 	PetUpdate,
 } from '@widgetable/types';
-import { locales } from '@widgetable/i18n';
+import { translate } from '@widgetable/i18n';
 import { clamp, random } from 'lodash';
 import { Connection, Model, Types } from 'mongoose';
 import { BaseService } from 'src/common/base.service';
@@ -65,8 +65,7 @@ export class PetsService extends BaseService {
 
 		const user = await this.usersService.findById(userId);
 		const lang = user?.language || DEFAULT_LANGUAGE;
-		const translationKey = `pets.type.${randomType}`;
-		const petName = locales[lang]?.[translationKey] || locales[DEFAULT_LANGUAGE]?.[translationKey] || randomType;
+		const petName = translate(lang, `pets.type.${randomType}`);
 
 		const existingPets = await this.petModel.countDocuments({ parents: { $in: [userId] }, isEgg: false });
 		const hatchDuration = HATCH_DURATIONS[Math.min(existingPets, HATCH_DURATIONS.length - 1)];

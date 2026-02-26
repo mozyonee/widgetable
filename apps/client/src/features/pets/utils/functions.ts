@@ -23,7 +23,9 @@ function addUsernameToMessage(message: string, username: string | undefined, see
 		return message;
 	}
 
-	return t(`pets.usernameVariation.${seed % 4}`, { username, message: message.toLowerCase() });
+	// Strip trailing punctuation so templates can control it
+	const cleaned = message.replace(/[.!,]+$/, '').toLowerCase();
+	return t(`pets.usernameVariation.${seed % 4}`, { username, message: cleaned });
 }
 
 export function getPetMessage(pet: Pet, username: string | undefined, t: TFunction): string {
@@ -40,7 +42,7 @@ export function getPetMessage(pet: Pet, username: string | undefined, t: TFuncti
 	return addUsernameToMessage(happyMessage, username, seed, t);
 }
 
-export function getParentId(parent: string | { _id: string }): string {
+export function getParentId(parent: string | { _id: string; }): string {
 	return typeof parent === 'string' ? parent : parent._id;
 }
 
