@@ -41,8 +41,7 @@ import { v4 as uuidv4 } from 'uuid';
 				const isRailway = uri?.includes('.railway.internal');
 				return {
 					uri,
-					family: isRailway ? 6 : 4,
-					directConnection: true,
+					...(isRailway && { family: 6, directConnection: true }),
 				};
 			},
 			inject: [ConfigService],
