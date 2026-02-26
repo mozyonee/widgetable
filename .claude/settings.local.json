@@ -120,7 +120,18 @@
       "Bash(bun run:*)",
       "Bash(/home/mozyonee/Projects/widgetable/packages/types/src/pet/actions.ts:*)",
       "Bash(/home/mozyonee/Projects/widgetable/packages/types/src/pet/constants.ts:*)",
-      "Bash(/home/mozyonee/Projects/widgetable/packages/types/src/pet/utils.ts:*)"
+      "Bash(/home/mozyonee/Projects/widgetable/packages/types/src/pet/utils.ts:*)",
+      "Bash(git -C /home/mozyonee/Projects/widgetable log --oneline -15)",
+      "Bash(git stash:*)",
+      "mcp__railway__list-services",
+      "Bash(railway link:*)",
+      "Bash(railway whoami:*)",
+      "Bash(railway:*)",
+      "mcp__railway__list-variables",
+      "mcp__railway__list-deployments",
+      "mcp__railway__get-logs",
+      "WebFetch(domain:railpack.com)",
+      "WebFetch(domain:raw.githubusercontent.com)"
     ],
     "deny": [],
     "ask": []

@@ -1,3 +1,4 @@
+import { join } from "path";
 import withPWA from "next-pwa";
 
 const remotePatterns: { protocol: "http" | "https"; hostname: string; port?: string; pathname: string }[] = [
@@ -18,6 +19,8 @@ if (process.env.NEXT_PUBLIC_SERVER_URL) {
 }
 
 const nextConfig = {
+	output: "standalone" as const,
+	outputFileTracingRoot: join(__dirname, "../../"),
 	reactStrictMode: true,
 	onDemandEntries: {
 		maxInactiveAge: 1000 * 60 * 60, // keep pages compiled for 1 hour
