@@ -6,16 +6,28 @@ on:
       - 'v*'
 
 jobs:
-  deploy:
+  deploy-client:
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v6
 
       - name: Install Railway CLI
         run: npm install -g @railway/cli
 
-      - name: Deploy
-        run: railway up --ci
+      - name: Deploy client
+        run: railway up --ci --service Client
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+
+  deploy-server:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Install Railway CLI
+        run: npm install -g @railway/cli
+
+      - name: Deploy server
+        run: railway up --ci --service Server
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
