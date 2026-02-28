@@ -12,6 +12,7 @@ import {
 	ClaimResult,
 	DEFAULT_LANGUAGE,
 	EXPEDITION_BASE_DURATION,
+	EXPEDITION_CONFIG,
 	EXPEDITION_LEVEL_MULTIPLIER,
 	HATCH_DURATIONS,
 	PET_NEED_KEYS,
@@ -268,12 +269,14 @@ export class PetsService extends BaseService {
 	}
 
 	private calculateExpeditionRewards(pet: PetDocument): ClaimResult {
-		const BASE_FOOD_ITEMS = 4;
-		const BASE_DRINK_ITEMS = 4;
-		const BASE_HYGIENE_ITEMS = 3;
-		const BASE_CARE_ITEMS = 3;
-		const MIN_EGG_CHANCE = 0.05;
-		const MAX_EGG_CHANCE = 0.18;
+		const {
+			BASE_FOOD_ITEMS,
+			BASE_DRINK_ITEMS,
+			BASE_HYGIENE_ITEMS,
+			BASE_CARE_ITEMS,
+			MIN_EGG_CHANCE,
+			MAX_EGG_CHANCE,
+		} = EXPEDITION_CONFIG;
 		// Exponential scaling caps at +100%
 		const levelMultiplier = 1 + Math.min(pet.level * 0.1, 1.0);
 
