@@ -20,7 +20,7 @@ const AuthRoute = ({ children }: AuthRouteProps) => {
 
 	useEffect(() => {
 		if (authCompleted) return;
-		checkAuth().then(() => {
+		void checkAuth().then(() => {
 			authCompleted = true;
 			setAuthChecked(true);
 		});
@@ -39,7 +39,8 @@ const AuthRoute = ({ children }: AuthRouteProps) => {
 	const isPublicRoute = PUBLIC_ROUTES.includes(pathname);
 	// /pwa is accessible regardless of auth state
 	const shouldShowContent =
-		authChecked && (pathname === '/pwa' || (isAuthenticated && !isPublicRoute) || (!isAuthenticated && isPublicRoute));
+		authChecked &&
+		(pathname === '/pwa' || (isAuthenticated && !isPublicRoute) || (!isAuthenticated && isPublicRoute));
 
 	useEffect(() => {
 		if (shouldShowContent) {

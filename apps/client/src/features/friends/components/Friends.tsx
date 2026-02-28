@@ -37,7 +37,7 @@ const Friends = () => {
 		accept: acceptCoparenting,
 		decline: declineCoparenting,
 		cancel: cancelCoparenting,
-	} = useCoparenting(user._id);
+	} = useCoparenting();
 
 	const [giftTarget, setGiftTarget] = useState<User | null>(null);
 
@@ -79,12 +79,12 @@ const Friends = () => {
 							<FriendCard
 								key={user._id}
 								user={user}
-								status={getStatus(user._id!)}
-								onAdd={addRequest}
-								onCancel={cancelRequest}
-								onAccept={acceptRequest}
-								onDecline={declineRequest}
-								onRemove={remove}
+								status={getStatus(user._id)}
+								onAdd={(id) => void addRequest(id)}
+								onCancel={(id) => void cancelRequest(id)}
+								onAccept={(id) => void acceptRequest(id)}
+								onDecline={(id) => void declineRequest(id)}
+								onRemove={(id) => void remove(id)}
 								variant="nested"
 							/>
 						))}
@@ -103,7 +103,9 @@ const Friends = () => {
 							key={req._id}
 							request={req}
 							type={RequestDirection.SENT}
-							onCancel={() => req._id && cancelCoparenting(req._id)}
+							onCancel={() => {
+								if (req._id) void cancelCoparenting(req._id);
+							}}
 						/>
 					))}
 
@@ -112,8 +114,12 @@ const Friends = () => {
 							key={req._id}
 							request={req}
 							type={RequestDirection.RECEIVED}
-							onAccept={() => req._id && acceptCoparenting(req._id)}
-							onDecline={() => req._id && declineCoparenting(req._id)}
+							onAccept={() => {
+								if (req._id) void acceptCoparenting(req._id);
+							}}
+							onDecline={() => {
+								if (req._id) void declineCoparenting(req._id);
+							}}
 						/>
 					))}
 				</div>
@@ -132,10 +138,18 @@ const Friends = () => {
 							key={friend.requestId || friend._id}
 							user={friend}
 							status={friend.status}
-							onCancel={() => friend.requestId && cancelRequest(friend.requestId)}
-							onAccept={() => friend.requestId && acceptRequest(friend.requestId)}
-							onDecline={() => friend.requestId && declineRequest(friend.requestId)}
-							onRemove={() => friend._id && remove(friend._id)}
+							onCancel={() => {
+								if (friend.requestId) void cancelRequest(friend.requestId);
+							}}
+							onAccept={() => {
+								if (friend.requestId) void acceptRequest(friend.requestId);
+							}}
+							onDecline={() => {
+								if (friend.requestId) void declineRequest(friend.requestId);
+							}}
+							onRemove={() => {
+								if (friend._id) void remove(friend._id);
+							}}
 							onGift={(user) => setGiftTarget(user)}
 						/>
 					))}

@@ -1,11 +1,11 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, UseGuards } from '@nestjs/common';
 import { RequestType } from '@widgetable/types';
 import { Types } from 'mongoose';
-import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
 import { GetUser } from 'src/common/decorators/get-user.decorator';
+import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
 import { ParseObjectIdPipe } from 'src/common/pipes/parse-objectid.pipe';
 import { RequestsService } from 'src/requests/requests.service';
-import { User, UserDocument } from 'src/users/entities/user.entity';
+import { UserDocument } from 'src/users/entities/user.entity';
 import { CoparentingService } from './coparenting.service';
 import { SendCoparentingRequestDto } from './dto/send-coparenting-request.dto';
 

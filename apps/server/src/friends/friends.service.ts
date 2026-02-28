@@ -59,7 +59,8 @@ export class FriendsService extends BaseService {
 		]);
 
 		if (!sender || !recipient) throw new NotFoundException();
-		if (sender.friends?.some((id) => id.toString() === recipientId.toString())) throw new BadRequestException();
+		if (sender.friends?.some((id: { toString(): string }) => id.toString() === recipientId.toString()))
+			throw new BadRequestException();
 
 		const [existingRequest, reverseRequest] = await Promise.all([
 			this.requestsService.findPendingRequest(RequestType.FRIEND_REQUEST, senderId, recipientId),
@@ -71,7 +72,7 @@ export class FriendsService extends BaseService {
 		const request = await this.requestsService.createRequest(RequestType.FRIEND_REQUEST, senderId, recipientId);
 
 		const lang = recipient.language || DEFAULT_LANGUAGE;
-		this.notificationsService.sendNotificationToUser(recipientId, {
+		await this.notificationsService.sendNotificationToUser(recipientId, {
 			title: nt(lang, 'friend.title'),
 			body: nt(lang, 'friend.body', { sender: sender.name }),
 			url: '/friends',

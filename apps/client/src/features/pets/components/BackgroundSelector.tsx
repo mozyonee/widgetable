@@ -52,10 +52,11 @@ export const BackgroundSelector = ({ isOpen, onClose, onSelect, currentBackgroun
 				<div className="grid grid-cols-3 gap-3 mb-4">
 					<button
 						onClick={() => handleSelect(null)}
-						className={`relative aspect-[9/16] rounded-lg border-2 overflow-hidden transition-all ${currentBackground === null
-							? 'border-primary ring-2 ring-primary/20'
-							: 'border-secondary/20 hover:border-primary/50'
-							}`}
+						className={`relative aspect-[9/16] rounded-lg border-2 overflow-hidden transition-all ${
+							currentBackground === null
+								? 'border-primary ring-2 ring-primary/20'
+								: 'border-secondary/20 hover:border-primary/50'
+						}`}
 					>
 						<img
 							src={`/backgrounds/${randomPreview}.png`}
@@ -74,10 +75,11 @@ export const BackgroundSelector = ({ isOpen, onClose, onSelect, currentBackgroun
 						<button
 							key={bgId}
 							onClick={() => handleSelect(bgId)}
-							className={`relative aspect-[9/16] rounded-lg border-2 overflow-hidden transition-all ${currentBackground === bgId
-								? 'border-primary ring-2 ring-primary/20'
-								: 'border-secondary/20 hover:border-primary/50'
-								}`}
+							className={`relative aspect-[9/16] rounded-lg border-2 overflow-hidden transition-all ${
+								currentBackground === bgId
+									? 'border-primary ring-2 ring-primary/20'
+									: 'border-secondary/20 hover:border-primary/50'
+							}`}
 						>
 							<img
 								src={`/backgrounds/${bgId}.png`}

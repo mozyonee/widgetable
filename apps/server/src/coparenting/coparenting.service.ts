@@ -1,12 +1,12 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
-import { InjectModel, InjectConnection } from '@nestjs/mongoose';
+import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import { DEFAULT_LANGUAGE, RequestStatus, RequestType } from '@widgetable/types';
-import { Model, Types, Connection } from 'mongoose';
+import { Connection, Model, Types } from 'mongoose';
+import { BaseService } from 'src/common/base.service';
 import { NotificationsService, nt } from 'src/notifications/notifications.service';
 import { Pet, PetDocument } from 'src/pets/entities/pet.entity';
 import { RequestsService } from 'src/requests/requests.service';
 import { User, UserDocument } from 'src/users/entities/user.entity';
-import { BaseService } from 'src/common/base.service';
 
 @Injectable()
 export class CoparentingService extends BaseService {
@@ -32,7 +32,8 @@ export class CoparentingService extends BaseService {
 		if (!sender || !recipient || !pet) throw new NotFoundException();
 		if (!pet.parents.some((parentId) => parentId.toString() === senderId.toString()))
 			throw new BadRequestException();
-		if (!sender.friends?.some((id) => id.toString() === recipientId.toString())) throw new BadRequestException();
+		if (!sender.friends?.some((id: { toString(): string }) => id.toString() === recipientId.toString()))
+			throw new BadRequestException();
 		if (pet.parents.some((parentId) => parentId.toString() === recipientId.toString()))
 			throw new BadRequestException();
 
@@ -54,7 +55,7 @@ export class CoparentingService extends BaseService {
 		);
 
 		const lang = recipient.language || DEFAULT_LANGUAGE;
-		this.notificationsService.sendNotificationToUser(recipientId, {
+		await this.notificationsService.sendNotificationToUser(recipientId, {
 			title: nt(lang, 'coparenting.title'),
 			body: nt(lang, 'coparenting.body', { sender: sender.name, pet: pet.name }),
 			url: '/friends',

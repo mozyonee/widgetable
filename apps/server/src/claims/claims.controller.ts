@@ -1,7 +1,7 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
-import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
+import { Controller, Get, Post, UseGuards } from '@nestjs/common';
 import { GetUser } from 'src/common/decorators/get-user.decorator';
-import { User, UserDocument } from 'src/users/entities/user.entity';
+import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
+import { UserDocument } from 'src/users/entities/user.entity';
 import { ClaimsService } from './claims.service';
 
 @Controller('claims')

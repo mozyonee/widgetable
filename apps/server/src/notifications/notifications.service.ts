@@ -97,7 +97,10 @@ export class NotificationsService {
 		let sent = 0;
 		for (const sub of subscriptions) {
 			try {
-				await webpush.sendNotification({ endpoint: sub.endpoint, keys: sub.keys as any }, payload);
+				await webpush.sendNotification(
+					{ endpoint: sub.endpoint, keys: sub.keys as webpush.PushSubscription['keys'] },
+					payload,
+				);
 				sent++;
 			} catch (error) {
 				const err = error as { statusCode?: number; message?: string };
@@ -129,7 +132,10 @@ export class NotificationsService {
 
 		for (const sub of subscriptions) {
 			try {
-				await webpush.sendNotification({ endpoint: sub.endpoint, keys: sub.keys as any }, data);
+				await webpush.sendNotification(
+					{ endpoint: sub.endpoint, keys: sub.keys as webpush.PushSubscription['keys'] },
+					data,
+				);
 			} catch (error) {
 				const err = error as { statusCode?: number };
 				if (
@@ -139,7 +145,9 @@ export class NotificationsService {
 					await this.subscriptionModel.deleteOne({ _id: sub._id });
 					this.logger.debug(`Removed expired subscription: ${sub.endpoint}`);
 				} else {
-					this.logger.error(`Failed to send notification: ${error.message}`);
+					this.logger.error(
+						`Failed to send notification: ${(error as { message?: string }).message ?? 'Unknown error'}`,
+					);
 				}
 			}
 		}
@@ -273,7 +281,7 @@ export class NotificationsService {
 		for (const [userId, petNames] of usersToNotify) {
 			const lang = userLangs.get(userId) || DEFAULT_LANGUAGE;
 			const one = petNames.length === 1;
-			this.sendNotificationToUser(new Types.ObjectId(userId), {
+			await this.sendNotificationToUser(new Types.ObjectId(userId), {
 				title: nt(lang, 'expedition.title'),
 				body: nt(lang, one ? 'expedition.body.one' : 'expedition.body.many', {
 					name: petNames[0],
@@ -315,7 +323,7 @@ export class NotificationsService {
 		for (const [userId, petNames] of usersToNotify) {
 			const lang = userLangs.get(userId) || DEFAULT_LANGUAGE;
 			const one = petNames.length === 1;
-			this.sendNotificationToUser(new Types.ObjectId(userId), {
+			await this.sendNotificationToUser(new Types.ObjectId(userId), {
 				title: nt(lang, 'egg.title'),
 				body: nt(lang, one ? 'egg.body.one' : 'egg.body.many', { name: petNames[0], count: petNames.length }),
 			});
@@ -361,7 +369,7 @@ export class NotificationsService {
 			const lang = user.language || DEFAULT_LANGUAGE;
 			const bodyKey = dailyReady && quickReady ? 'claims.both' : dailyReady ? 'claims.daily' : 'claims.quick';
 
-			this.sendNotificationToUser(user._id, {
+			await this.sendNotificationToUser(user._id, {
 				title: nt(lang, 'claims.title'),
 				body: nt(lang, bodyKey),
 			});

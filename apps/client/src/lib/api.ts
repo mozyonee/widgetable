@@ -21,8 +21,8 @@ const getToken = (): string | null => {
 	try {
 		const persisted = localStorage.getItem('persist:root');
 		if (!persisted) return null;
-		const root = JSON.parse(persisted);
-		const user = JSON.parse(root.user);
+		const root = JSON.parse(persisted) as { user: string };
+		const user = JSON.parse(root.user) as { token?: string };
 		return user.token || null;
 	} catch {
 		return null;
@@ -49,13 +49,13 @@ api.interceptors.response.use(
 		});
 		return response;
 	},
-	(error) => {
-		if (error.config?.signal) {
+	(error: unknown) => {
+		if (axios.isAxiosError(error) && error.config?.signal) {
 			pendingRequests.forEach((controller) => {
-				if (controller.signal === error.config.signal) pendingRequests.delete(controller);
+				if (controller.signal === error.config!.signal) pendingRequests.delete(controller);
 			});
 		}
-		return Promise.reject(error);
+		return Promise.reject(error instanceof Error ? error : new Error(String(error)));
 	},
 );
 
@@ -64,8 +64,10 @@ export const abortPendingRequests = () => {
 	pendingRequests.clear();
 };
 
-export const isAbortError = (error: any): boolean => {
-	return axios.isCancel(error) || error?.name === 'AbortError' || error?.code === 'ERR_CANCELED';
+export const isAbortError = (error: unknown): boolean => {
+	if (axios.isCancel(error)) return true;
+	const e = error as { name?: string; code?: string } | null;
+	return e?.name === 'AbortError' || e?.code === 'ERR_CANCELED';
 };
 
 export default api;

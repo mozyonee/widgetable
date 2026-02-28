@@ -28,7 +28,7 @@ export const GiftModal = ({ isOpen, onClose, friend }: GiftModalProps) => {
 	const inventory = user?.inventory || {};
 	const giftableItems = VALENTINE_GIFT_ITEM_NAMES.filter((name) => (inventory[name] ?? 0) > 0).map((name) => ({
 		name,
-		count: inventory[name]!,
+		count: inventory[name],
 		sprite: getActionSprite(name),
 	}));
 
@@ -75,7 +75,7 @@ export const GiftModal = ({ isOpen, onClose, friend }: GiftModalProps) => {
 						{giftableItems.map((item) => (
 							<button
 								key={item.name}
-								onClick={() => handleSend(item.name)}
+								onClick={() => void handleSend(item.name)}
 								disabled={sending}
 								className="flex flex-col items-center gap-1 p-2 rounded-lg border-2 border-primary/30 bg-surface hover:bg-primary/5 transition-colors disabled:opacity-50"
 							>

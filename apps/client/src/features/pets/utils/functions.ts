@@ -41,12 +41,16 @@ export function getPetMessage(pet: Pet, username: string | undefined, t: TFuncti
 	return addUsernameToMessage(happyMessage, username, seed, t);
 }
 
-export function getParentId(parent: string | { _id: string; }): string {
+export function getParentId(parent: string | { _id: string }): string {
 	return typeof parent === 'string' ? parent : parent._id;
 }
 
 export function getParentNames(pet: Pet, currentUserName?: string): string[] {
-	return pet.parents
-		.filter((parent: any) => typeof parent === 'object' && parent.name && parent.name !== currentUserName)
-		.map((parent: any) => parent.name);
+	type PopulatedParent = { name: string };
+	return (pet.parents as Array<string | PopulatedParent>)
+		.filter(
+			(parent): parent is PopulatedParent =>
+				typeof parent === 'object' && 'name' in parent && parent.name !== currentUserName,
+		)
+		.map((parent) => parent.name);
 }

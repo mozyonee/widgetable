@@ -131,7 +131,10 @@
       "mcp__railway__list-deployments",
       "mcp__railway__get-logs",
       "WebFetch(domain:railpack.com)",
-      "WebFetch(domain:raw.githubusercontent.com)"
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "mcp__claude_ai_Context7__resolve-library-id",
+      "mcp__claude_ai_Context7__query-docs",
+      "Bash(npm show:*)"
     ],
     "deny": [],
     "ask": []

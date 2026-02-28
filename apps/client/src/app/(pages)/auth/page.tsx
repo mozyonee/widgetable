@@ -1,6 +1,7 @@
 'use client';
 import { Button } from '@/components/ui/Button';
 import { setAuthenticated, setToken, setUserData } from '@/features/auth/slices/userSlice';
+import { User } from '@widgetable/types';
 import { useTranslation } from '@/i18n/hooks/useTranslation';
 import api from '@/lib/api';
 import { callError } from '@/lib/toast';
@@ -26,7 +27,7 @@ export default function AuthPage() {
 		const endpoint = isLogin ? '/auth/login' : '/auth/register';
 
 		try {
-			const response = await api.post(endpoint, data);
+			const response = await api.post<{ user: User; token: string }>(endpoint, data);
 			const { user, token } = response.data;
 
 			dispatch(setToken(token));
@@ -34,7 +35,7 @@ export default function AuthPage() {
 			dispatch(setAuthenticated(true));
 
 			router.push('/');
-		} catch (error) {
+		} catch {
 			callError(t('auth.failedAuth'));
 		}
 	};
@@ -45,7 +46,7 @@ export default function AuthPage() {
 				<h2 className="text-center text-3xl font-bold text-foreground mb-6">
 					{isLogin ? t('auth.welcomeBack') : t('auth.createAccount')}
 				</h2>
-				<form onSubmit={handleSubmit} className="flex flex-col gap-4">
+				<form onSubmit={(e) => void handleSubmit(e)} className="flex flex-col gap-4">
 					<input
 						required
 						type="email"

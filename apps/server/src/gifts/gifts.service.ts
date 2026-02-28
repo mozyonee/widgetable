@@ -26,7 +26,7 @@ export class GiftsService extends BaseService {
 		const sender = await this.userModel.findById(senderId);
 		if (!sender) throw new NotFoundException();
 
-		const isFriend = sender.friends?.some((id) => id.toString() === recipientId);
+		const isFriend = sender.friends?.some((id: { toString(): string }) => id.toString() === recipientId);
 		if (!isFriend) throw new BadRequestException();
 
 		const recipientObjectId = new Types.ObjectId(recipientId);
@@ -39,7 +39,7 @@ export class GiftsService extends BaseService {
 		const recipient = await this.userModel.findById(recipientId);
 		const lang = recipient?.language || DEFAULT_LANGUAGE;
 
-		this.notificationsService.sendNotificationToUser(recipientObjectId, {
+		await this.notificationsService.sendNotificationToUser(recipientObjectId, {
 			title: nt(lang, 'gift.title'),
 			body: nt(lang, 'gift.body', { sender: sender.name }),
 			url: '/friends',

@@ -4,6 +4,6 @@ import { Transform } from 'class-transformer';
 export class SearchUsersDto {
 	@IsString()
 	@IsNotEmpty()
-	@Transform(({ value }) => value?.trim())
+	@Transform(({ value }: { value: string }) => value?.trim())
 	query: string;
 }

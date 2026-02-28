@@ -12,6 +12,7 @@ import {
 	EXPEDITION_BASE_DURATION,
 	EXPEDITION_LEVEL_MULTIPLIER,
 	formatTime,
+	Pet,
 	VALENTINE_GIFT_ITEM_NAMES,
 } from '@widgetable/types';
 import { useRouter } from 'next/navigation';
@@ -40,7 +41,7 @@ const useExpeditionReady = (returnTime?: Date) => {
 	return isReady;
 };
 
-const PetCard = ({ pet, userName }: { pet: any; userName?: string; }) => {
+const PetCard = ({ pet, userName }: { pet: Pet; userName?: string }) => {
 	const { t } = useTranslation();
 	const router = useRouter();
 	const dispatch = useAppDispatch();
@@ -117,7 +118,7 @@ const PetsPage = () => {
 			callError(t('pets.needEggs'));
 			return;
 		}
-		addPet();
+		void addPet();
 	};
 
 	return (
@@ -166,7 +167,7 @@ const PetsPage = () => {
 	);
 };
 
-const EggTimer = ({ hatchTime, createdAt }: { hatchTime?: Date; createdAt?: Date; }) => {
+const EggTimer = ({ hatchTime, createdAt }: { hatchTime?: Date; createdAt?: Date }) => {
 	const { t } = useTranslation();
 	const [timeLeft, setTimeLeft] = useState<string>('');
 	const [progress, setProgress] = useState<number>(0);
@@ -178,7 +179,6 @@ const EggTimer = ({ hatchTime, createdAt }: { hatchTime?: Date; createdAt?: Date
 		const hatchTimeMs = new Date(hatchTime).getTime();
 		const creationTimeMs = new Date(createdAt).getTime();
 		const totalDuration = hatchTimeMs - creationTimeMs;
-
 
 		const updateTimer = () => {
 			const now = Date.now();
@@ -225,7 +225,7 @@ const EggTimer = ({ hatchTime, createdAt }: { hatchTime?: Date; createdAt?: Date
 	);
 };
 
-const ExpeditionProgressTimer = ({ returnTime, petLevel }: { returnTime?: Date; petLevel: number; }) => {
+const ExpeditionProgressTimer = ({ returnTime, petLevel }: { returnTime?: Date; petLevel: number }) => {
 	const { t } = useTranslation();
 	const [timeLeft, setTimeLeft] = useState<string>('');
 	const [progress, setProgress] = useState<number>(0);
@@ -239,7 +239,6 @@ const ExpeditionProgressTimer = ({ returnTime, petLevel }: { returnTime?: Date; 
 		const levelMultiplier = 1 + petLevel * EXPEDITION_LEVEL_MULTIPLIER;
 		const totalDuration = baseDuration * levelMultiplier;
 		const startTime = returnTimeMs - totalDuration;
-
 
 		const updateTimer = () => {
 			const now = Date.now();
@@ -269,8 +268,9 @@ const ExpeditionProgressTimer = ({ returnTime, petLevel }: { returnTime?: Date; 
 		<div className="flex items-center justify-center gap-2 w-full">
 			<div className="flex-1 bg-secondary/20 rounded-full h-1.5 overflow-hidden">
 				<div
-					className={`h-full rounded-full transition-all duration-1000 ease-linear ${isReady ? 'bg-success' : 'bg-primary'
-						}`}
+					className={`h-full rounded-full transition-all duration-1000 ease-linear ${
+						isReady ? 'bg-success' : 'bg-primary'
+					}`}
 					style={{ width: `${progress}%` }}
 				/>
 			</div>
@@ -303,8 +303,9 @@ const AddPetButton = ({
 	if (variant === 'centered') {
 		return (
 			<button
-				className={`bg-primary text-white font-bold rounded-lg py-3 px-6 transition-colors ${disabled ? 'opacity-50 cursor-not-allowed' : 'hover:bg-opacity-90'
-					}`}
+				className={`bg-primary text-white font-bold rounded-lg py-3 px-6 transition-colors ${
+					disabled ? 'opacity-50 cursor-not-allowed' : 'hover:bg-opacity-90'
+				}`}
 				onClick={onClick}
 				disabled={disabled}
 			>
@@ -315,8 +316,9 @@ const AddPetButton = ({
 
 	return (
 		<button
-			className={`bg-surface/50 border-2 border-dashed border-secondary/50 rounded-2xl p-2 flex flex-col items-center justify-center gap-2 transition-transform duration-300 ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:scale-105 hover:bg-surface'
-				}`}
+			className={`bg-surface/50 border-2 border-dashed border-secondary/50 rounded-2xl p-2 flex flex-col items-center justify-center gap-2 transition-transform duration-300 ${
+				disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:scale-105 hover:bg-surface'
+			}`}
 			onClick={onClick}
 			disabled={disabled}
 		>

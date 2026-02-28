@@ -1,11 +1,11 @@
-import { getPetScale } from '@/data/petScales';
 import { PET_SPRITE_SIZES } from '@/config/constants';
+import { getPetScale } from '@/data/petScales';
 import {
 	ANIMATION_DURATIONS,
 	Pet,
-	PetAnimation,
 	PET_SPRITE_DATA,
 	PET_THRESHOLDS,
+	PetAnimation,
 	SpriteConfig,
 } from '@widgetable/types';
 import Image from 'next/image';
@@ -71,7 +71,8 @@ export const getPetIdleSprite = (pet: Pet, forceShow?: boolean): SpriteConfig =>
 		else if (pet.needs.energy < PET_THRESHOLDS.URGENT) idleState = 'sleepy';
 	}
 
-	const idleSprite = (petSprites as any)[idleState];
+	const idleSprite = petSprites[idleState];
+	if (!idleSprite) return { sprite: '' };
 
 	// Use pet ID as seed for stable selection (won't change on every render)
 	const seed = pet._id ? hashPetId(pet._id) : 0;
@@ -103,7 +104,7 @@ const PetSprite = ({
 		const petSprites = PET_SPRITE_DATA[pet.type];
 		if (typeof petSprites === 'string') return;
 
-		const animationData = (petSprites as any)[animation];
+		const animationData = petSprites[animation];
 
 		if (animationData) {
 			// Randomly select from array each time animation triggers (no seed for variety)
@@ -134,7 +135,7 @@ const PetSprite = ({
 	}
 
 	const petType = pet.isEgg ? 'egg' : pet.type;
-	const scale = getPetScale(petType as any);
+	const scale = getPetScale(petType);
 
 	if (currentSpriteConfig.fps) {
 		return (

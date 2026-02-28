@@ -15,7 +15,6 @@ export class PushSubscription {
 		p256dh: string;
 		auth: string;
 	};
-
 }
 
 export const PushSubscriptionSchema = SchemaFactory.createForClass(PushSubscription);

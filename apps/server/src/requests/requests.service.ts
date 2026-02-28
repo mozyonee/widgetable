@@ -93,8 +93,8 @@ export class RequestsService {
 
 		const userIdMatches =
 			role === 'sender'
-				? request.senderId.toString() === userId.toString()
-				: request.recipientId.toString() === userId.toString();
+				? (request.senderId as { toString(): string }).toString() === userId.toString()
+				: (request.recipientId as { toString(): string }).toString() === userId.toString();
 
 		if (!userIdMatches || request.type !== type || request.status !== RequestStatus.PENDING) {
 			throw new BadRequestException();

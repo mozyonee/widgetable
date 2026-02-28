@@ -5,6 +5,6 @@ export class UpdateNameDto {
 	@IsString()
 	@IsNotEmpty()
 	@MaxLength(50)
-	@Transform(({ value }) => value?.trim())
+	@Transform(({ value }: { value: string }) => value?.trim())
 	name: string;
 }

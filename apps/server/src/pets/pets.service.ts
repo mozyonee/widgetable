@@ -167,7 +167,11 @@ export class PetsService extends BaseService {
 		);
 
 		const updatedPet = await this.petModel
-			.findByIdAndUpdate(pet._id, { needs: updatedNeeds, ...(anyNeedRestored && { urgentNotifiedAt: null }) }, { new: true })
+			.findByIdAndUpdate(
+				pet._id,
+				{ needs: updatedNeeds, ...(anyNeedRestored && { urgentNotifiedAt: null }) },
+				{ new: true },
+			)
 			.populate('parents', this.PARENT_FIELDS);
 
 		return updatedPet || pet;

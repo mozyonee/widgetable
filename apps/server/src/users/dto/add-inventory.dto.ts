@@ -4,7 +4,7 @@ import { Transform } from 'class-transformer';
 export class AddInventoryDto {
 	@IsString()
 	@IsNotEmpty()
-	@Transform(({ value }) => value?.trim())
+	@Transform(({ value }: { value: string }) => value?.trim())
 	actionName: string;
 
 	@IsNumber()

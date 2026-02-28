@@ -13,8 +13,8 @@ import api from '@/lib/api';
 import { useImagesLoaded } from '@/lib/hooks/useImagesLoaded';
 import { callError, callSuccess } from '@/lib/toast';
 import { useAppDispatch, useAppSelector } from '@/store';
-import { Camera, Power, User } from '@nsmr/pixelart-react';
-import { LANGUAGES } from '@widgetable/types';
+import { Camera, Power, User as UserIcon } from '@nsmr/pixelart-react';
+import { LANGUAGES, User } from '@widgetable/types';
 import Image from 'next/image';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
@@ -75,7 +75,7 @@ const Account = () => {
 
 		try {
 			setLoading(true);
-			const response = await api.patch('/users/name', { name: username.trim() });
+			const response = await api.patch<User>('/users/name', { name: username.trim() });
 			dispatch(setUserData(response.data));
 			callSuccess(t('account.usernameUpdated'));
 		} catch {
@@ -103,7 +103,7 @@ const Account = () => {
 			const formData = new FormData();
 			formData.append('picture', file);
 
-			const response = await api.patch('/users/picture', formData, {
+			const response = await api.patch<User>('/users/picture', formData, {
 				headers: { 'Content-Type': 'multipart/form-data' },
 			});
 
@@ -123,7 +123,7 @@ const Account = () => {
 			clearTimeout(updateTimerRef.current);
 			updateTimerRef.current = null;
 		}
-		handleNameUpdate();
+		void handleNameUpdate();
 	};
 
 	useEffect(() => {
@@ -133,7 +133,7 @@ const Account = () => {
 	useEffect(() => {
 		if (!username || username === user?.name) return;
 
-		updateTimerRef.current = setTimeout(handleNameUpdate, 2000);
+		updateTimerRef.current = setTimeout(() => void handleNameUpdate(), 2000);
 		return () => {
 			if (updateTimerRef.current) clearTimeout(updateTimerRef.current);
 		};
@@ -164,7 +164,7 @@ const Account = () => {
 											onError={() => setImageError(true)}
 										/>
 									) : (
-										<User width={75} height={75} className="text-secondary" />
+										<UserIcon width={75} height={75} className="text-secondary" />
 									)}
 								</div>
 								{loading && (
@@ -180,7 +180,7 @@ const Account = () => {
 								ref={fileInputRef}
 								type="file"
 								accept="image/*"
-								onChange={handleImageUpload}
+								onChange={(e) => void handleImageUpload(e)}
 								className="hidden"
 							/>
 						</div>
@@ -210,14 +210,14 @@ const Account = () => {
 									available={claimStatus.dailyAvailable}
 									claimingType={claimingType}
 									nextClaimTime={claimStatus.nextDailyTime}
-									onClaim={claimDaily}
+									onClaim={() => void claimDaily()}
 								/>
 								<ClaimButton
 									type="quick"
 									available={claimStatus.quickAvailable}
 									claimingType={claimingType}
 									nextClaimTime={claimStatus.nextQuickTime}
-									onClaim={claimQuick}
+									onClaim={() => void claimQuick()}
 								/>
 							</div>
 						)}
@@ -230,10 +230,11 @@ const Account = () => {
 								<button
 									key={lang.code}
 									onClick={() => setLanguage(lang.code)}
-									className={`flex-1 py-3 px-4 rounded-xl font-semibold transition-colors border-2 ${language === lang.code
-										? 'border-primary bg-primary/10 text-primary'
-										: 'border-secondary/20 bg-background text-foreground hover:border-primary/50'
-										}`}
+									className={`flex-1 py-3 px-4 rounded-xl font-semibold transition-colors border-2 ${
+										language === lang.code
+											? 'border-primary bg-primary/10 text-primary'
+											: 'border-secondary/20 bg-background text-foreground hover:border-primary/50'
+									}`}
 								>
 									{lang.nativeLabel}
 								</button>
@@ -252,7 +253,7 @@ const Account = () => {
 								variant="secondary"
 								size="md"
 								style="w-full"
-								onClick={unsubscribe}
+								onClick={() => void unsubscribe()}
 								disabled={notifLoading}
 							>
 								{t('account.disableNotifications')}
@@ -262,7 +263,7 @@ const Account = () => {
 								variant="primary"
 								size="md"
 								style="w-full"
-								onClick={subscribe}
+								onClick={() => void subscribe()}
 								disabled={notifLoading}
 							>
 								{t('account.enableNotifications')}
@@ -270,7 +271,12 @@ const Account = () => {
 						)}
 					</div>
 
-					<Button variant="danger" size="lg" onClick={logout} style="flex justify-center items-center gap-2">
+					<Button
+						variant="danger"
+						size="lg"
+						onClick={() => void logout()}
+						style="flex justify-center items-center gap-2"
+					>
 						{t('account.logOut')}
 						<Power width={20} height={20} className="text-danger" />
 					</Button>

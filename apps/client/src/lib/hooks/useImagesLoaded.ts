@@ -16,7 +16,7 @@ export const useImagesLoaded = (urls: string[]) => {
 
 		let cancelled = false;
 
-		Promise.all(
+		void Promise.all(
 			uniqueUrls.map(
 				(url) =>
 					new Promise<void>((resolve) => {

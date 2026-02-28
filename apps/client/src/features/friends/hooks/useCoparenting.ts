@@ -8,16 +8,17 @@ import api from '@/lib/api';
 import { usePolling } from '@/lib/hooks/usePolling';
 import { callError, callSuccess } from '@/lib/toast';
 import { useAppDispatch, useAppSelector } from '@/store';
+import { Request } from '@widgetable/types';
 import { useCallback, useEffect } from 'react';
 
-export const useCoparenting = (userId: string) => {
+export const useCoparenting = () => {
 	const { t } = useTranslation();
 	const dispatch = useAppDispatch();
 	const requests = useAppSelector((state) => state.user.coparentingRequests);
 
 	const loadRequests = useCallback(async () => {
 		try {
-			const { data } = await api.get('/coparenting/requests');
+			const { data } = await api.get<{ sent: Request[]; received: Request[] }>('/coparenting/requests');
 			dispatch(setCoparentingRequests(data));
 		} catch {
 			callError(t('coparenting.failedLoadRequests'));
@@ -25,10 +26,10 @@ export const useCoparenting = (userId: string) => {
 	}, [dispatch, t]);
 
 	useEffect(() => {
-		loadRequests();
+		void loadRequests();
 	}, [loadRequests]);
 
-	usePolling(loadRequests, 10000);
+	usePolling(() => void loadRequests(), 10000);
 
 	const accept = useCallback(
 		async (requestId: string) => {

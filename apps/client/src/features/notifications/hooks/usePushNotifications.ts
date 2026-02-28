@@ -44,9 +44,9 @@ export const usePushNotifications = () => {
 	useEffect(() => {
 		if (!isAuthenticated || !isSupported) return;
 
-		getSwRegistration().then((registration) => {
+		void getSwRegistration().then((registration) => {
 			if (!registration) return;
-			registration.pushManager.getSubscription().then((sub) => {
+			void registration.pushManager.getSubscription().then((sub) => {
 				setIsSubscribed(!!sub);
 			});
 		});
@@ -67,7 +67,7 @@ export const usePushNotifications = () => {
 				return;
 			}
 
-			const { data } = await api.get('/notifications/vapid-public-key');
+			const { data } = await api.get<{ key: string }>('/notifications/vapid-public-key');
 			const vapidKey = urlBase64ToUint8Array(data.key);
 
 			const subscription = await registration.pushManager.subscribe({

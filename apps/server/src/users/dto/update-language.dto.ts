@@ -5,6 +5,6 @@ export class UpdateLanguageDto {
 	@IsString()
 	@IsNotEmpty()
 	@MaxLength(10)
-	@Transform(({ value }) => value?.trim())
+	@Transform(({ value }: { value: string }) => value?.trim())
 	language: string;
 }

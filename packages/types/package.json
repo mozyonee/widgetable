@@ -8,8 +8,7 @@
 		"build": "tsc -b",
 		"dev": "echo \"no dev script for types\"",
 		"typecheck": "tsc -p tsconfig.json --noEmit",
-		"format": "prettier --write \"src/**/*.{ts,tsx}\" || true",
-		"test": "echo \"Error: no test specified\" && exit 1"
+		"format": "prettier --write \"src/**/*.{ts,tsx}\" || true"
 	},
 	"devDependencies": {
 		"typescript": "^5.0.0"

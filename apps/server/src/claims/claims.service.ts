@@ -1,15 +1,6 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import {
-	CLAIMS_CONFIG,
-	ClaimResult,
-	ClaimStatus,
-	EGG_ITEM_NAME,
-	ItemReward,
-	ItemTier,
-	PetActionCategory,
-	TIME_CONVERSION,
-} from '@widgetable/types';
+import { CLAIMS_CONFIG, ClaimResult, ClaimStatus, PetActionCategory, TIME_CONVERSION } from '@widgetable/types';
 import { Model, Types } from 'mongoose';
 import { Pet, PetDocument } from 'src/pets/entities/pet.entity';
 import { RewardsService } from 'src/shared/rewards.service';

@@ -4,12 +4,13 @@ import { Modal } from '@/components/ui/Modal';
 import UserCard from '@/features/friends/components/UserCard';
 import { useTranslation } from '@/i18n/hooks/useTranslation';
 import { Clock } from '@nsmr/pixelart-react';
+import { User } from '@widgetable/types';
 import Link from 'next/link';
 
 interface InviteModalProps {
 	isOpen: boolean;
 	onClose: () => void;
-	friends: any[];
+	friends: (User & { hasPendingRequest: boolean })[];
 	onInvite: (friendId: string) => void;
 }
 
@@ -30,13 +31,14 @@ export const InviteModal = ({ isOpen, onClose, friends, onInvite }: InviteModalP
 						key={friend._id}
 						onClick={() => {
 							if (!friend.hasPendingRequest) {
-								onInvite(friend._id!);
+								onInvite(friend._id);
 								onClose();
 							}
 						}}
 						disabled={friend.hasPendingRequest}
-						className={`w-full text-left transition ${friend.hasPendingRequest ? 'cursor-not-allowed' : 'hover:bg-secondary/10'
-							}`}
+						className={`w-full text-left transition ${
+							friend.hasPendingRequest ? 'cursor-not-allowed' : 'hover:bg-secondary/10'
+						}`}
 					>
 						<div className={friend.hasPendingRequest ? 'opacity-50' : ''}>
 							<UserCard

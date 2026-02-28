@@ -28,7 +28,7 @@ const getTierColor = (tier: ItemTier): string => {
 	}
 };
 
-const ItemDisplay = ({ item, index }: { item: ItemReward; index: number; }) => {
+const ItemDisplay = ({ item, index }: { item: ItemReward; index: number }) => {
 	const { t } = useTranslation();
 	const spritePath = getActionSprite(item.name);
 
@@ -79,7 +79,11 @@ export const RewardsModal = ({ rewards, onClose }: RewardsModalProps) => {
 				<div>
 					<h3 className="font-bold text-lg mb-3 text-foreground flex items-center gap-2">
 						<Edit width={ICON_SIZES.MD} height={ICON_SIZES.MD} className="text-primary" />
-						{t('rewards.food')} ({t('rewards.items', { count: rewards.rewards.food.reduce((sum, item) => sum + item.quantity, 0) })})
+						{t('rewards.food')} (
+						{t('rewards.items', {
+							count: rewards.rewards.food.reduce((sum, item) => sum + item.quantity, 0),
+						})}
+						)
 					</h3>
 					<div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
 						{sortedFood.map((item, idx) => (
@@ -93,7 +97,11 @@ export const RewardsModal = ({ rewards, onClose }: RewardsModalProps) => {
 				<div>
 					<h3 className="font-bold text-lg mb-3 text-foreground flex items-center gap-2">
 						<Coffee width={ICON_SIZES.MD} height={ICON_SIZES.MD} className="text-primary" />
-						{t('rewards.drinks')} ({t('rewards.items', { count: rewards.rewards.drinks.reduce((sum, item) => sum + item.quantity, 0) })})
+						{t('rewards.drinks')} (
+						{t('rewards.items', {
+							count: rewards.rewards.drinks.reduce((sum, item) => sum + item.quantity, 0),
+						})}
+						)
 					</h3>
 					<div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
 						{sortedDrinks.map((item, idx) => (
@@ -107,11 +115,19 @@ export const RewardsModal = ({ rewards, onClose }: RewardsModalProps) => {
 				<div>
 					<h3 className="font-bold text-lg mb-3 text-foreground flex items-center gap-2">
 						<Zap width={ICON_SIZES.MD} height={ICON_SIZES.MD} className="text-primary" />
-						{t('rewards.hygiene')} ({t('rewards.items', { count: rewards.rewards.hygiene.reduce((sum, item) => sum + item.quantity, 0) })})
+						{t('rewards.hygiene')} (
+						{t('rewards.items', {
+							count: rewards.rewards.hygiene.reduce((sum, item) => sum + item.quantity, 0),
+						})}
+						)
 					</h3>
 					<div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
 						{sortedHygiene.map((item, idx) => (
-							<ItemDisplay key={`${item.name}-${idx}`} item={item} index={idx + sortedFood.length + sortedDrinks.length} />
+							<ItemDisplay
+								key={`${item.name}-${idx}`}
+								item={item}
+								index={idx + sortedFood.length + sortedDrinks.length}
+							/>
 						))}
 					</div>
 				</div>
@@ -121,11 +137,16 @@ export const RewardsModal = ({ rewards, onClose }: RewardsModalProps) => {
 				<div>
 					<h3 className="font-bold text-lg mb-3 text-foreground flex items-center gap-2">
 						<Bed width={ICON_SIZES.MD} height={ICON_SIZES.MD} className="text-primary" />
-						{t('rewards.care')} ({t('rewards.items', { count: sortedCare.reduce((sum, item) => sum + item.quantity, 0) })})
+						{t('rewards.care')} (
+						{t('rewards.items', { count: sortedCare.reduce((sum, item) => sum + item.quantity, 0) })})
 					</h3>
 					<div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
 						{sortedCare.map((item, idx) => (
-							<ItemDisplay key={`${item.name}-${idx}`} item={item} index={idx + sortedFood.length + sortedDrinks.length + sortedHygiene.length} />
+							<ItemDisplay
+								key={`${item.name}-${idx}`}
+								item={item}
+								index={idx + sortedFood.length + sortedDrinks.length + sortedHygiene.length}
+							/>
 						))}
 					</div>
 				</div>
@@ -134,13 +155,24 @@ export const RewardsModal = ({ rewards, onClose }: RewardsModalProps) => {
 			{(rewards.rewards.valentines?.length ?? 0) > 0 && (
 				<div>
 					<h3 className="font-bold text-lg mb-3 text-foreground flex items-center gap-2">
-						<img src="/valentine/red_heard.png" alt="" className="w-5 h-5" style={{ imageRendering: 'pixelated' }} />
-						{t('rewards.valentines')} ({t('rewards.items', { count: rewards.rewards.valentines!.reduce((sum, item) => sum + item.quantity, 0) })})
+						<img
+							src="/valentine/red_heard.png"
+							alt=""
+							className="w-5 h-5"
+							style={{ imageRendering: 'pixelated' }}
+						/>
+						{t('rewards.valentines')} (
+						{t('rewards.items', {
+							count: rewards.rewards.valentines!.reduce((sum, item) => sum + item.quantity, 0),
+						})}
+						)
 					</h3>
 					<div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
-						{[...rewards.rewards.valentines!].sort((a, b) => b.tier - a.tier).map((item, idx) => (
-							<ItemDisplay key={`${item.name}-${idx}`} item={item} index={idx} />
-						))}
+						{[...rewards.rewards.valentines!]
+							.sort((a, b) => b.tier - a.tier)
+							.map((item, idx) => (
+								<ItemDisplay key={`${item.name}-${idx}`} item={item} index={idx} />
+							))}
 					</div>
 				</div>
 			)}

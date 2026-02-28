@@ -61,9 +61,8 @@ export class PetsController {
 
 			const currentPet = await this.petsService.getPet(petId);
 			const currentNeedValue = currentPet.needs[action.needKey];
-			const newNeedValue = action.value === 'increment'
-				? Math.min(currentNeedValue + action.amount, 100)
-				: action.value;
+			const newNeedValue =
+				action.value === 'increment' ? Math.min(currentNeedValue + action.amount, 100) : action.value;
 
 			return this.petsService.update(petId, { needs: { [action.needKey]: newNeedValue } }, action.experience);
 		}

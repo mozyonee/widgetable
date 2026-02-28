@@ -5,7 +5,7 @@ import api, { isAbortError } from '@/lib/api';
 import { usePolling } from '@/lib/hooks/usePolling';
 import { callError } from '@/lib/toast';
 import { useAppDispatch, useAppSelector } from '@/store';
-import { PET_UPDATE_INTERVAL } from '@widgetable/types';
+import { Pet, PET_UPDATE_INTERVAL } from '@widgetable/types';
 import { useCallback, useEffect } from 'react';
 
 export const usePets = () => {
@@ -19,25 +19,25 @@ export const usePets = () => {
 	const loadPets = useCallback(async () => {
 		if (!user?._id) return;
 		try {
-			const response = await api.get(`/pets/user`);
+			const response = await api.get<Pet[]>(`/pets/user`);
 			dispatch(setPets(response.data));
-		} catch (error: any) {
-			if (!isAbortError(error)) callError(error.message);
+		} catch (error: unknown) {
+			if (!isAbortError(error)) callError((error as Error).message);
 		}
 	}, [user?._id, dispatch]);
 
 	useEffect(() => {
-		loadPets();
+		void loadPets();
 	}, [loadPets]);
 
-	usePolling(loadPets, PET_UPDATE_INTERVAL, !!user?._id);
+	usePolling(() => void loadPets(), PET_UPDATE_INTERVAL, !!user?._id);
 
 	const addPet = useCallback(async () => {
 		try {
-			const response = await api.post('/pets');
+			const response = await api.post<Pet>('/pets');
 			dispatch(addPetAction(response.data));
 			await refreshUser();
-		} catch (error: any) {
+		} catch {
 			callError(t('pets.needEggs'));
 		}
 	}, [dispatch, refreshUser, t]);

@@ -12,8 +12,10 @@ import {
 	PET_NEED_KEYS,
 	PET_THRESHOLDS,
 	PET_UPDATE_INTERVAL,
+	Pet,
 	PetActionCategory,
-	PetAnimation
+	PetAnimation,
+	Request,
 } from '@widgetable/types';
 import { useParams } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -21,7 +23,7 @@ import { getParentId, getParentNames, getPetMessage } from '../utils/functions';
 
 export const usePet = () => {
 	const { t } = useTranslation();
-	const { id } = useParams<{ id: string; }>();
+	const { id } = useParams<{ id: string }>();
 	const dispatch = useAppDispatch();
 	const pet = useAppSelector((state) => state.pets.selectedPet);
 	const user = useAppSelector((state) => state.user.userData);
@@ -40,21 +42,21 @@ export const usePet = () => {
 	const loadPet = useCallback(async () => {
 		if (!user?._id || !petId) return;
 		try {
-			const response = await api.get(`/pets/${petId}`);
+			const response = await api.get<Pet>(`/pets/${petId}`);
 			dispatch(setSelectedPet(response.data));
-		} catch (error: any) {
-			callError(error.message);
+		} catch (error: unknown) {
+			callError((error as Error).message);
 		}
 	}, [user?._id, petId, dispatch]);
 
 	useEffect(() => {
-		loadPet();
+		void loadPet();
 	}, [loadPet]);
 
-	usePolling(loadPet, PET_UPDATE_INTERVAL, !!petId);
+	usePolling(() => void loadPet(), PET_UPDATE_INTERVAL, !!petId);
 
 	const updatePet = useCallback(
-		async (payload: { name?: string; background?: number; action?: string; }, animation?: PetAnimation) => {
+		async (payload: { name?: string; background?: number; action?: string }, animation?: PetAnimation) => {
 			if (currentAnimation) {
 				callError(t('pets.isBusy', { name: pet?.name || '' }));
 				return;
@@ -65,7 +67,7 @@ export const usePet = () => {
 			}
 
 			try {
-				const response = await api.patch(`/pets/${pet?._id}`, payload);
+				const response = await api.patch<Pet>(`/pets/${pet?._id}`, payload);
 				dispatch(setSelectedPet(response.data));
 
 				if (payload.action) {
@@ -76,8 +78,8 @@ export const usePet = () => {
 						await refreshUser();
 					}
 				}
-			} catch (error: any) {
-				callError(error.message);
+			} catch (error: unknown) {
+				callError((error as Error).message);
 			}
 		},
 		[pet, currentAnimation, dispatch, refreshUser],
@@ -87,13 +89,13 @@ export const usePet = () => {
 		if (!pet?._id) return;
 
 		try {
-			const response = await api.delete(`/pets/${pet._id}`);
+			const response = await api.delete<Pet>(`/pets/${pet._id}`);
 
 			if (response.data && response.data.parents && response.data.parents.length > 0) {
 				callSuccess(t('pets.noLongerParent', { name: pet.name }));
 			}
-		} catch (error: any) {
-			callError(error.message);
+		} catch (error: unknown) {
+			callError((error as Error).message);
 		}
 	}, [pet]);
 
@@ -102,7 +104,7 @@ export const usePet = () => {
 			if (!pet || !pet._id) return;
 
 			try {
-				const { data } = await api.post('/coparenting/requests', {
+				const { data } = await api.post<Request>('/coparenting/requests', {
 					recipientId: friendId,
 					petId: pet._id,
 				});
@@ -110,8 +112,8 @@ export const usePet = () => {
 				dispatch(addCoparentingRequestSent(data));
 				callSuccess(t('invite.sent', { name: friend?.name || '' }));
 				setShowShareDropdown(false);
-			} catch (error: any) {
-				const status = error.response?.status;
+			} catch (error: unknown) {
+				const status = (error as { response?: { status?: number } }).response?.status;
 				let errorMessage = t('invite.failedSend');
 
 				if (status === HTTP_STATUS.NOT_FOUND) {
@@ -131,7 +133,9 @@ export const usePet = () => {
 
 		return friends
 			.filter((friend) => {
-				const isAlreadyParent = pet.parents.some((parent: any) => getParentId(parent) === friend._id);
+				const isAlreadyParent = pet.parents.some(
+					(parent) => getParentId(parent as string | { _id: string }) === friend._id,
+				);
 				return !isAlreadyParent;
 			})
 			.map((friend) => ({

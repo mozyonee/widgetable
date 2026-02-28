@@ -125,7 +125,11 @@ export const Modal = ({
 				)}
 
 				<div className={`overflow-y-auto ${contentClassName}`}>{children}</div>
-				{footer && <div className="sticky bottom-0 border-t border-secondary bg-surface p-4 rounded-b-2xl">{footer}</div>}
+				{footer && (
+					<div className="sticky bottom-0 border-t border-secondary bg-surface p-4 rounded-b-2xl">
+						{footer}
+					</div>
+				)}
 			</div>
 		</div>
 	);

@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/mongoose';
-import { Connection, ClientSession } from 'mongoose';
+import { ClientSession, Connection } from 'mongoose';
 
 @Injectable()
 export class BaseService {
@@ -14,8 +14,9 @@ export class BaseService {
 				await session.withTransaction(async () => {
 					result = await callback(session);
 				});
-			} catch (err: any) {
-				if (err?.code === 20 || err?.codeName === 'IllegalOperation') {
+			} catch (err: unknown) {
+				const e = err as { code?: number; codeName?: string };
+				if (e?.code === 20 || e?.codeName === 'IllegalOperation') {
 					result = await callback(session);
 				} else {
 					throw err;

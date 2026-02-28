@@ -1,16 +1,16 @@
-import { Database } from "../database";
-import { UserInventory } from "../pet";
+import { Database } from '../database';
+import { UserInventory } from '../pet';
 
 export enum FriendshipStatus {
-	NONE = "none",
-	SENT = "sent",
-	RECEIVED = "received",
-	FRIENDS = "friends",
+	NONE = 'none',
+	SENT = 'sent',
+	RECEIVED = 'received',
+	FRIENDS = 'friends',
 }
 
 export enum RequestDirection {
-	SENT = "sent",
-	RECEIVED = "received",
+	SENT = 'sent',
+	RECEIVED = 'received',
 }
 
 export interface UserData {

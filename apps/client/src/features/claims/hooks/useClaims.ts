@@ -5,7 +5,7 @@ import api, { isAbortError } from '@/lib/api';
 import { usePolling } from '@/lib/hooks/usePolling';
 import { callError } from '@/lib/toast';
 import { useAppDispatch, useAppSelector } from '@/store';
-import { ClaimResult } from '@widgetable/types';
+import { ClaimResult, ClaimStatus } from '@widgetable/types';
 import { useCallback, useEffect, useState } from 'react';
 
 export const useClaims = () => {
@@ -20,9 +20,9 @@ export const useClaims = () => {
 
 	const loadClaimStatus = useCallback(async () => {
 		try {
-			const response = await api.get('/claims/status');
+			const response = await api.get<ClaimStatus>('/claims/status');
 			dispatch(setClaimStatusAction(response.data));
-		} catch (error: any) {
+		} catch (error: unknown) {
 			if (!isAbortError(error)) callError(t('claims.failedLoad'));
 		}
 	}, [dispatch]);
@@ -33,14 +33,14 @@ export const useClaims = () => {
 		setClaimingType(type);
 
 		try {
-			const response = await api.post(endpoint);
-			const result: ClaimResult = response.data;
+			const response = await api.post<ClaimResult>(endpoint);
+			const result = response.data;
 
 			setLastRewards(result);
 			await loadClaimStatus();
 
 			await refreshUser();
-		} catch (error: any) {
+		} catch {
 			callError(t('claims.failedClaim'));
 		} finally {
 			setClaimingType(null);
@@ -56,10 +56,10 @@ export const useClaims = () => {
 	}, [claimingType, loadClaimStatus, dispatch, refreshUser]);
 
 	useEffect(() => {
-		loadClaimStatus();
+		void loadClaimStatus();
 	}, [loadClaimStatus]);
 
-	usePolling(loadClaimStatus, 60000);
+	usePolling(() => void loadClaimStatus(), 60000);
 
 	return {
 		claimStatus,

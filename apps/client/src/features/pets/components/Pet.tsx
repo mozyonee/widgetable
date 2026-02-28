@@ -30,7 +30,7 @@ import {
 	Users,
 	Zap,
 } from '@nsmr/pixelart-react';
-import { ClaimResult, formatTime, PET_THRESHOLDS } from '@widgetable/types';
+import { ClaimResult, formatTime, Pet, PET_THRESHOLDS, User } from '@widgetable/types';
 
 import {
 	getExpForCurrentLevel,
@@ -94,7 +94,6 @@ const PetPage = () => {
 	useEffect(() => {
 		if (!pet?.isEgg || !pet.hatchTime) return;
 
-
 		const updateTimer = () => {
 			const hatchTimeMs = new Date(pet.hatchTime!).getTime();
 			const now = Date.now();
@@ -150,10 +149,10 @@ const PetPage = () => {
 
 	const hasUrgentNeeds = pet?.needs
 		? pet.needs.hunger < PET_THRESHOLDS.URGENT ||
-		pet.needs.thirst < PET_THRESHOLDS.URGENT ||
-		pet.needs.hygiene < PET_THRESHOLDS.URGENT ||
-		pet.needs.energy < PET_THRESHOLDS.URGENT ||
-		pet.needs.toilet < PET_THRESHOLDS.URGENT
+			pet.needs.thirst < PET_THRESHOLDS.URGENT ||
+			pet.needs.hygiene < PET_THRESHOLDS.URGENT ||
+			pet.needs.energy < PET_THRESHOLDS.URGENT ||
+			pet.needs.toilet < PET_THRESHOLDS.URGENT
 		: false;
 
 	const handleStartExpedition = async () => {
@@ -174,11 +173,11 @@ const PetPage = () => {
 		}
 
 		try {
-			const response = await api.post(`/pets/${pet._id}/expedition/start`);
+			const response = await api.post<Pet>(`/pets/${pet._id}/expedition/start`);
 			dispatch(setSelectedPet(response.data));
 			callSuccess(t('pets.departedExpedition', { name: pet.name }));
-		} catch (error: any) {
-			const status = error.response?.status;
+		} catch (error: unknown) {
+			const status = (error as { response?: { status?: number } }).response?.status;
 			if (status === HTTP_STATUS.UNPROCESSABLE_ENTITY) callError(t('pets.expeditionEggError'));
 			else if (status === HTTP_STATUS.CONFLICT) callError(t('pets.expeditionSlotsFull'));
 			else callError(t('pets.failedStartExpedition'));
@@ -188,11 +187,11 @@ const PetPage = () => {
 	const handleClaimExpedition = async () => {
 		if (!pet?._id) return;
 		try {
-			const rewards = await api.post(`/pets/${pet._id}/expedition/claim`);
+			const rewards = await api.post<ClaimResult>(`/pets/${pet._id}/expedition/claim`);
 			setLastRewards(rewards.data);
 
-			await Promise.all([loadPet(), api.get('/auth/me').then((r) => dispatch(setUserData(r.data)))]);
-		} catch (error: any) {
+			await Promise.all([loadPet(), api.get<User>('/auth/me').then((r) => dispatch(setUserData(r.data)))]);
+		} catch {
 			callError(t('pets.failedClaimRewards'));
 		}
 	};
@@ -209,7 +208,7 @@ const PetPage = () => {
 	const bgLoaded = useImagesLoaded(useMemo(() => [bgUrl], [bgUrl]));
 	const handleBackgroundSelect = (backgroundId: number | null) => {
 		const newBackground = backgroundId ?? Math.floor(Math.random() * 20) + 1;
-		updatePet({ background: newBackground });
+		void updatePet({ background: newBackground });
 	};
 
 	const actionCategories = useMemo(() => {
@@ -219,7 +218,6 @@ const PetPage = () => {
 			actions: PET_ACTIONS_BY_CATEGORY[category].map((action) => {
 				const needConfig = PET_NEEDS_CONFIG[action.needKey];
 				const currentNeedValue = pet.needs[action.needKey];
-				const newValue = action.value === 'increment' ? currentNeedValue + action.amount : action.value;
 				const inventoryCount =
 					action.inventoryCost !== undefined ? (user?.inventory?.[action.name] ?? 0) : Infinity;
 				const isNeedTooHigh = currentNeedValue > PET_THRESHOLDS.HIGH;
@@ -230,8 +228,7 @@ const PetPage = () => {
 					inventoryCost: action.inventoryCost,
 					inventoryCount,
 					isDisabled,
-					onClick: () =>
-						updatePet({ action: action.name }, needConfig.animation),
+					onClick: () => updatePet({ action: action.name }, needConfig.animation),
 				};
 			}),
 		}));
@@ -278,7 +275,7 @@ const PetPage = () => {
 									value={pet.name}
 									maxLength={16}
 									onChange={(e) => {
-										updatePet({ name: e.target.value });
+										void updatePet({ name: e.target.value });
 									}}
 								/>
 								<div className="flex items-center gap-2 text-lg text-secondary">
@@ -306,9 +303,8 @@ const PetPage = () => {
 							style="aspect-square w-fit"
 							variant="danger"
 							size="sm"
-							onClick={async () => {
-								await deletePet();
-								router.back();
+							onClick={() => {
+								void deletePet().then(() => router.back());
 							}}
 						>
 							<Trash width={20} height={20} className="text-danger" />
@@ -329,7 +325,7 @@ const PetPage = () => {
 										: t('pets.onExpedition', { name: pet.name })}
 								</div>
 								{canClaimExpedition ? (
-									<Button onClick={handleClaimExpedition} size="lg" style="px-8">
+									<Button onClick={() => void handleClaimExpedition()} size="lg" style="px-8">
 										<Check width={20} height={20} className="inline mr-2" />
 										{t('pets.claimRewards')}
 									</Button>
@@ -417,7 +413,7 @@ const PetPage = () => {
 
 							{!pet.isOnExpedition && !hasUrgentNeeds && (
 								<button
-									onClick={handleStartExpedition}
+									onClick={() => void handleStartExpedition()}
 									disabled={!!currentAnimation}
 									className={`${actionBarBtnClass} w-full justify-center`}
 								>
@@ -432,11 +428,11 @@ const PetPage = () => {
 					<div className="flex justify-center px-4 flex-shrink-0 gap-4 border-b border-secondary/20">
 						{actionCategories.map((category) => {
 							const Icon =
-								category.categoryName === 'Feed'
+								category.categoryName === PetActionCategory.FEED
 									? Edit
-									: category.categoryName === 'Drink'
+									: category.categoryName === PetActionCategory.DRINK
 										? Coffee
-										: category.categoryName === 'Wash'
+										: category.categoryName === PetActionCategory.WASH
 											? Zap
 											: Bed;
 
@@ -446,10 +442,11 @@ const PetPage = () => {
 							return (
 								<button
 									key={category.categoryName}
-									className={`px-3 py-2 cursor-pointer transition-colors ${isSelected
-										? 'text-primary border-b-2 border-primary'
-										: 'text-secondary hover:text-foreground border-b-2 border-transparent'
-										}`}
+									className={`px-3 py-2 cursor-pointer transition-colors ${
+										isSelected
+											? 'text-primary border-b-2 border-primary'
+											: 'text-secondary hover:text-foreground border-b-2 border-transparent'
+									}`}
 									onClick={() => setSelectedCategory(category.categoryName)}
 									title={t(`pets.category.${category.categoryName}`)}
 									disabled={isEgg}
@@ -471,8 +468,10 @@ const PetPage = () => {
 								{selectedActions.map((action) => (
 									<button
 										key={action.name}
-										onClick={action.onClick}
-										disabled={isEgg || pet.isOnExpedition || !!currentAnimation || action.isDisabled}
+										onClick={() => void action.onClick()}
+										disabled={
+											isEgg || pet.isOnExpedition || !!currentAnimation || action.isDisabled
+										}
 										className={`flex flex-col items-center justify-center gap-1 p-2 rounded-lg border-2 bg-surface transition-colors ${getTierColor(action.inventoryCost)} ${isEgg || pet.isOnExpedition || currentAnimation || action.isDisabled ? 'opacity-30 cursor-not-allowed' : 'hover:bg-secondary/10 cursor-pointer'}`}
 									>
 										{action.sprite && (
@@ -488,7 +487,9 @@ const PetPage = () => {
 											{t(`action.${action.name}`)}
 										</div>
 										{action.inventoryCost !== undefined && (
-											<div className="text-xs text-muted-foreground">x{action.inventoryCount}</div>
+											<div className="text-xs text-muted-foreground">
+												x{action.inventoryCount}
+											</div>
 										)}
 									</button>
 								))}
@@ -509,7 +510,7 @@ const PetPage = () => {
 				isOpen={showShareDropdown}
 				onClose={() => setShowShareDropdown(false)}
 				friends={availableFriends}
-				onInvite={(friendId) => sendCoparentingRequest(friendId)}
+				onInvite={(friendId) => void sendCoparentingRequest(friendId)}
 			/>
 
 			{lastRewards && <RewardsModal rewards={lastRewards} onClose={() => setLastRewards(null)} />}

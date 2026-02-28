@@ -5,6 +5,7 @@ import { clearClaims } from '@/features/claims/slices/claimsSlice';
 import { clearPets } from '@/features/pets/slices/petsSlice';
 import api from '@/lib/api';
 import { persistor, useAppDispatch, useAppSelector } from '@/store';
+import { User } from '@widgetable/types';
 import { useRouter } from 'next/navigation';
 import { useCallback, useState } from 'react';
 
@@ -22,11 +23,11 @@ export const useAuth = () => {
 			const hasValidSession = !!response?.data;
 
 			dispatch(setAuthenticated(hasValidSession));
-			dispatch(setUserData(response?.data));
+			dispatch(setUserData(response?.data as User | null));
 			setIsLoading(false);
 
 			return hasValidSession;
-		} catch (error) {
+		} catch {
 			dispatch(setAuthenticated(false));
 			dispatch(setUserData(null));
 			setIsLoading(false);

@@ -1,6 +1,6 @@
-import { Database } from "../database";
-import { PetData } from "../pet";
-import { UserData } from "../user";
+import { Database } from '../database';
+import { PetData } from '../pet';
+import { UserData } from '../user';
 
 export enum RequestType {
 	FRIEND_REQUEST = 'FRIEND_REQUEST',

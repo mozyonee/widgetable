@@ -12,7 +12,7 @@ import api, { isAbortError } from '@/lib/api';
 import { usePolling } from '@/lib/hooks/usePolling';
 import { callError, callSuccess } from '@/lib/toast';
 import { useAppDispatch, useAppSelector } from '@/store';
-import { FriendshipStatus, User } from '@widgetable/types';
+import { FriendshipStatus, Request, User } from '@widgetable/types';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 export const useFriends = (userId: string) => {
@@ -28,19 +28,22 @@ export const useFriends = (userId: string) => {
 
 	const loadData = useCallback(async () => {
 		try {
-			const [friendsRes, requestsRes] = await Promise.all([api.get('/friends'), api.get('/friends/requests')]);
+			const [friendsRes, requestsRes] = await Promise.all([
+				api.get<User[]>('/friends'),
+				api.get<{ sent: Request[]; received: Request[] }>('/friends/requests'),
+			]);
 			dispatch(setFriends(friendsRes.data));
 			dispatch(setFriendRequests(requestsRes.data));
-		} catch (error: any) {
+		} catch (error: unknown) {
 			if (!isAbortError(error)) callError(t('friends.failedLoad'));
 		}
 	}, [dispatch, t]);
 
 	useEffect(() => {
-		loadData();
+		void loadData();
 	}, [loadData]);
 
-	usePolling(loadData, 10000);
+	usePolling(() => void loadData(), 10000);
 
 	const searchUsers = useCallback(async () => {
 		if (!searchQuery.trim()) {
@@ -50,8 +53,8 @@ export const useFriends = (userId: string) => {
 
 		setSearching(true);
 		try {
-			const { data } = await api.get('/users/search', { params: { query: searchQuery } });
-			setSearchResults(data.filter((u: User) => u._id !== userId));
+			const { data } = await api.get<User[]>('/users/search', { params: { query: searchQuery } });
+			setSearchResults(data.filter((u) => u._id !== userId));
 		} catch {
 			callError(t('friends.searchFailed'));
 		} finally {
@@ -60,14 +63,14 @@ export const useFriends = (userId: string) => {
 	}, [searchQuery, userId, t]);
 
 	useEffect(() => {
-		const timer = setTimeout(searchUsers, 300);
+		const timer = setTimeout(() => void searchUsers(), 300);
 		return () => clearTimeout(timer);
 	}, [searchUsers]);
 
 	const addRequest = useCallback(
 		async (recipientId: string) => {
 			try {
-				const { data } = await api.post('/friends/requests', { recipientId });
+				const { data } = await api.post<Request>('/friends/requests', { recipientId });
 				dispatch(addFriendRequestSent(data));
 				callSuccess(t('friends.requestSent'));
 			} catch {
@@ -160,11 +163,11 @@ export const useFriends = (userId: string) => {
 
 		return list.sort((a, b) => {
 			const order: Record<FriendshipStatus.RECEIVED | FriendshipStatus.SENT | FriendshipStatus.FRIENDS, number> =
-			{
-				[FriendshipStatus.RECEIVED]: 0,
-				[FriendshipStatus.SENT]: 1,
-				[FriendshipStatus.FRIENDS]: 2,
-			};
+				{
+					[FriendshipStatus.RECEIVED]: 0,
+					[FriendshipStatus.SENT]: 1,
+					[FriendshipStatus.FRIENDS]: 2,
+				};
 			return order[a.status] - order[b.status];
 		});
 	}, [friends, requests]);
