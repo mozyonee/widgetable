@@ -7,7 +7,7 @@ on:
   pull_request:
 
 jobs:
-  ci:
+  continious-integration:
     runs-on: ubuntu-latest
 
     steps:
