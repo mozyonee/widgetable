@@ -184,6 +184,20 @@ If any condition is false → switch to investigation.
 | Read/Grep | Codebase structure or logic |
 | Logs | Runtime/system issues |
 
+**MCP Priority Rule:**
+
+Always prefer MCP tools over CLI equivalents. Never fall back to CLI if an MCP can do the same thing.
+
+| Task | Use MCP | Never use |
+|------|---------|-----------|
+| GitHub PRs, issues, branches, code search | `mcp__github__*` | `gh` CLI |
+| Railway deploy, logs, services, variables | `mcp__railway__*` | `railway` CLI |
+| Vercel deploy, projects, logs | `mcp__claude_ai_Vercel__*` | `vercel` CLI |
+| Library documentation | `mcp__context7__*` | WebSearch alone |
+| Browser automation, screenshots, network | `mcp__chrome-devtools__*` | — |
+| Next.js docs, upgrades, browser eval | `mcp__next-devtools__*` | — |
+| MongoDB queries, collections, documents | `mcp__mongodb__*` | `mongosh` CLI |
+
 ---
 
 ## 9. BEHAVIORAL CONSTRAINTS
