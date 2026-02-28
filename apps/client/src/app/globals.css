@@ -1,17 +1,17 @@
 @import "tailwindcss";
 
 :root {
-	--background: #FFFBF7;
-	--surface: #FFFFFF;
-	--foreground: #5C3D2E;
-	--inactive: #B4A5A5;
+	--background: #E8F4E8;
+	--surface: #F0FFF0;
+	--foreground: #1A3A2A;
+	--inactive: #7AAF8A;
 
-	--primary: #D48C8C;
-	--secondary: #c4b4ae;
+	--primary: #3D9E6B;
+	--secondary: #6EC49A;
 
-	--accent: #F4D160;
-	--danger: #EF4444;
-	--success: #16A34A;
+	--accent: #FF6B35;
+	--danger: #E53E3E;
+	--success: #276749;
 }
 
 @font-face {
@@ -91,13 +91,13 @@
 
 @media (prefers-color-scheme: dark) {
 	:root {
-		--background: #1C1410;
-		--surface: #2A2018;
-		--foreground: #F0E6D3;
-		--inactive: #6B5B5B;
+		--background: #0D1F16;
+		--surface: #162B1E;
+		--foreground: #C8F0D8;
+		--inactive: #3A6B4A;
 
-		--primary: #C47A7A;
-		--secondary: #8A7A74;
+		--primary: #2E8B57;
+		--secondary: #4AAF7A;
 	}
 }
 
