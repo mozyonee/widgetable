@@ -163,6 +163,14 @@ export const PET_ACTIONS_BY_CATEGORY = {
 
 		// Moderate restore
 		{
+			name: 'Grooming Session',
+			needKey: PetNeed.HYGIENE,
+			value: 'increment',
+			amount: 55,
+			inventoryCost: 2,
+			experience: 16,
+		},
+		{
 			name: 'Mouth Wash',
 			needKey: PetNeed.HYGIENE,
 			value: 'increment',
@@ -179,7 +187,6 @@ export const PET_ACTIONS_BY_CATEGORY = {
 			experience: 10,
 		},
 		{ name: 'Brush', needKey: PetNeed.HYGIENE, value: 'increment', amount: 45, inventoryCost: 1, experience: 11 },
-
 		// Small restore
 		{
 			name: 'Wipe Down',
@@ -190,6 +197,23 @@ export const PET_ACTIONS_BY_CATEGORY = {
 			experience: 6,
 		},
 		{ name: 'Sponge', needKey: PetNeed.HYGIENE, value: 'increment', amount: 30, inventoryCost: 1, experience: 7 },
+		,
+		{
+			name: 'Ear Cleaning',
+			needKey: PetNeed.HYGIENE,
+			value: 'increment',
+			amount: 25,
+			inventoryCost: 1,
+			experience: 9,
+		},
+		{
+			name: 'Nail Trim',
+			needKey: PetNeed.HYGIENE,
+			value: 'increment',
+			amount: 20,
+			inventoryCost: 1,
+			experience: 8,
+		},
 	] as PetAction[],
 	[PetActionCategory.CARE]: [
 		{ name: 'Toilet', needKey: PetNeed.TOILET, value: 100, amount: 100, inventoryCost: 1, experience: 15 },
@@ -204,29 +228,5 @@ export const PET_ACTIONS_BY_CATEGORY = {
 		{ name: 'Long Sleep', needKey: PetNeed.ENERGY, value: 100, amount: 100, experience: 12 },
 		{ name: 'Nap', needKey: PetNeed.ENERGY, value: 'increment', amount: 50, experience: 6 },
 		{ name: 'Rest', needKey: PetNeed.ENERGY, value: 'increment', amount: 35, experience: 4 },
-		{
-			name: 'Grooming Session',
-			needKey: PetNeed.HYGIENE,
-			value: 'increment',
-			amount: 55,
-			inventoryCost: 2,
-			experience: 16,
-		},
-		{
-			name: 'Nail Trim',
-			needKey: PetNeed.HYGIENE,
-			value: 'increment',
-			amount: 20,
-			inventoryCost: 1,
-			experience: 8,
-		},
-		{
-			name: 'Ear Cleaning',
-			needKey: PetNeed.HYGIENE,
-			value: 'increment',
-			amount: 25,
-			inventoryCost: 1,
-			experience: 9,
-		},
 	] as PetAction[],
 };

@@ -17,7 +17,7 @@
 		"typecheck": "tsc -p tsconfig.json --noEmit",
 		"test": "jest --passWithNoTests",
 		"test:watch": "jest --watch",
-		"test:cov": "jest --coverage",
+		"test:cov": "jest --passWithNoTests --coverage",
 		"test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
 		"test:e2e": "jest --config ./test/jest-e2e.json",
 		"migrate:requests": "ts-node -r tsconfig-paths/register src/scripts/migrate-requests.ts"
@@ -33,6 +33,7 @@
 		"@nestjs/platform-express": "^11.0.1",
 		"@nestjs/schedule": "^6.1.1",
 		"@widgetable/i18n": "file:../../packages/i18n",
+		"@widgetable/server": "file:",
 		"@widgetable/types": "file:../../packages/types",
 		"argon2": "^0.43.0",
 		"class-transformer": "^0.5.1",
