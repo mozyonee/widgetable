@@ -4,14 +4,13 @@
 	"private": true,
 	"scripts": {
 		"dev": "npm-run-all --parallel dev:next dev:ts",
-		"start:dev": "npm run dev",
-		"dev:next": "next dev -H 0.0.0.0 -p 3000 --webpack",
 		"dev:ts": "tsc --noEmit --watch --preserveWatchOutput",
-		"build": "next build --webpack && cp -r public .next/standalone/apps/client/public && cp -r .next/static .next/standalone/apps/client/.next/static",
+		"dev:next": "next dev -H 0.0.0.0 -p 3000 --webpack",
 		"start": "HOSTNAME=0.0.0.0 PORT=${PORT:-3000} node .next/standalone/apps/client/server.js",
-		"lint": "eslint \"src/**/*.{ts,tsx}\" --fix",
+		"build": "next build --webpack && cp -r public .next/standalone/apps/client/public && cp -r .next/static .next/standalone/apps/client/.next/static",
 		"format": "prettier --config ../../prettier.config.js --write \"src/**/*.{ts,tsx}\"",
-		"typecheck": "tsc -p tsconfig.json --noEmit"
+		"typecheck": "tsc -p tsconfig.json --noEmit",
+		"lint": "eslint \"src/**/*.{ts,tsx}\" --fix"
 	},
 	"dependencies": {
 		"@nsmr/pixelart-react": "^2.0.0",
