@@ -64,6 +64,9 @@
 	--color-accent: var(--accent);
 	--color-danger: var(--danger);
 	--color-success: var(--success);
+	--color-tier-common: #22c55e;
+	--color-tier-premium: #3b82f6;
+	--color-tier-legendary: #a855f7;
 
 	--font-sans: 'Basis33', ui-sans-serif, system-ui, sans-serif;
 	--font-mono: 'Basis33', ui-monospace, monospace;
@@ -122,6 +125,13 @@ html {
 button,
 a {
 	cursor: pointer;
+}
+
+img {
+	-webkit-user-select: none;
+	user-select: none;
+	-webkit-touch-callout: none;
+	pointer-events: none;
 }
 
 .bounce-squash {

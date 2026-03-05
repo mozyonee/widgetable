@@ -1,3 +1,28 @@
+import { PET_NEED_KEYS, PET_NEEDS_CONFIG } from './config';
+import { PET_UPDATE_INTERVAL } from './constants';
+import { PetNeeds } from './types';
+
+const DECAY_TIME_UNIT_MS = 60 * 1000;
+
+export const calculateDecayedNeeds = (
+	needs: PetNeeds,
+	lastUpdatedAt: Date,
+	now: Date,
+): { needs: PetNeeds; changed: boolean } => {
+	const timeDiff = now.getTime() - lastUpdatedAt.getTime();
+	const intervals = Math.floor(timeDiff / PET_UPDATE_INTERVAL);
+
+	if (intervals <= 0) return { needs, changed: false };
+
+	const updated = { ...needs };
+	for (const key of PET_NEED_KEYS) {
+		const decrease = intervals * PET_NEEDS_CONFIG[key].decayRate * (PET_UPDATE_INTERVAL / DECAY_TIME_UNIT_MS);
+		updated[key] = Math.max(0, Math.min(100, needs[key] - decrease));
+	}
+
+	return { needs: updated, changed: true };
+};
+
 const BASE_EXP = 50;
 const EXP_MULTIPLIER = 1.5;
 

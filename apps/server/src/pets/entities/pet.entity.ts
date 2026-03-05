@@ -42,21 +42,12 @@ export class Pet {
 	level: number;
 	@Prop({ required: false })
 	background?: number;
+	@Prop({ type: Date, required: false })
+	needsUpdatedAt?: Date;
 	@Prop({ required: true, default: false })
 	isOnExpedition: boolean;
 	@Prop({ required: false })
 	expeditionReturnTime?: Date;
-	@Prop({ type: Date, required: false })
-	urgentNotifiedAt?: Date;
-	@Prop({ type: Object, required: false })
-	expeditionRewards?: {
-		food: Array<{ name: string; quantity: number; tier: number }>;
-		drinks: Array<{ name: string; quantity: number; tier: number }>;
-		hygiene: Array<{ name: string; quantity: number; tier: number }>;
-		care: Array<{ name: string; quantity: number; tier: number }>;
-		eggs: number;
-		valentines?: Array<{ name: string; quantity: number; tier: number }>;
-	};
 }
 
 export const PetSchema = SchemaFactory.createForClass(Pet);

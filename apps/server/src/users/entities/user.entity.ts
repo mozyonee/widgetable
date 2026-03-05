@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Database, DEFAULT_LANGUAGE, UserInventory } from '@widgetable/types';
+import { ClaimType, Database, DEFAULT_LANGUAGE, UserInventory } from '@widgetable/types';
 import { Request } from 'express';
 import { HydratedDocument, Schema as MongooseSchema } from 'mongoose';
 
@@ -23,11 +23,8 @@ export class User {
 	@Prop({ type: Object, default: {} })
 	inventory?: UserInventory;
 
-	@Prop({ type: Date, required: false })
-	lastDailyClaimTime?: Date;
-
-	@Prop({ type: Date, required: false })
-	lastQuickClaimTime?: Date;
+	@Prop({ type: Map, of: Date, default: {} })
+	lastClaimTimes?: Map<ClaimType, Date>;
 
 	@Prop({ default: DEFAULT_LANGUAGE })
 	language?: string;

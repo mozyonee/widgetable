@@ -1,13 +1,13 @@
 import { BadRequestException, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { DEFAULT_LANGUAGE, EGG_ITEM_NAME } from '@widgetable/types';
+import { DEFAULT_LANGUAGE, EGG_ITEM_NAME, ItemBundle, SUPPORTED_LANGUAGES } from '@widgetable/types';
 import * as Minio from 'minio';
 import { ClientSession, Model, Types } from 'mongoose';
 import * as path from 'path';
-import { SUPPORTED_LANGUAGES, USER_POPULATE_FIELDS, WEBPUSH_CONFIG } from 'src/shared/constants';
-import { STORAGE_CLIENT, StorageBucket } from 'src/storage/storage.config';
+import { PRESIGNED_URL_EXPIRY_SECONDS, STORAGE_CLIENT, StorageBucket } from 'src/storage/storage.config';
 import { v4 as uuidv4 } from 'uuid';
 import { User, UserDocument } from './entities/user.entity';
+import { USER_POPULATE_FIELDS } from './users.constants';
 
 @Injectable()
 export class UsersService {
@@ -42,11 +42,7 @@ export class UsersService {
 		const user = await this.userModel.findById(userId);
 		if (!user || !user.picture) throw new NotFoundException();
 
-		return this.s3Client.presignedGetObject(
-			StorageBucket.AVATARS,
-			user.picture,
-			WEBPUSH_CONFIG.PRESIGNED_URL_EXPIRY_SECONDS,
-		);
+		return this.s3Client.presignedGetObject(StorageBucket.AVATARS, user.picture, PRESIGNED_URL_EXPIRY_SECONDS);
 	}
 
 	async setImage(userId: Types.ObjectId, file: Express.Multer.File): Promise<UserDocument> {
@@ -145,37 +141,18 @@ export class UsersService {
 		return updatedUser;
 	}
 
-	async applyRewards(
-		userId: Types.ObjectId,
-		rewards: {
-			food: Array<{ name: string; quantity: number }>;
-			drinks: Array<{ name: string; quantity: number }>;
-			hygiene: Array<{ name: string; quantity: number }>;
-			care: Array<{ name: string; quantity: number }>;
-			eggs: number;
-			valentines?: Array<{ name: string; quantity: number }>;
-		},
-		session?: ClientSession,
-	) {
-		for (const item of rewards.food) {
-			await this.addInventory(userId, item.name, item.quantity, session);
+	async addInventoryBundle(userId: Types.ObjectId, items: ItemBundle, session?: ClientSession) {
+		const inc: Record<string, number> = {};
+
+		const allItems = [...items.food, ...items.drinks, ...items.hygiene, ...items.care, ...(items.valentines ?? [])];
+		for (const item of allItems) {
+			inc[`inventory.${item.name}`] = (inc[`inventory.${item.name}`] ?? 0) + item.quantity;
 		}
-		for (const item of rewards.drinks) {
-			await this.addInventory(userId, item.name, item.quantity, session);
+		if (items.eggs > 0) {
+			inc[`inventory.${EGG_ITEM_NAME}`] = (inc[`inventory.${EGG_ITEM_NAME}`] ?? 0) + items.eggs;
 		}
-		for (const item of rewards.hygiene) {
-			await this.addInventory(userId, item.name, item.quantity, session);
-		}
-		for (const item of rewards.care) {
-			await this.addInventory(userId, item.name, item.quantity, session);
-		}
-		if (rewards.eggs > 0) {
-			await this.addInventory(userId, EGG_ITEM_NAME, rewards.eggs, session);
-		}
-		if (rewards.valentines) {
-			for (const item of rewards.valentines) {
-				await this.addInventory(userId, item.name, item.quantity, session);
-			}
-		}
+
+		const updatedUser = await this.userModel.findByIdAndUpdate(userId, { $inc: inc }, { new: true, session });
+		if (!updatedUser) throw new NotFoundException();
 	}
 }

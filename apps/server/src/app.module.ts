@@ -6,13 +6,12 @@ import { diskStorage } from 'multer';
 import { tmpdir } from 'os';
 import { extname } from 'path';
 import { AuthModule } from 'src/auth/auth.module';
-import { ClaimsModule } from 'src/claims/claims.module';
 import { CoparentingModule } from 'src/coparenting/coparenting.module';
 import { FriendsModule } from 'src/friends/friends.module';
 import { GiftsModule } from 'src/gifts/gifts.module';
 import { NotificationsModule } from 'src/notifications/notifications.module';
 import { PetsModule } from 'src/pets/pets.module';
-import { SharedModule } from 'src/shared/shared.module';
+import { ItemsModule } from 'src/items/items.module';
 import { StorageModule } from 'src/storage/storage.module';
 import { UsersModule } from 'src/users/users.module';
 import { v4 as uuidv4 } from 'uuid';
@@ -46,7 +45,6 @@ import { v4 as uuidv4 } from 'uuid';
 			},
 			inject: [ConfigService],
 		}),
-		SharedModule,
 		StorageModule,
 		UsersModule,
 		FriendsModule,
@@ -54,7 +52,7 @@ import { v4 as uuidv4 } from 'uuid';
 		CoparentingModule,
 		PetsModule,
 		AuthModule,
-		ClaimsModule,
+		ItemsModule,
 		NotificationsModule,
 	],
 	controllers: [],

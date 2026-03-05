@@ -26,3 +26,5 @@ export class StorageConfig {
 		};
 	}
 }
+
+export const PRESIGNED_URL_EXPIRY_SECONDS = 3600;

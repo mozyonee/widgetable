@@ -26,7 +26,7 @@ import { Pet, PetType, PetNeed, PET_THRESHOLDS } from '@widgetable/types';
 
 ```
 src/
-├── claims/      # ClaimResult, ClaimStatus
+├── rewards/      # RewardResult, RewardStatus
 ├── config/      # Threshold and timing constants
 ├── database/    # Database-related types
 ├── pet/

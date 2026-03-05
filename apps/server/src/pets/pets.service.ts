@@ -8,18 +8,16 @@ import {
 import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 
 import {
+	calculateDecayedNeeds,
 	calculateLevel,
-	ClaimResult,
 	DEFAULT_LANGUAGE,
 	EXPEDITION_BASE_DURATION,
-	EXPEDITION_CONFIG,
 	EXPEDITION_LEVEL_MULTIPLIER,
 	HATCH_DURATIONS,
+	ItemResult,
+	MAX_EXPEDITION_SLOTS_RATIO,
 	PET_NEED_KEYS,
-	PET_NEEDS_CONFIG,
 	PET_THRESHOLDS,
-	PET_UPDATE_INTERVAL,
-	PetActionCategory,
 	PetType,
 	PetUpdate,
 } from '@widgetable/types';
@@ -27,8 +25,7 @@ import { translate } from '@widgetable/i18n';
 import { clamp, random } from 'lodash';
 import { Connection, Model, Types } from 'mongoose';
 import { BaseService } from 'src/common/base.service';
-import { PET_CONFIG } from 'src/shared/constants';
-import { RewardsService } from 'src/shared/rewards.service';
+import { ItemsService } from 'src/items/items.service';
 import { UserDocument } from 'src/users/entities/user.entity';
 import { UsersService } from 'src/users/users.service';
 import { Pet, PetDocument } from './entities/pet.entity';
@@ -41,7 +38,7 @@ export class PetsService extends BaseService {
 		@InjectModel(Pet.name) private petModel: Model<PetDocument>,
 		@InjectConnection() connection: Connection,
 		private readonly usersService: UsersService,
-		private readonly rewardsService: RewardsService,
+		private readonly itemsService: ItemsService,
 	) {
 		super(connection);
 	}
@@ -148,31 +145,13 @@ export class PetsService extends BaseService {
 
 		if (pet.isEgg) return pet;
 
-		const timeDiff = Date.now() - (pet.updatedAt?.getTime() || 0);
-		const intervals = Math.floor(timeDiff / PET_UPDATE_INTERVAL);
+		const lastUpdatedAt = pet.needsUpdatedAt ?? pet.updatedAt ?? new Date();
+		const { needs: updatedNeeds, changed } = calculateDecayedNeeds(pet.needs, lastUpdatedAt, new Date());
 
-		if (intervals <= 0) return pet;
-		// Convert per-minute decay to per-interval rate
-		const DECAY_TIME_UNIT = 60 * 1000;
-		const updatedNeeds: Record<string, number> = {};
-
-		PET_NEED_KEYS.forEach((key) => {
-			const config = PET_NEEDS_CONFIG[key];
-			const decrease = intervals * config.decayRate * (PET_UPDATE_INTERVAL / DECAY_TIME_UNIT);
-			updatedNeeds[key] = clamp(pet.needs[key] - decrease, 0, 100);
-		});
-
-		// Allows the next neglect cycle to trigger a fresh notification
-		const anyNeedRestored = PET_NEED_KEYS.some(
-			(key) => pet.needs[key] < PET_THRESHOLDS.URGENT && updatedNeeds[key] >= PET_THRESHOLDS.URGENT,
-		);
+		if (!changed) return pet;
 
 		const updatedPet = await this.petModel
-			.findByIdAndUpdate(
-				pet._id,
-				{ needs: updatedNeeds, ...(anyNeedRestored && { urgentNotifiedAt: null }) },
-				{ new: true },
-			)
+			.findByIdAndUpdate(pet._id, { needs: updatedNeeds, needsUpdatedAt: new Date() }, { new: true })
 			.populate('parents', this.PARENT_FIELDS);
 
 		return updatedPet || pet;
@@ -198,7 +177,7 @@ export class PetsService extends BaseService {
 		const now = new Date();
 		const allPets = await this.getPetsForUser(userId);
 		const activePets = allPets.filter((p) => !p.isEgg);
-		const maxSlots = Math.ceil(activePets.length * PET_CONFIG.MAX_EXPEDITION_SLOTS_RATIO);
+		const maxSlots = Math.ceil(activePets.length * MAX_EXPEDITION_SLOTS_RATIO);
 		const usedSlots = allPets.filter(
 			(p) => p.isOnExpedition && p.expeditionReturnTime && new Date(p.expeditionReturnTime) > now,
 		).length;
@@ -210,15 +189,12 @@ export class PetsService extends BaseService {
 		const duration = baseDuration * levelMultiplier;
 		const returnTime = new Date(Date.now() + duration);
 
-		const rewards = this.calculateExpeditionRewards(pet);
-
 		const updatedPet = await this.petModel
 			.findByIdAndUpdate(
 				petId,
 				{
 					isOnExpedition: true,
 					expeditionReturnTime: returnTime,
-					expeditionRewards: rewards.rewards,
 				},
 				{ new: true },
 			)
@@ -228,92 +204,29 @@ export class PetsService extends BaseService {
 		return updatedPet;
 	}
 
-	async claimExpedition(petId: PetDocument['_id'], userId: UserDocument['_id']): Promise<ClaimResult> {
+	async claimExpedition(petId: PetDocument['_id'], userId: UserDocument['_id']): Promise<ItemResult> {
 		const pet = await this.getPet(petId);
 
 		if (!pet.isOnExpedition) throw new ConflictException();
 		if (!pet.expeditionReturnTime) throw new UnprocessableEntityException();
-		if (new Date() < pet.expeditionReturnTime) {
-			throw new ConflictException();
-		}
-		if (!pet.expeditionRewards) throw new UnprocessableEntityException();
-		// Atomic transaction ensures rewards and state update together
-		const rewards = pet.expeditionRewards;
+		if (new Date() < pet.expeditionReturnTime) throw new ConflictException();
+
+		const result = this.itemsService.calculateExpeditionItems(pet);
+
+		// Atomic transaction ensures items and state update together
 		await this.withTransaction(async (session) => {
-			await this.usersService.applyRewards(userId, rewards, session);
+			await this.usersService.addInventoryBundle(userId, result.items, session);
 
 			await this.petModel.findByIdAndUpdate(
 				petId,
 				{
 					isOnExpedition: false,
 					expeditionReturnTime: undefined,
-					expeditionRewards: undefined,
 				},
 				{ session },
 			);
 		});
 
-		const valentineCount = (rewards.valentines || []).reduce((sum, item) => sum + item.quantity, 0);
-		const totalItems =
-			[...rewards.food, ...rewards.drinks, ...rewards.hygiene, ...(rewards.care || [])].reduce(
-				(sum, item) => sum + item.quantity,
-				rewards.eggs,
-			) + valentineCount;
-
-		return {
-			success: true,
-			rewards,
-			totalItems,
-			nextClaimTime: new Date(),
-		};
-	}
-
-	private calculateExpeditionRewards(pet: PetDocument): ClaimResult {
-		const {
-			BASE_FOOD_ITEMS,
-			BASE_DRINK_ITEMS,
-			BASE_HYGIENE_ITEMS,
-			BASE_CARE_ITEMS,
-			MIN_EGG_CHANCE,
-			MAX_EGG_CHANCE,
-		} = EXPEDITION_CONFIG;
-		// Exponential scaling caps at +100%
-		const levelMultiplier = 1 + Math.min(pet.level * 0.1, 1.0);
-
-		const foodCount = Math.floor(BASE_FOOD_ITEMS * levelMultiplier);
-		const drinkCount = Math.floor(BASE_DRINK_ITEMS * levelMultiplier);
-		const hygieneCount = Math.floor(BASE_HYGIENE_ITEMS * levelMultiplier);
-		const careCount = Math.floor(BASE_CARE_ITEMS * levelMultiplier);
-
-		const foodItems = this.rewardsService.selectRandomItems(PetActionCategory.FEED, foodCount);
-		const drinkItems = this.rewardsService.selectRandomItems(PetActionCategory.DRINK, drinkCount);
-		const hygieneItems = this.rewardsService.selectRandomItems(PetActionCategory.WASH, hygieneCount);
-		const careItems = this.rewardsService.selectRandomItems(PetActionCategory.CARE, careCount);
-		// Logarithmic growth from 5% to 18% based on level
-		const eggChance = Math.min(
-			MIN_EGG_CHANCE + (MAX_EGG_CHANCE - MIN_EGG_CHANCE) * (1 - 1 / (1 + pet.level * 0.3)),
-			MAX_EGG_CHANCE,
-		);
-		const earnedEggs = Math.random() < eggChance ? 1 : 0;
-		// February-only valentine items
-		const valentineItems = this.rewardsService.isValentineSeason()
-			? this.rewardsService.selectRandomValentineItems(Math.floor(1 * levelMultiplier))
-			: [];
-
-		const valentineCount = valentineItems.reduce((sum, item) => sum + item.quantity, 0);
-
-		return {
-			success: true,
-			rewards: {
-				food: foodItems,
-				drinks: drinkItems,
-				hygiene: hygieneItems,
-				care: careItems,
-				eggs: earnedEggs,
-				valentines: valentineItems.length > 0 ? valentineItems : undefined,
-			},
-			totalItems: foodCount + drinkCount + hygieneCount + careCount + earnedEggs + valentineCount,
-			nextClaimTime: new Date(),
-		};
+		return result;
 	}
 }

@@ -1,5 +1,5 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
-import { USER_POPULATE_FIELDS } from 'src/shared/constants';
+import { USER_POPULATE_FIELDS } from 'src/users/users.constants';
 import { InjectModel, InjectConnection } from '@nestjs/mongoose';
 import { RequestType, RequestStatus, DEFAULT_LANGUAGE } from '@widgetable/types';
 import { Model, Connection, Types } from 'mongoose';

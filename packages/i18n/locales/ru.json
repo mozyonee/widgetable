@@ -1,326 +1,299 @@
 {
-	"common": {
-		"loading": "Загрузка...",
-		"calculating": "Подсчёт..."
-	},
-	"auth": {
-		"welcomeBack": "С возвращением!",
-		"createAccount": "Создать аккаунт",
-		"login": "Войти",
-		"register": "Регистрация",
-		"email": "Эл. почта",
-		"password": "Пароль",
-		"noAccount": "Нет аккаунта?",
-		"hasAccount": "Уже есть аккаунт?",
-		"failedAuth": "Ошибка аутентификации"
-	},
-	"account": {
-		"profile": "Профиль",
-		"carePackages": "Припасы",
-		"carePackagesDesc": "Собирайте припасы для питомцев!",
-		"logOut": "Выйти",
-		"usernamePlaceholder": "Имя пользователя",
-		"usernameUpdated": "Имя обновлено",
-		"failedUpdateName": "Не удалось обновить имя",
-		"failedUploadImage": "Не удалось загрузить изображение",
-		"selectImage": "Пожалуйста, выберите изображение",
-		"imageTooLarge": "Размер изображения не должен превышать 5 МБ",
-		"language": "Язык",
-		"notifications": "Уведомления",
-		"enableNotifications": "Включить уведомления",
-		"disableNotifications": "Выключить уведомления",
-		"notificationsNotSupported": "Уведомления не поддерживаются в этом браузере",
-		"notificationsDenied": "Уведомления заблокированы. Включите их в настройках браузера.",
-		"serviceWorkerNotAvailable": "Service worker недоступен",
-		"failedEnableNotifications": "Не удалось включить уведомления"
-	},
-	"pets": {
-		"title": "Питомцы",
-		"addPet": "Добавить",
-		"egg": "Яйцо",
-		"level": "Уровень {level}",
-		"xp": "{current}/{next} XP",
-		"hatching": "Вылупляется...",
-		"hatchingIn": "Вылупится через {time}",
-		"ready": "Вернулся!",
-		"needEggs": "Нужны яйца, чтобы добавить питомца!",
-		"clickToAdd": "Нажмите кнопку ниже, чтобы добавить питомца!",
-		"expedition": "Охота",
-		"background": "Фон",
-		"invite": "Пригласить",
-		"selectBackground": "Выбрать фон",
-		"random": "Случайный",
-		"bgLabel": "Фон {id}",
-		"onExpedition": "{name} на охоте",
-		"backFromExpedition": "{name} вернулся с охоты!",
-		"willReturn": "Вернётся через {time}",
-		"claimRewards": "Забрать награды",
-		"departedExpedition": "{name} отправился на охоту!",
-		"returnedSuccess": "{name} успешно вернулся!",
-		"failedStartExpedition": "Не удалось начать охоту",
-		"expeditionEggError": "Яйца не могут отправляться на охоту",
-		"expeditionSlotsFull": "Все слоты для охоты заняты",
-		"failedClaimRewards": "Не удалось забрать награды",
-		"urgentNeeds": "У {name} срочные нужды! Позаботьтесь о: {needs}.",
-		"isBusy": "{name} занят",
-		"noLongerParent": "Вы больше не опекаете {name}",
-		"type": {
-			"fox": "Лиса",
-			"cat": "Кот",
-			"dog": "Собака",
-			"bunny": "Кролик",
-			"chicken": "Курица",
-			"panda": "Панда",
-			"turtle": "Черепаха",
-			"parrot": "Попугай"
-		},
-		"category": {
-			"Feed": "Еда",
-			"Drink": "Напитки",
-			"Wash": "Гигиена",
-			"Care": "Уход"
-		},
-		"needs": {
-			"hygiene": "Гигиена",
-			"hunger": "Голод",
-			"thirst": "Жажда",
-			"energy": "Энергия",
-			"toilet": "Туалет",
-			"urgency": {
-				"hygiene": "Мне нужно помыться!",
-				"hunger": "Я голоден!",
-				"thirst": "Я хочу пить!",
-				"energy": "Я устал!",
-				"toilet": "Мне нужно в туалет!"
-			}
-		},
-		"happy": {
-			"0": "Я счастлив!",
-			"1": "Жизнь прекрасна!",
-			"2": "Я отлично себя чувствую!",
-			"3": "Всё хорошо!",
-			"4": "Я тебя люблю!",
-			"5": "Ты лучший!",
-			"6": "У меня всё хорошо!",
-			"7": "Всё идеально!"
-		},
-		"usernameVariation": {
-			"0": "{username}, {message}!",
-			"1": "{username}, {message}!",
-			"2": "{message}, {username}!",
-			"3": "{username}! {message}!"
-		}
-	},
-	"friends": {
-		"title": "Друзья",
-		"searchPlaceholder": "Поиск пользователей...",
-		"noUsersFound": "Пользователи не найдены",
-		"searchToAdd": "Найдите пользователей выше, чтобы добавить друзей!",
-		"pending": "Ожидание",
-		"wantsToShare": "{name} хочет поделиться",
-		"sharedWith": "Поделились с {name}",
-		"failedLoad": "Не удалось загрузить друзей",
-		"searchFailed": "Поиск не удался",
-		"requestSent": "Запрос в друзья отправлен",
-		"failedSendRequest": "Не удалось отправить запрос",
-		"requestCancelled": "Запрос отменён",
-		"failedCancelRequest": "Не удалось отменить запрос",
-		"friendAdded": "Друг добавлен",
-		"failedAcceptRequest": "Не удалось принять запрос",
-		"requestDeclined": "Запрос отклонён",
-		"failedDeclineRequest": "Не удалось отклонить запрос",
-		"friendRemoved": "Друг удалён",
-		"failedRemoveFriend": "Не удалось удалить друга"
-	},
-	"invite": {
-		"title": "Пригласить друга",
-		"noFriends": "Нет доступных друзей",
-		"findMore": "Найти больше друзей",
-		"sent": "Приглашение отправлено {name}",
-		"userNotFound": "Пользователь или питомец не найден",
-		"cannotSend": "Невозможно отправить запрос",
-		"failedSend": "Не удалось отправить приглашение"
-	},
-	"coparenting": {
-		"failedLoadRequests": "Не удалось загрузить запросы",
-		"requestAccepted": "Запрос принят",
-		"failedAccept": "Не удалось принять",
-		"requestDeclined": "Запрос отклонён",
-		"failedDecline": "Не удалось отклонить",
-		"requestCancelled": "Запрос отменён",
-		"failedCancel": "Не удалось отменить"
-	},
-	"claims": {
-		"collecting": "Собираю...",
-		"dailyCarePackage": "Ежедневные припасы",
-		"quickCarePackage": "Быстрые припасы",
-		"carePackage": "Припасы",
-		"debugClaim": "Отладочный пакет",
-		"claimRewards": "Забрать награды",
-		"nextIn": "Следующие через:",
-		"failedLoad": "Не удалось загрузить статус наград",
-		"failedClaim": "Не удалось забрать награды. Попробуйте снова."
-	},
-	"rewards": {
-		"title": "Награды из припасов!",
-		"food": "Еда",
-		"drinks": "Напитки",
-		"hygiene": "Гигиена",
-		"care": "Уход",
-		"items": "{count} предм.",
-		"bonus": "Бонус",
-		"luckyFind": "Повезло!",
-		"awesome": "ОТЛИЧНО!",
-		"valentines": "Валентинки"
-	},
-	"action": {
-		"Sushi": "Суши",
-		"Hamburger": "Гамбургер",
-		"Lasagna": "Лазанья",
-		"Bento Box": "Бенто",
-		"Pizza": "Пицца",
-		"Ramen": "Рамен",
-		"Taco": "Тако",
-		"Burrito": "Буррито",
-		"Sandwich": "Сэндвич",
-		"Hot Dog": "Хот-дог",
-		"Soup": "Суп",
-		"Rice Bowl": "Рис",
-		"Mac & Cheese": "Макароны",
-		"Watermelon": "Арбуз",
-		"Mango": "Манго",
-		"Strawberry": "Клубника",
-		"Cookie": "Печенье",
-		"Brownie": "Брауни",
-		"Donut": "Пончик",
-		"French Fries": "Картошка фри",
-		"Orange Juice": "Апельсиновый сок",
-		"Apple Cider": "Яблочный сидр",
-		"Fruit Parfait": "Фруктовое парфе",
-		"Latte": "Латте",
-		"Milk": "Молоко",
-		"Hot Cocoa": "Горячий шоколад",
-		"Fruit Tea": "Фруктовый чай",
-		"Cappuccino": "Капучино",
-		"Bath Salts": "Соль для ванны",
-		"Bathtub": "Ванна",
-		"Shampoo": "Шампунь",
-		"Shower": "Душ",
-		"Mouth Wash": "Ополаскиватель",
-		"Hand Soap": "Мыло",
-		"Brush": "Щётка",
-		"Wipe Down": "Салфетки",
-		"Sponge": "Губка",
-		"Toilet": "Туалет",
-		"Quick Potty": "Горшок",
-		"Long Sleep": "Долгий сон",
-		"Nap": "Дремота",
-		"Rest": "Отдых",
-		"Grooming Session": "Груминг",
-		"Nail Trim": "Стрижка когтей",
-		"Ear Cleaning": "Чистка ушей",
-		"Chocolate Bar Red": "Красная шоколадка",
-		"Chocolate Bar Brown": "Шоколадка",
-		"Chocolate Bar Blue": "Голубая шоколадка",
-		"Chocolate Bar White": "Белый шоколад",
-		"Chocolate Bar Duo": "Двойная шоколадка",
-		"Chocolate": "Шоколадные конфеты",
-		"Letter Sealed Red Heart": "Письмо с сердцем",
-		"Letter Sealed Red Border": "Красное письмо",
-		"Letter Sealed Pink": "Розовое письмо",
-		"Letter Sealed Small Heart": "Письмо с сердечком",
-		"Letter Sealed Orange": "Оранжевое письмо",
-		"Letter Sealed Pink Heart": "Розовое письмо с сердцем",
-		"Letter Sealed Brown": "Коричневое письмо",
-		"Letter Sealed Amber": "Янтарное письмо",
-		"Envelope White": "Белый конверт",
-		"Envelope Pink": "Розовый конверт"
-	},
-	"gifts": {
-		"title": "Отправить подарок",
-		"send": "Отправить",
-		"noItems": "Нет валентинок в инвентаре",
-		"noItemsHint": "Собирайте валентинки из припасов и с охоты!",
-		"sent": "Подарок отправлен {name}!",
-		"failedSend": "Не удалось отправить подарок",
-		"sendGift": "Подарок"
-	},
-	"valentine": {
-		"question": "Будешь моей Валентинкой?",
-		"yes": "Да!",
-		"no": "Нет",
-		"yay": "Ура!",
-		"present": "У меня для тебя небольшой подарок :)",
-		"takeLook": "Посмотреть"
-	},
-	"pwa": {
-		"warning": "Лучше как PWA",
-		"description": "Это приложение создано для PWA и может работать некорректно в браузере.",
-		"iosTitle": "Установка на iOS:",
-		"iosStep1": "Нажмите кнопку «Поделиться» в Safari",
-		"iosStep2": "Прокрутите вниз и нажмите «На экран Домой»",
-		"iosStep3": "Нажмите «Добавить» для подтверждения",
-		"androidTitle": "Установка на Android:",
-		"androidStep1": "Нажмите меню (⋮) в Chrome",
-		"androidStep2": "Нажмите «Добавить на главный экран» или «Установить»",
-		"desktopTitle": "Установка на ПК:",
-		"desktopStep1": "Нажмите значок установки (⊕) в адресной строке",
-		"desktopStep2": "Нажмите «Установить» для подтверждения",
-		"continueAnyway": "Продолжить"
-	},
-	"notif": {
-		"urgent": {
-			"title": {
-				"one": "{name} грустит!",
-				"many": "Ваши питомцы грустят!"
-			},
-			"body": {
-				"one": "{name} нуждается в вашем внимании!",
-				"many": "{count} питомцев нуждаются в вашем внимании!"
-			}
-		},
-		"zero": {
-			"title": "Ваши питомцы ждут вас!",
-			"body": {
-				"one": "Все показатели {name} на нуле!",
-				"many": "{count} питомцев нуждаются в вашем внимании!"
-			}
-		},
-		"expedition": {
-			"title": "Охота завершена!",
-			"body": {
-				"one": "{name} вернулся с охоты!",
-				"many": "{count} питомцев вернулись с охоты!"
-			}
-		},
-		"egg": {
-			"title": "Яйцо вылупилось!",
-			"body": {
-				"one": "{name} вылупился!",
-				"many": "{count} яиц вылупились!"
-			}
-		},
-		"claims": {
-			"title": "Припасы готовы!",
-			"both": "Ежедневные и быстрые припасы готовы к сбору!",
-			"daily": "Ежедневные припасы готовы к сбору!",
-			"quick": "Быстрые припасы готовы к сбору!"
-		},
-		"test": {
-			"title": "Тестовое уведомление",
-			"body": "Если вы видите это, уведомления работают!"
-		},
-		"friend": {
-			"title": "Новая заявка в друзья",
-			"body": "{sender} отправил вам заявку в друзья!"
-		},
-		"coparenting": {
-			"title": "Приглашение к совместному уходу",
-			"body": "{sender} хочет совместно ухаживать за {pet}!"
-		},
-		"gift": {
-			"title": "Валентинка!",
-			"body": "{sender} отправил вам валентинку!"
-		}
-	}
+  "common": {
+    "loading": "Загрузка...",
+    "calculating": "Подсчёт..."
+  },
+  "auth": {
+    "welcomeBack": "С возвращением!",
+    "createAccount": "Создать аккаунт",
+    "login": "Войти",
+    "register": "Регистрация",
+    "email": "Эл. почта",
+    "password": "Пароль",
+    "noAccount": "Нет аккаунта?",
+    "hasAccount": "Уже есть аккаунт?",
+    "failedAuth": "Ошибка аутентификации"
+  },
+  "account": {
+    "profile": "Профиль",
+    "carePackages": "Припасы",
+    "carePackagesDesc": "Собирайте припасы для питомцев!",
+    "logOut": "Выйти",
+    "usernamePlaceholder": "Имя пользователя",
+    "usernameUpdated": "Имя обновлено",
+    "failedUpdateName": "Не удалось обновить имя",
+    "failedUploadImage": "Не удалось загрузить изображение",
+    "selectImage": "Пожалуйста, выберите изображение",
+    "imageTooLarge": "Размер изображения не должен превышать 5 МБ",
+    "language": "Язык",
+    "notifications": "Уведомления",
+    "enableNotifications": "Включить уведомления",
+    "disableNotifications": "Выключить уведомления",
+    "notificationsNotSupported": "Уведомления не поддерживаются в этом браузере",
+    "notificationsDenied": "Уведомления заблокированы. Включите их в настройках браузера.",
+    "serviceWorkerNotAvailable": "Service worker недоступен",
+    "failedEnableNotifications": "Не удалось включить уведомления"
+  },
+  "pets": {
+    "title": "Питомцы",
+    "addPet": "Добавить",
+    "egg": "Яйцо",
+    "level": "Уровень {level}",
+    "xp": "{current}/{next} XP",
+    "hatching": "Вылупляется...",
+    "hatchingIn": "Вылупится через {time}",
+    "ready": "Вернулся!",
+    "needEggs": "Нужны яйца, чтобы добавить питомца!",
+    "clickToAdd": "Нажмите кнопку ниже, чтобы добавить питомца!",
+    "expedition": "Охота",
+    "background": "Фон",
+    "invite": "Пригласить",
+    "selectBackground": "Выбрать фон",
+    "random": "Случайный",
+    "bgLabel": "Фон {id}",
+    "onExpedition": "{name} на охоте",
+    "backFromExpedition": "{name} вернулся с охоты!",
+    "willReturn": "Вернётся через {time}",
+    "claimRewards": "Забрать награды",
+    "departedExpedition": "{name} отправился на охоту!",
+    "returnedSuccess": "{name} успешно вернулся!",
+    "failedStartExpedition": "Не удалось начать охоту",
+    "expeditionEggError": "Яйца не могут отправляться на охоту",
+    "expeditionSlotsFull": "Все слоты для охоты заняты",
+    "failedClaimRewards": "Не удалось забрать награды",
+    "urgentNeeds": "У {name} срочные нужды! Позаботьтесь о: {needs}.",
+    "isBusy": "{name} занят",
+    "noLongerParent": "Вы больше не опекаете {name}",
+    "type": {
+      "fox": "Лиса",
+      "cat": "Кот",
+      "dog": "Собака",
+      "bunny": "Кролик",
+      "chicken": "Курица",
+      "panda": "Панда",
+      "turtle": "Черепаха",
+      "parrot": "Попугай"
+    },
+    "category": {
+      "Feed": "Еда",
+      "Drink": "Напитки",
+      "Wash": "Гигиена",
+      "Care": "Уход"
+    },
+    "needs": {
+      "hygiene": "Гигиена",
+      "hunger": "Голод",
+      "thirst": "Жажда",
+      "energy": "Энергия",
+      "toilet": "Туалет",
+      "urgency": {
+        "hygiene": "Мне нужно помыться!",
+        "hunger": "Я голоден!",
+        "thirst": "Я хочу пить!",
+        "energy": "Я устал!",
+        "toilet": "Мне нужно в туалет!"
+      }
+    },
+    "happy": {
+      "0": "Я счастлив!",
+      "1": "Жизнь прекрасна!",
+      "2": "Я отлично себя чувствую!",
+      "3": "Всё хорошо!",
+      "4": "Я тебя люблю!",
+      "5": "Ты лучший!",
+      "6": "У меня всё хорошо!",
+      "7": "Всё идеально!"
+    },
+    "usernameVariation": {
+      "0": "{username}, {message}!",
+      "1": "{username}, {message}!",
+      "2": "{message}, {username}!",
+      "3": "{username}! {message}!"
+    }
+  },
+  "friends": {
+    "title": "Друзья",
+    "searchPlaceholder": "Поиск пользователей...",
+    "noUsersFound": "Пользователи не найдены",
+    "searchToAdd": "Найдите пользователей выше, чтобы добавить друзей!",
+    "pending": "Ожидание",
+    "wantsToShare": "{name} хочет поделиться",
+    "sharedWith": "Поделились с {name}",
+    "failedLoad": "Не удалось загрузить друзей",
+    "searchFailed": "Поиск не удался",
+    "requestSent": "Запрос в друзья отправлен",
+    "failedSendRequest": "Не удалось отправить запрос",
+    "requestCancelled": "Запрос отменён",
+    "failedCancelRequest": "Не удалось отменить запрос",
+    "friendAdded": "Друг добавлен",
+    "failedAcceptRequest": "Не удалось принять запрос",
+    "requestDeclined": "Запрос отклонён",
+    "failedDeclineRequest": "Не удалось отклонить запрос",
+    "friendRemoved": "Друг удалён",
+    "failedRemoveFriend": "Не удалось удалить друга"
+  },
+  "invite": {
+    "title": "Пригласить друга",
+    "noFriends": "Нет доступных друзей",
+    "findMore": "Найти больше друзей",
+    "sent": "Приглашение отправлено {name}",
+    "userNotFound": "Пользователь или питомец не найден",
+    "cannotSend": "Невозможно отправить запрос",
+    "failedSend": "Не удалось отправить приглашение"
+  },
+  "coparenting": {
+    "failedLoadRequests": "Не удалось загрузить запросы",
+    "requestAccepted": "Запрос принят",
+    "failedAccept": "Не удалось принять",
+    "requestDeclined": "Запрос отклонён",
+    "failedDecline": "Не удалось отклонить",
+    "requestCancelled": "Запрос отменён",
+    "failedCancel": "Не удалось отменить"
+  },
+  "action": {
+    "sushi": "Суши",
+    "hamburger": "Гамбургер",
+    "pizza": "Пицца",
+    "chocolateBar": "Шоколадка",
+    "cookie": "Печенье",
+    "donut": "Пончик",
+    "watermelon": "Арбуз",
+    "mango": "Манго",
+    "strawberry": "Клубника",
+    "orangeJuice": "Апельсиновый сок",
+    "fruitTea": "Фруктовый чай",
+    "appleCider": "Яблочный сидр",
+    "latte": "Латте",
+    "hotCocoa": "Горячий шоколад",
+    "milk": "Молоко",
+    "bathtub": "Ванна",
+    "shower": "Душ",
+    "handSoap": "Мыло",
+    "brush": "Щётка",
+    "earCleaning": "Чистка ушей",
+    "nailTrim": "Стрижка когтей",
+    "toilet": "Туалет",
+    "quickPotty": "Горшок",
+    "longSleep": "Долгий сон",
+    "nap": "Дремота",
+    "rest": "Отдых",
+    "letterSealedRedHeart": "Письмо с сердцем",
+    "letterSealedRedBorder": "Красное письмо",
+    "letterSealedPink": "Розовое письмо",
+    "letterSealedSmallHeart": "Письмо с сердечком",
+    "letterSealedOrange": "Оранжевое письмо",
+    "letterSealedPinkHeart": "Розовое письмо с сердцем",
+    "letterSealedBrown": "Коричневое письмо",
+    "letterSealedAmber": "Янтарное письмо",
+    "envelopeWhite": "Белый конверт",
+    "envelopePink": "Розовый конверт"
+  },
+  "gifts": {
+    "title": "Отправить подарок",
+    "send": "Отправить",
+    "noItems": "Нет валентинок в инвентаре",
+    "noItemsHint": "Собирайте валентинки из припасов и с охоты!",
+    "sent": "Подарок отправлен {name}!",
+    "failedSend": "Не удалось отправить подарок",
+    "sendGift": "Подарок"
+  },
+  "valentine": {
+    "question": "Будешь моей Валентинкой?",
+    "yes": "Да!",
+    "no": "Нет",
+    "yay": "Ура!",
+    "present": "У меня для тебя небольшой подарок :)",
+    "takeLook": "Посмотреть"
+  },
+  "pwa": {
+    "warning": "Лучше как PWA",
+    "description": "Это приложение создано для PWA и может работать некорректно в браузере.",
+    "iosTitle": "Установка на iOS:",
+    "iosStep1": "Нажмите кнопку «Поделиться» в Safari",
+    "iosStep2": "Прокрутите вниз и нажмите «На экран Домой»",
+    "iosStep3": "Нажмите «Добавить» для подтверждения",
+    "androidTitle": "Установка на Android:",
+    "androidStep1": "Нажмите меню (⋮) в Chrome",
+    "androidStep2": "Нажмите «Добавить на главный экран» или «Установить»",
+    "desktopTitle": "Установка на ПК:",
+    "desktopStep1": "Нажмите значок установки (⊕) в адресной строке",
+    "desktopStep2": "Нажмите «Установить» для подтверждения",
+    "continueAnyway": "Продолжить"
+  },
+  "notif": {
+    "urgent": {
+      "title": {
+        "one": "{name} грустит!",
+        "many": "Ваши питомцы грустят!"
+      },
+      "body": {
+        "one": "{name} нуждается в вашем внимании!",
+        "many": "{count} питомцев нуждаются в вашем внимании!"
+      }
+    },
+    "zero": {
+      "title": "Ваши питомцы ждут вас!",
+      "body": {
+        "one": "Все показатели {name} на нуле!",
+        "many": "{count} питомцев нуждаются в вашем внимании!"
+      }
+    },
+    "expedition": {
+      "title": "Охота завершена!",
+      "body": {
+        "one": "{name} вернулся с охоты!",
+        "many": "{count} питомцев вернулись с охоты!"
+      }
+    },
+    "egg": {
+      "title": "Яйцо вылупилось!",
+      "body": {
+        "one": "{name} вылупился!",
+        "many": "{count} яиц вылупились!"
+      }
+    },
+    "test": {
+      "title": "Тестовое уведомление",
+      "body": "Если вы видите это, уведомления работают!"
+    },
+    "friend": {
+      "title": "Новая заявка в друзья",
+      "body": "{sender} отправил вам заявку в друзья!"
+    },
+    "coparenting": {
+      "title": "Приглашение к совместному уходу",
+      "body": "{sender} хочет совместно ухаживать за {pet}!"
+    },
+    "gift": {
+      "title": "Валентинка!",
+      "body": "{sender} отправил вам валентинку!"
+    },
+    "items": {
+      "title": "Припасы готовы!",
+      "daily": "Ежедневные припасы готовы к сбору!",
+      "quick": "Быстрые припасы готовы к сбору!",
+      "all": "Ежедневные и быстрые припасы готовы к сбору!"
+    }
+  },
+  "items": {
+    "collecting": "Собираю...",
+    "dailyCarePackage": "Ежедневные припасы",
+    "quickCarePackage": "Быстрые припасы",
+    "carePackage": "Припасы",
+    "debugClaim": "Отладочный пакет",
+    "claimRewards": "Забрать награды",
+    "nextIn": "Следующие через:",
+    "failedLoad": "Не удалось загрузить статус наград",
+    "failedClaim": "Не удалось забрать награды. Попробуйте снова.",
+    "title": "Награды из припасов!",
+    "food": "Еда",
+    "drinks": "Напитки",
+    "hygiene": "Гигиена",
+    "care": "Уход",
+    "count": "{count} предм.",
+    "bonus": "Бонус",
+    "luckyFind": "Повезло!",
+    "awesome": "ОТЛИЧНО!",
+    "valentines": "Валентинки"
+  }
 }

@@ -4,17 +4,17 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { translate } from '@widgetable/i18n';
 import {
-	CLAIMS_CONFIG,
+	calculateDecayedNeeds,
+	CLAIM_TYPE_CONFIG,
+	ClaimType,
 	DEFAULT_LANGUAGE,
+	isClaimAvailable,
 	NOTIFICATION_CONFIG,
-	PET_NEED_KEYS,
-	PET_NEEDS_CONFIG,
-	PET_UPDATE_INTERVAL,
+	PET_THRESHOLDS,
 } from '@widgetable/types';
-import { clamp } from 'lodash';
 import { Model, Types } from 'mongoose';
 import { Pet, PetDocument } from 'src/pets/entities/pet.entity';
-import { WEBPUSH_CONFIG } from 'src/shared/constants';
+import { WEBPUSH_CONFIG } from './notifications.constants';
 import { User, UserDocument } from 'src/users/entities/user.entity';
 import * as webpush from 'web-push';
 import { PushSubscription, PushSubscriptionDocument } from './entities/push-subscription.entity';
@@ -26,6 +26,8 @@ export const nt = (lang: string, key: string, params?: Record<string, string | n
 @Injectable()
 export class NotificationsService {
 	private readonly logger = new Logger(NotificationsService.name);
+	// petId → expiry timestamp; replaces urgentNotifiedAt DB field
+	private readonly urgentCooldowns = new Map<string, number>();
 
 	constructor(
 		@InjectModel(PushSubscription.name) private subscriptionModel: Model<PushSubscriptionDocument>,
@@ -57,11 +59,6 @@ export class NotificationsService {
 		return this.subscriptionModel.deleteOne({ endpoint });
 	}
 
-	private async getUserLang(userId: string | Types.ObjectId): Promise<string> {
-		const user = await this.userModel.findById(userId).select('language').lean();
-		return user?.language || DEFAULT_LANGUAGE;
-	}
-
 	private async batchGetUserLangs(userIds: string[]): Promise<Map<string, string>> {
 		const users = await this.userModel
 			.find({ _id: { $in: userIds } })
@@ -77,46 +74,6 @@ export class NotificationsService {
 			}
 		});
 		return langMap;
-	}
-
-	async sendTestNotification(userId: Types.ObjectId) {
-		const subscriptions = await this.subscriptionModel.find({ userId });
-
-		if (subscriptions.length === 0) {
-			return { sent: 0, message: 'No subscriptions found for this user' };
-		}
-
-		const lang = await this.getUserLang(userId);
-		const payload = JSON.stringify({
-			title: nt(lang, 'test.title'),
-			body: nt(lang, 'test.body'),
-			icon: '/icon-192x192.png',
-			url: '/',
-		});
-
-		let sent = 0;
-		for (const sub of subscriptions) {
-			try {
-				await webpush.sendNotification(
-					{ endpoint: sub.endpoint, keys: sub.keys as webpush.PushSubscription['keys'] },
-					payload,
-				);
-				sent++;
-			} catch (error) {
-				const err = error as { statusCode?: number; message?: string };
-				if (
-					err.statusCode &&
-					(WEBPUSH_CONFIG.INVALID_SUBSCRIPTION_CODES as readonly number[]).includes(err.statusCode)
-				) {
-					await this.subscriptionModel.deleteOne({ _id: sub._id });
-					this.logger.debug(`Removed expired subscription: ${sub.endpoint}`);
-				} else {
-					this.logger.error(`Failed to send test notification: ${err.message || 'Unknown error'}`);
-				}
-			}
-		}
-
-		return { sent, total: subscriptions.length };
 	}
 
 	async sendNotificationToUser(
@@ -164,31 +121,24 @@ export class NotificationsService {
 		const now = Date.now();
 
 		for (const pet of pets) {
-			const timeDiff = now - (pet.updatedAt?.getTime() || 0);
-			const intervals = Math.floor(timeDiff / PET_UPDATE_INTERVAL);
+			const lastUpdatedAt = pet.needsUpdatedAt ?? pet.updatedAt ?? new Date();
+			const { needs: currentNeeds, changed } = calculateDecayedNeeds(pet.needs, lastUpdatedAt, new Date(now));
 
-			if (intervals <= 0) continue;
+			if (!changed) continue;
 
 			let hasNewUrgent = false;
 			let allZero = true;
 
-			for (const key of PET_NEED_KEYS) {
-				const config = PET_NEEDS_CONFIG[key];
-				const decrease =
-					intervals * config.decayRate * (PET_UPDATE_INTERVAL / NOTIFICATION_CONFIG.DECAY_TIME_UNIT_MS);
-				const stored = pet.needs[key];
-				const current = clamp(stored - decrease, 0, 100);
-
+			for (const key of Object.keys(currentNeeds) as (keyof typeof currentNeeds)[]) {
+				const current = currentNeeds[key];
 				if (current !== 0) allZero = false;
 				// Only notify when crossing threshold to avoid spam
-				if (stored >= 30 && current < 30) hasNewUrgent = true;
+				if (pet.needs[key] >= PET_THRESHOLDS.URGENT && current < PET_THRESHOLDS.URGENT) hasNewUrgent = true;
 			}
 
-			if (
-				hasNewUrgent &&
-				pet.urgentNotifiedAt &&
-				now - pet.urgentNotifiedAt.getTime() < NOTIFICATION_CONFIG.PET_NEEDS_COOLDOWN_MS
-			) {
+			const petId = pet._id.toString();
+			const cooldownExpiry = this.urgentCooldowns.get(petId) ?? 0;
+			if (hasNewUrgent && now < cooldownExpiry) {
 				hasNewUrgent = false;
 			}
 
@@ -224,15 +174,12 @@ export class NotificationsService {
 				}),
 			});
 			notifiedUsers.add(userId);
-			// A shared pet appears in each parent's list; deduplicate before the bulk write
 			for (const petId of petIds) notifiedPetIds.add(petId.toString());
 		}
 
-		if (notifiedPetIds.size > 0) {
-			await this.petModel.updateMany(
-				{ _id: { $in: [...notifiedPetIds] } },
-				{ $set: { urgentNotifiedAt: new Date(now) } },
-			);
+		const cooldownExpiry = now + NOTIFICATION_CONFIG.PET_NEEDS_COOLDOWN_MS;
+		for (const petId of notifiedPetIds) {
+			this.urgentCooldowns.set(petId, cooldownExpiry);
 		}
 
 		// Notify all-zero needs (only for users not already notified above)
@@ -339,38 +286,30 @@ export class NotificationsService {
 		this.logger.debug('Checking claim availability for notifications...');
 
 		const now = new Date();
-		const dailyCooldownMs = CLAIMS_CONFIG.DAILY_COOLDOWN_HOURS * 60 * 60 * 1000;
-		const quickCooldownMs = CLAIMS_CONFIG.QUICK_COOLDOWN_HOURS * 60 * 60 * 1000;
 
-		const dailyWindowEnd = new Date(now.getTime() - dailyCooldownMs);
-		const dailyWindowStart = new Date(dailyWindowEnd.getTime() - NOTIFICATION_CONFIG.COOLDOWN_MS);
+		// Build per-type window starts and query conditions
+		const orConditions = Object.values(ClaimType).map((type) => {
+			const windowStart = new Date(
+				now.getTime() - CLAIM_TYPE_CONFIG[type].cooldownHours * 3600000 - NOTIFICATION_CONFIG.COOLDOWN_MS,
+			);
+			return { [`lastClaimTimes.${type}`]: { $gte: windowStart } };
+		});
 
-		const quickWindowEnd = new Date(now.getTime() - quickCooldownMs);
-		const quickWindowStart = new Date(quickWindowEnd.getTime() - NOTIFICATION_CONFIG.COOLDOWN_MS);
+		const users = await this.userModel.find({ $or: orConditions }).lean();
 
-		const users = await this.userModel
-			.find({
-				$or: [
-					{ lastDailyClaimTime: { $gte: dailyWindowStart, $lte: dailyWindowEnd } },
-					{ lastQuickClaimTime: { $gte: quickWindowStart, $lte: quickWindowEnd } },
-				],
-			})
-			.lean();
 		for (const user of users) {
-			const dailyReady =
-				user.lastDailyClaimTime &&
-				user.lastDailyClaimTime >= dailyWindowStart &&
-				user.lastDailyClaimTime <= dailyWindowEnd;
-			const quickReady =
-				user.lastQuickClaimTime &&
-				user.lastQuickClaimTime >= quickWindowStart &&
-				user.lastQuickClaimTime <= quickWindowEnd;
+			const readyTypes = Object.values(ClaimType).filter((type) => {
+				const lastTime = user.lastClaimTimes?.[type as unknown as keyof typeof user.lastClaimTimes];
+				return isClaimAvailable(lastTime, CLAIM_TYPE_CONFIG[type].cooldownHours, now);
+			});
+
+			if (readyTypes.length === 0) continue;
 
 			const lang = user.language || DEFAULT_LANGUAGE;
-			const bodyKey = dailyReady && quickReady ? 'claims.both' : dailyReady ? 'claims.daily' : 'claims.quick';
+			const bodyKey = readyTypes.length > 1 ? 'items.all' : `items.${readyTypes[0]}`;
 
 			await this.sendNotificationToUser(user._id, {
-				title: nt(lang, 'claims.title'),
+				title: nt(lang, 'items.title'),
 				body: nt(lang, bodyKey),
 			});
 		}

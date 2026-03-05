@@ -7,6 +7,6 @@ export const TIER_WEIGHTS = {
 	[ItemTier.LEGENDARY]: 5,
 } as const;
 
-export const REWARDS_CONFIG = {
+export const ITEMS_CONFIG = {
 	MAX_DUPLICATE_ITEMS: 2,
 } as const;

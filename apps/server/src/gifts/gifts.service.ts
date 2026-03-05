@@ -1,22 +1,18 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
-import { InjectModel, InjectConnection } from '@nestjs/mongoose';
+import { InjectModel } from '@nestjs/mongoose';
 import { DEFAULT_LANGUAGE, isValentineGiftItem } from '@widgetable/types';
-import { Model, Connection, Types } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { NotificationsService, nt } from 'src/notifications/notifications.service';
 import { User, UserDocument } from 'src/users/entities/user.entity';
 import { UsersService } from 'src/users/users.service';
-import { BaseService } from 'src/common/base.service';
 
 @Injectable()
-export class GiftsService extends BaseService {
+export class GiftsService {
 	constructor(
 		@InjectModel(User.name) private userModel: Model<UserDocument>,
-		@InjectConnection() connection: Connection,
 		private readonly usersService: UsersService,
 		private readonly notificationsService: NotificationsService,
-	) {
-		super(connection);
-	}
+	) {}
 
 	async sendGift(senderId: Types.ObjectId, recipientId: string, itemName: string, quantity: number) {
 		if (senderId.toString() === recipientId) throw new BadRequestException();
@@ -30,9 +26,6 @@ export class GiftsService extends BaseService {
 		if (!isFriend) throw new BadRequestException();
 
 		const recipientObjectId = new Types.ObjectId(recipientId);
-
-		const hasItem = await this.usersService.hasInventory(senderId, itemName, quantity);
-		if (!hasItem) throw new BadRequestException();
 
 		await this.usersService.consumeInventory(senderId, itemName, quantity);
 

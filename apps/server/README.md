@@ -43,7 +43,7 @@ Each domain is a NestJS module following the controller → service → entity p
 | `auth` | Register/login/logout, JWT signing, Argon2 password hashing |
 | `users` | User CRUD, avatar upload/download via MinIO |
 | `pets` | Pet CRUD + retroactive stats degradation |
-| `claims` | Pet action claiming system |
+| `rewards` | Pet action claiming system |
 | `friends` | Friend management |
 | `gifts` | Gift exchange system |
 | `notifications` | Push notifications (web-push) |
