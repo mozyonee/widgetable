@@ -3,8 +3,8 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { Pet, PetSchema } from 'src/pets/entities/pet.entity';
 import { User, UserSchema } from 'src/users/entities/user.entity';
 import { UsersModule } from 'src/users/users.module';
-import { ClaimsController } from './claims.controller';
-import { ClaimsService } from './claims.service';
+import { ItemsController } from './items.controller';
+import { ItemsService } from './items.service';
 
 @Module({
 	imports: [
@@ -14,8 +14,8 @@ import { ClaimsService } from './claims.service';
 		]),
 		UsersModule,
 	],
-	controllers: [ClaimsController],
-	providers: [ClaimsService],
-	exports: [ClaimsService],
+	controllers: [ItemsController],
+	providers: [ItemsService],
+	exports: [ItemsService],
 })
-export class ClaimsModule {}
+export class ItemsModule {}

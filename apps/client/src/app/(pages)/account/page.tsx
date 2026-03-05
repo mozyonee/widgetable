@@ -4,9 +4,9 @@ import { Button, InputTextHidden } from '@/components/ui/Button';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { useAuth } from '@/features/auth/hooks/useAuth';
 import { setUserData } from '@/features/auth/slices/userSlice';
-import { ClaimButton } from '@/features/claims/components/ClaimButton';
-import { RewardsModal } from '@/features/claims/components/RewardsModal';
-import { useClaims } from '@/features/claims/hooks/useClaims';
+import { ItemButton } from '@/features/items/components/ItemButton';
+import { ItemsModal } from '@/features/items/components/ItemsModal';
+import { useItems } from '@/features/items/hooks/useItems';
 import { usePushNotifications } from '@/features/notifications/hooks/usePushNotifications';
 import { useTranslation } from '@/i18n/hooks/useTranslation';
 import api from '@/lib/api';
@@ -14,7 +14,7 @@ import { useImagesLoaded } from '@/lib/hooks/useImagesLoaded';
 import { callError, callSuccess } from '@/lib/toast';
 import { useAppDispatch, useAppSelector } from '@/store';
 import { Camera, Power, User as UserIcon } from '@nsmr/pixelart-react';
-import { LANGUAGES, User } from '@widgetable/types';
+import { ClaimType, LANGUAGES, User } from '@widgetable/types';
 import Image from 'next/image';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
@@ -49,7 +49,7 @@ const Account = () => {
 	const dispatch = useAppDispatch();
 	const user = useAppSelector((state) => state.user.userData);
 	const { t, language, setLanguage } = useTranslation();
-	const { claimStatus, claimingType, lastRewards, claimDaily, claimQuick, closeRewardsModal } = useClaims();
+	const { itemStatus, claimingType, lastItems, claimDaily, claimQuick, closeItemsModal } = useItems();
 	const {
 		isSupported,
 		isSubscribed,
@@ -203,20 +203,20 @@ const Account = () => {
 						<h2 className="font-bold text-xl text-foreground">{t('account.carePackages')}</h2>
 						<p className="text-secondary text-sm">{t('account.carePackagesDesc')}</p>
 
-						{claimStatus && (
+						{itemStatus && (
 							<div className="space-y-3">
-								<ClaimButton
-									type="daily"
-									available={claimStatus.dailyAvailable}
+								<ItemButton
+									type={ClaimType.DAILY}
+									available={itemStatus.available[ClaimType.DAILY]}
 									claimingType={claimingType}
-									nextClaimTime={claimStatus.nextDailyTime}
+									nextItemTime={itemStatus.nextClaimTime[ClaimType.DAILY]}
 									onClaim={() => void claimDaily()}
 								/>
-								<ClaimButton
-									type="quick"
-									available={claimStatus.quickAvailable}
+								<ItemButton
+									type={ClaimType.QUICK}
+									available={itemStatus.available[ClaimType.QUICK]}
 									claimingType={claimingType}
-									nextClaimTime={claimStatus.nextQuickTime}
+									nextItemTime={itemStatus.nextClaimTime[ClaimType.QUICK]}
 									onClaim={() => void claimQuick()}
 								/>
 							</div>
@@ -283,7 +283,7 @@ const Account = () => {
 				</>
 			)}
 
-			{lastRewards && <RewardsModal rewards={lastRewards} onClose={closeRewardsModal} />}
+			{lastItems && <ItemsModal result={lastItems} onClose={closeItemsModal} />}
 		</main>
 	);
 };

@@ -21,6 +21,10 @@ export const PET_SCALES: Record<PetType | 'egg', number> = {
 	[PetType.PARROT]: 0.95,
 };
 
+export const getPetScale = (petType: PetType | 'egg'): number => {
+	return PET_SCALES[petType] ?? 1.0;
+};
+
 export const PET_NEEDS_CONFIG = {
 	[PetNeed.HYGIENE]: {
 		label: 'Hygiene',

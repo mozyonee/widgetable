@@ -4,32 +4,31 @@ import { ICON_SIZES } from '@/config/constants';
 import { Button } from '@/components/ui/Button';
 import { useTranslation } from '@/i18n/hooks/useTranslation';
 import { Check, Clock } from '@nsmr/pixelart-react';
-import { ClaimTimer } from './ClaimTimer';
+import { ClaimType } from '@widgetable/types';
+import { ItemTimer } from './ItemTimer';
 
-interface ClaimButtonProps {
-	type: 'daily' | 'quick' | 'debug';
+interface ItemButtonProps {
+	type: ClaimType;
 	available: boolean;
-	claimingType: 'daily' | 'quick' | 'debug' | null;
-	nextClaimTime?: Date;
+	claimingType: ClaimType | null;
+	nextItemTime?: Date;
 	onClaim: () => void;
 }
 
-export const ClaimButton = ({ type, available, claimingType, nextClaimTime, onClaim }: ClaimButtonProps) => {
+export const ItemButton = ({ type, available, claimingType, nextItemTime, onClaim }: ItemButtonProps) => {
 	const { t } = useTranslation();
 	const isClaiming = claimingType === type;
 
 	const getButtonText = () => {
-		if (isClaiming) return t('claims.collecting');
+		if (isClaiming) return t('items.collecting');
 
 		switch (type) {
-			case 'daily':
-				return available ? t('claims.dailyCarePackage') : t('claims.carePackage');
-			case 'quick':
-				return available ? t('claims.quickCarePackage') : t('claims.carePackage');
-			case 'debug':
-				return t('claims.debugClaim');
+			case ClaimType.DAILY:
+				return available ? t('items.dailyCarePackage') : t('items.carePackage');
+			case ClaimType.QUICK:
+				return available ? t('items.quickCarePackage') : t('items.carePackage');
 			default:
-				return t('claims.claimRewards');
+				return t('items.claimItems');
 		}
 	};
 
@@ -54,8 +53,8 @@ export const ClaimButton = ({ type, available, claimingType, nextClaimTime, onCl
 			</Button>
 			{!available && !isClaiming && (
 				<div className="flex items-center justify-between text-sm px-2">
-					<span className="text-muted-foreground">{t('claims.nextIn')}</span>
-					<ClaimTimer nextClaimTime={nextClaimTime} />
+					<span className="text-muted-foreground">{t('items.nextIn')}</span>
+					<ItemTimer nextItemTime={nextItemTime} />
 				</div>
 			)}
 		</div>

@@ -1,5 +1,4 @@
 import { Database } from '../database';
-import { ItemReward } from '../rewards';
 import { PetActionCategory, PetAnimation, PetNeed, PetType } from './enums';
 
 export interface PetNeedConfig {
@@ -16,7 +15,6 @@ export type PetNeeds = Record<PetNeedKey, number>;
 export interface PetAction {
 	name: string;
 	needKey: PetNeedKey;
-	value: number | 'increment';
 	amount: number;
 	inventoryCost?: number;
 	experience: number;
@@ -33,14 +31,9 @@ export interface PetData {
 	experience: number;
 	level: number;
 	background?: number | null;
+	needsUpdatedAt?: Date;
 	isOnExpedition: boolean;
 	expeditionReturnTime?: Date;
-	expeditionRewards?: {
-		food: ItemReward[];
-		drinks: ItemReward[];
-		hygiene: ItemReward[];
-		eggs: number;
-	};
 }
 
 export type PetUpdate = Partial<Omit<PetData, 'needs'>> & {

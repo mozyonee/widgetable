@@ -7,3 +7,4 @@ export const LANGUAGES = [
 
 export type Language = (typeof LANGUAGES)[number]['code'];
 export const DEFAULT_LANGUAGE: Language = LANGUAGES[0].code;
+export const SUPPORTED_LANGUAGES = LANGUAGES.map((l) => l.code);

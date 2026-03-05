@@ -1,326 +1,295 @@
 {
-	"common": {
-		"loading": "Loading...",
-		"calculating": "Calculating..."
-	},
-	"auth": {
-		"welcomeBack": "Welcome Back",
-		"createAccount": "Create Account",
-		"login": "Login",
-		"register": "Register",
-		"email": "Email",
-		"password": "Password",
-		"noAccount": "Don't have an account?",
-		"hasAccount": "Already have an account?",
-		"failedAuth": "Failed to authenticate"
-	},
-	"account": {
-		"profile": "Profile",
-		"carePackages": "Treat Box",
-		"carePackagesDesc": "Collect treats for your pets!",
-		"logOut": "Log Out",
-		"usernamePlaceholder": "User Name",
-		"usernameUpdated": "Username updated",
-		"failedUpdateName": "Failed to update name",
-		"failedUploadImage": "Failed to upload image",
-		"selectImage": "Please select an image file",
-		"imageTooLarge": "Image size should be less than 5MB",
-		"language": "Language",
-		"notifications": "Notifications",
-		"enableNotifications": "Enable Notifications",
-		"disableNotifications": "Disable Notifications",
-		"notificationsNotSupported": "Notifications are not supported in this browser",
-		"notificationsDenied": "Notifications are blocked. Please enable them in browser settings.",
-		"serviceWorkerNotAvailable": "Service worker not available",
-		"failedEnableNotifications": "Failed to enable notifications"
-	},
-	"pets": {
-		"title": "Pets",
-		"addPet": "Add Pet",
-		"egg": "Egg",
-		"level": "Level {level}",
-		"xp": "{current}/{next} XP",
-		"hatching": "Hatching...",
-		"hatchingIn": "Hatching in {time}",
-		"ready": "Ready!",
-		"needEggs": "You need eggs to add a pet!",
-		"clickToAdd": "Click the button below to add a pet!",
-		"expedition": "Expedition",
-		"background": "Background",
-		"invite": "Invite",
-		"selectBackground": "Select Background",
-		"random": "Random",
-		"bgLabel": "Background {id}",
-		"onExpedition": "{name} is on an expedition",
-		"backFromExpedition": "{name} is back from an expedition!",
-		"willReturn": "Will return in {time}",
-		"claimRewards": "Claim Rewards",
-		"departedExpedition": "{name} departed on an expedition!",
-		"returnedSuccess": "{name} returned successfully!",
-		"failedStartExpedition": "Failed to start expedition",
-		"expeditionEggError": "Eggs cannot go on expeditions",
-		"expeditionSlotsFull": "All expedition slots are full",
-		"failedClaimRewards": "Failed to claim rewards",
-		"urgentNeeds": "{name} has urgent needs! Take care of {needs} first.",
-		"isBusy": "{name} is busy",
-		"noLongerParent": "You no longer parent {name}",
-		"type": {
-			"fox": "Fox",
-			"cat": "Cat",
-			"dog": "Dog",
-			"bunny": "Bunny",
-			"chicken": "Chicken",
-			"panda": "Panda",
-			"turtle": "Turtle",
-			"parrot": "Parrot"
-		},
-		"category": {
-			"Feed": "Feed",
-			"Drink": "Drink",
-			"Wash": "Wash",
-			"Care": "Care"
-		},
-		"needs": {
-			"hygiene": "Hygiene",
-			"hunger": "Hunger",
-			"thirst": "Thirst",
-			"energy": "Energy",
-			"toilet": "Toilet",
-			"urgency": {
-				"hygiene": "I need a bath!",
-				"hunger": "I'm hungry!",
-				"thirst": "I'm thirsty!",
-				"energy": "I'm tired!",
-				"toilet": "I need to go to the toilet!"
-			}
-		},
-		"happy": {
-			"0": "I'm happy!",
-			"1": "Life is good!",
-			"2": "I'm feeling great!",
-			"3": "This is awesome!",
-			"4": "I love you!",
-			"5": "You're the best!",
-			"6": "I'm so content!",
-			"7": "Everything is perfect!"
-		},
-		"usernameVariation": {
-			"0": "Hey {username}, {message}!",
-			"1": "{username}, {message}!",
-			"2": "{message}, {username}!",
-			"3": "{username}! {message}!"
-		}
-	},
-	"friends": {
-		"title": "Friends",
-		"searchPlaceholder": "Search users...",
-		"noUsersFound": "No users found",
-		"searchToAdd": "Search for users above to add friends!",
-		"pending": "Pending",
-		"wantsToShare": "{name} wants to share",
-		"sharedWith": "Shared with {name}",
-		"failedLoad": "Failed to load friends",
-		"searchFailed": "Search failed",
-		"requestSent": "Friend request sent",
-		"failedSendRequest": "Failed to send request",
-		"requestCancelled": "Request cancelled",
-		"failedCancelRequest": "Failed to cancel request",
-		"friendAdded": "Friend added",
-		"failedAcceptRequest": "Failed to accept request",
-		"requestDeclined": "Request declined",
-		"failedDeclineRequest": "Failed to decline request",
-		"friendRemoved": "Friend removed",
-		"failedRemoveFriend": "Failed to remove friend"
-	},
-	"invite": {
-		"title": "Invite a Friend",
-		"noFriends": "No friends can be invited",
-		"findMore": "Find more friends",
-		"sent": "Coparenting invitation sent to {name}",
-		"userNotFound": "User or pet not found",
-		"cannotSend": "Cannot send coparenting request",
-		"failedSend": "Failed to send coparenting invitation"
-	},
-	"coparenting": {
-		"failedLoadRequests": "Failed to load requests",
-		"requestAccepted": "Request accepted",
-		"failedAccept": "Failed to accept",
-		"requestDeclined": "Request declined",
-		"failedDecline": "Failed to decline",
-		"requestCancelled": "Request cancelled",
-		"failedCancel": "Failed to cancel"
-	},
-	"claims": {
-		"collecting": "Collecting...",
-		"dailyCarePackage": "Daily Treat Box",
-		"quickCarePackage": "Quick Treat Box",
-		"carePackage": "Treat Box",
-		"debugClaim": "Debug Claim",
-		"claimRewards": "Claim Rewards",
-		"nextIn": "Next in:",
-		"failedLoad": "Failed to load claim status",
-		"failedClaim": "Failed to claim rewards. Please try again."
-	},
-	"rewards": {
-		"title": "Treat Box Rewards!",
-		"food": "Food",
-		"drinks": "Drinks",
-		"hygiene": "Hygiene",
-		"care": "Care",
-		"items": "{count} items",
-		"bonus": "Bonus",
-		"luckyFind": "Lucky find!",
-		"awesome": "AWESOME!",
-		"valentines": "Valentines"
-	},
-	"action": {
-		"Sushi": "Sushi",
-		"Hamburger": "Hamburger",
-		"Lasagna": "Lasagna",
-		"Bento Box": "Bento Box",
-		"Pizza": "Pizza",
-		"Ramen": "Ramen",
-		"Taco": "Taco",
-		"Burrito": "Burrito",
-		"Sandwich": "Sandwich",
-		"Hot Dog": "Hot Dog",
-		"Soup": "Soup",
-		"Rice Bowl": "Rice Bowl",
-		"Mac & Cheese": "Mac & Cheese",
-		"Watermelon": "Watermelon",
-		"Mango": "Mango",
-		"Strawberry": "Strawberry",
-		"Cookie": "Cookie",
-		"Brownie": "Brownie",
-		"Donut": "Donut",
-		"French Fries": "French Fries",
-		"Orange Juice": "Orange Juice",
-		"Apple Cider": "Apple Cider",
-		"Fruit Parfait": "Fruit Parfait",
-		"Latte": "Latte",
-		"Milk": "Milk",
-		"Hot Cocoa": "Hot Cocoa",
-		"Fruit Tea": "Fruit Tea",
-		"Cappuccino": "Cappuccino",
-		"Bath Salts": "Bath Salts",
-		"Bathtub": "Bathtub",
-		"Shampoo": "Shampoo",
-		"Shower": "Shower",
-		"Mouth Wash": "Mouth Wash",
-		"Hand Soap": "Hand Soap",
-		"Brush": "Brush",
-		"Wipe Down": "Wipe Down",
-		"Sponge": "Sponge",
-		"Toilet": "Toilet",
-		"Quick Potty": "Quick Potty",
-		"Long Sleep": "Long Sleep",
-		"Nap": "Nap",
-		"Rest": "Rest",
-		"Grooming Session": "Grooming Session",
-		"Nail Trim": "Nail Trim",
-		"Ear Cleaning": "Ear Cleaning",
-		"Chocolate Bar Red": "Red Chocolate",
-		"Chocolate Bar Brown": "Chocolate Bar",
-		"Chocolate Bar Blue": "Blue Chocolate",
-		"Chocolate Bar White": "White Chocolate",
-		"Chocolate Bar Duo": "Duo Chocolate",
-		"Chocolate": "Chocolate",
-		"Letter Sealed Red Heart": "Red Heart Letter",
-		"Letter Sealed Red Border": "Red Border Letter",
-		"Letter Sealed Pink": "Pink Letter",
-		"Letter Sealed Small Heart": "Small Heart Letter",
-		"Letter Sealed Orange": "Orange Letter",
-		"Letter Sealed Pink Heart": "Pink Heart Letter",
-		"Letter Sealed Brown": "Brown Letter",
-		"Letter Sealed Amber": "Amber Letter",
-		"Envelope White": "White Envelope",
-		"Envelope Pink": "Pink Envelope"
-	},
-	"gifts": {
-		"title": "Send a Gift",
-		"send": "Send",
-		"noItems": "No valentine items in your inventory",
-		"noItemsHint": "Collect valentines from care packages and expeditions!",
-		"sent": "Gift sent to {name}!",
-		"failedSend": "Failed to send gift",
-		"sendGift": "Gift"
-	},
-	"valentine": {
-		"question": "Will you be my Valentine?",
-		"yes": "Yes!",
-		"no": "No",
-		"yay": "Yuppie!",
-		"present": "I have prepared a little present for you!",
-		"takeLook": "Take a look"
-	},
-	"pwa": {
-		"warning": "Best as a PWA",
-		"description": "This app is designed for PWA and may not work as expected in a browser.",
-		"iosTitle": "Install on iOS:",
-		"iosStep1": "Tap the Share button in Safari",
-		"iosStep2": "Scroll down and tap \"Add to Home Screen\"",
-		"iosStep3": "Tap \"Add\" to confirm",
-		"androidTitle": "Install on Android:",
-		"androidStep1": "Tap the menu (⋮) in Chrome",
-		"androidStep2": "Tap \"Add to Home Screen\" or \"Install App\"",
-		"desktopTitle": "Install on Desktop:",
-		"desktopStep1": "Click the install icon (⊕) in the address bar",
-		"desktopStep2": "Click \"Install\" to confirm",
-		"continueAnyway": "Continue Anyway"
-	},
-	"notif": {
-		"urgent": {
-			"title": {
-				"one": "{name} is sad!",
-				"many": "Your pets are sad!"
-			},
-			"body": {
-				"one": "{name} needs your attention!",
-				"many": "{count} pets need your attention!"
-			}
-		},
-		"zero": {
-			"title": "Your pets need you!",
-			"body": {
-				"one": "{name} needs your attention — all needs are at zero!",
-				"many": "{count} pets need your attention!"
-			}
-		},
-		"expedition": {
-			"title": "Expedition Complete!",
-			"body": {
-				"one": "{name} has returned from the expedition!",
-				"many": "{count} pets have returned from their expeditions!"
-			}
-		},
-		"egg": {
-			"title": "Egg Hatched!",
-			"body": {
-				"one": "{name} has hatched!",
-				"many": "{count} eggs have hatched!"
-			}
-		},
-		"claims": {
-			"title": "Goodies Available!",
-			"both": "Your daily and quick goodies are ready to collect!",
-			"daily": "Your daily goodies are ready to collect!",
-			"quick": "Your quick goodies are ready to collect!"
-		},
-		"test": {
-			"title": "Test Notification",
-			"body": "If you see this, push notifications are working!"
-		},
-		"friend": {
-			"title": "New Friend Request",
-			"body": "{sender} sent you a friend request!"
-		},
-		"coparenting": {
-			"title": "Co-Parenting Invite",
-			"body": "{sender} wants to co-parent {pet} with you!"
-		},
-		"gift": {
-			"title": "Valentine Gift!",
-			"body": "{sender} sent you a valentine!"
-		}
-	}
+  "common": {
+    "loading": "Loading...",
+    "calculating": "Calculating..."
+  },
+  "auth": {
+    "welcomeBack": "Welcome Back",
+    "createAccount": "Create Account",
+    "login": "Login",
+    "register": "Register",
+    "email": "Email",
+    "password": "Password",
+    "noAccount": "Don't have an account?",
+    "hasAccount": "Already have an account?",
+    "failedAuth": "Failed to authenticate"
+  },
+  "account": {
+    "profile": "Profile",
+    "carePackages": "Treat Box",
+    "carePackagesDesc": "Collect treats for your pets!",
+    "logOut": "Log Out",
+    "usernamePlaceholder": "User Name",
+    "usernameUpdated": "Username updated",
+    "failedUpdateName": "Failed to update name",
+    "failedUploadImage": "Failed to upload image",
+    "selectImage": "Please select an image file",
+    "imageTooLarge": "Image size should be less than 5MB",
+    "language": "Language",
+    "notifications": "Notifications",
+    "enableNotifications": "Enable Notifications",
+    "disableNotifications": "Disable Notifications",
+    "notificationsNotSupported": "Notifications are not supported in this browser",
+    "notificationsDenied": "Notifications are blocked. Please enable them in browser settings.",
+    "serviceWorkerNotAvailable": "Service worker not available",
+    "failedEnableNotifications": "Failed to enable notifications"
+  },
+  "pets": {
+    "title": "Pets",
+    "addPet": "Add Pet",
+    "egg": "Egg",
+    "level": "Level {level}",
+    "xp": "{current}/{next} XP",
+    "hatching": "Hatching...",
+    "hatchingIn": "Hatching in {time}",
+    "ready": "Ready!",
+    "needEggs": "You need eggs to add a pet!",
+    "clickToAdd": "Click the button below to add a pet!",
+    "expedition": "Expedition",
+    "background": "Background",
+    "invite": "Invite",
+    "selectBackground": "Select Background",
+    "random": "Random",
+    "bgLabel": "Background {id}",
+    "onExpedition": "{name} is on an expedition",
+    "backFromExpedition": "{name} is back from an expedition!",
+    "willReturn": "Will return in {time}",
+    "claimRewards": "Claim Rewards",
+    "departedExpedition": "{name} departed on an expedition!",
+    "returnedSuccess": "{name} returned successfully!",
+    "failedStartExpedition": "Failed to start expedition",
+    "expeditionEggError": "Eggs cannot go on expeditions",
+    "expeditionSlotsFull": "All expedition slots are full",
+    "failedClaimRewards": "Failed to claim rewards",
+    "urgentNeeds": "{name} has urgent needs! Take care of {needs} first.",
+    "isBusy": "{name} is busy",
+    "noLongerParent": "You no longer parent {name}",
+    "type": {
+      "fox": "Fox",
+      "cat": "Cat",
+      "dog": "Dog",
+      "bunny": "Bunny",
+      "chicken": "Chicken",
+      "panda": "Panda",
+      "turtle": "Turtle",
+      "parrot": "Parrot"
+    },
+    "category": {
+      "Feed": "Feed",
+      "Drink": "Drink",
+      "Wash": "Wash",
+      "Care": "Care"
+    },
+    "needs": {
+      "hygiene": "Hygiene",
+      "hunger": "Hunger",
+      "thirst": "Thirst",
+      "energy": "Energy",
+      "toilet": "Toilet",
+      "urgency": {
+        "hygiene": "I need a bath!",
+        "hunger": "I'm hungry!",
+        "thirst": "I'm thirsty!",
+        "energy": "I'm tired!",
+        "toilet": "I need to go to the toilet!"
+      }
+    },
+    "happy": {
+      "0": "I'm happy!",
+      "1": "Life is good!",
+      "2": "I'm feeling great!",
+      "3": "This is awesome!",
+      "4": "I love you!",
+      "5": "You're the best!",
+      "6": "I'm so content!",
+      "7": "Everything is perfect!"
+    },
+    "usernameVariation": {
+      "0": "Hey {username}, {message}!",
+      "1": "{username}, {message}!",
+      "2": "{message}, {username}!",
+      "3": "{username}! {message}!"
+    }
+  },
+  "friends": {
+    "title": "Friends",
+    "searchPlaceholder": "Search users...",
+    "noUsersFound": "No users found",
+    "searchToAdd": "Search for users above to add friends!",
+    "pending": "Pending",
+    "wantsToShare": "{name} wants to share",
+    "sharedWith": "Shared with {name}",
+    "failedLoad": "Failed to load friends",
+    "searchFailed": "Search failed",
+    "requestSent": "Friend request sent",
+    "failedSendRequest": "Failed to send request",
+    "requestCancelled": "Request cancelled",
+    "failedCancelRequest": "Failed to cancel request",
+    "friendAdded": "Friend added",
+    "failedAcceptRequest": "Failed to accept request",
+    "requestDeclined": "Request declined",
+    "failedDeclineRequest": "Failed to decline request",
+    "friendRemoved": "Friend removed",
+    "failedRemoveFriend": "Failed to remove friend"
+  },
+  "invite": {
+    "title": "Invite a Friend",
+    "noFriends": "No friends can be invited",
+    "findMore": "Find more friends",
+    "sent": "Coparenting invitation sent to {name}",
+    "userNotFound": "User or pet not found",
+    "cannotSend": "Cannot send coparenting request",
+    "failedSend": "Failed to send coparenting invitation"
+  },
+  "coparenting": {
+    "failedLoadRequests": "Failed to load requests",
+    "requestAccepted": "Request accepted",
+    "failedAccept": "Failed to accept",
+    "requestDeclined": "Request declined",
+    "failedDecline": "Failed to decline",
+    "requestCancelled": "Request cancelled",
+    "failedCancel": "Failed to cancel"
+  },
+  "action": {
+    "sushi": "Sushi",
+    "hamburger": "Hamburger",
+    "pizza": "Pizza",
+    "chocolateBar": "Chocolate Bar",
+    "cookie": "Cookie",
+    "donut": "Donut",
+    "watermelon": "Watermelon",
+    "mango": "Mango",
+    "strawberry": "Strawberry",
+    "orangeJuice": "Orange Juice",
+    "fruitTea": "Fruit Tea",
+    "appleCider": "Apple Cider",
+    "latte": "Latte",
+    "hotCocoa": "Hot Cocoa",
+    "milk": "Milk",
+    "bathtub": "Bathtub",
+    "shower": "Shower",
+    "handSoap": "Hand Soap",
+    "brush": "Brush",
+    "earCleaning": "Ear Cleaning",
+    "nailTrim": "Nail Trim",
+    "toilet": "Toilet",
+    "quickPotty": "Quick Potty",
+    "longSleep": "Long Sleep",
+    "nap": "Nap",
+    "rest": "Rest",
+    "letterSealedRedHeart": "Red Heart Letter",
+    "letterSealedRedBorder": "Red Border Letter",
+    "letterSealedPink": "Pink Letter",
+    "letterSealedSmallHeart": "Small Heart Letter",
+    "letterSealedOrange": "Orange Letter",
+    "letterSealedPinkHeart": "Pink Heart Letter",
+    "letterSealedBrown": "Brown Letter",
+    "letterSealedAmber": "Amber Letter",
+    "envelopeWhite": "White Envelope",
+    "envelopePink": "Pink Envelope"
+  },
+  "gifts": {
+    "title": "Send a Gift",
+    "send": "Send",
+    "noItems": "No valentine items in your inventory",
+    "noItemsHint": "Collect valentines from care packages and expeditions!",
+    "sent": "Gift sent to {name}!",
+    "failedSend": "Failed to send gift",
+    "sendGift": "Gift"
+  },
+  "valentine": {
+    "question": "Will you be my Valentine?",
+    "yes": "Yes!",
+    "no": "No",
+    "yay": "Yuppie!",
+    "present": "I have prepared a little present for you!",
+    "takeLook": "Take a look"
+  },
+  "pwa": {
+    "warning": "Best as a PWA",
+    "description": "This app is designed for PWA and may not work as expected in a browser.",
+    "iosTitle": "Install on iOS:",
+    "iosStep1": "Tap the Share button in Safari",
+    "iosStep2": "Scroll down and tap \"Add to Home Screen\"",
+    "iosStep3": "Tap \"Add\" to confirm",
+    "androidTitle": "Install on Android:",
+    "androidStep1": "Tap the menu (⋮) in Chrome",
+    "androidStep2": "Tap \"Add to Home Screen\" or \"Install App\"",
+    "desktopTitle": "Install on Desktop:",
+    "desktopStep1": "Click the install icon (⊕) in the address bar",
+    "desktopStep2": "Click \"Install\" to confirm",
+    "continueAnyway": "Continue Anyway"
+  },
+  "notif": {
+    "urgent": {
+      "title": {
+        "one": "{name} is sad!",
+        "many": "Your pets are sad!"
+      },
+      "body": {
+        "one": "{name} needs your attention!",
+        "many": "{count} pets need your attention!"
+      }
+    },
+    "zero": {
+      "title": "Your pets need you!",
+      "body": {
+        "one": "{name} needs your attention — all needs are at zero!",
+        "many": "{count} pets need your attention!"
+      }
+    },
+    "expedition": {
+      "title": "Expedition Complete!",
+      "body": {
+        "one": "{name} has returned from the expedition!",
+        "many": "{count} pets have returned from their expeditions!"
+      }
+    },
+    "egg": {
+      "title": "Egg Hatched!",
+      "body": {
+        "one": "{name} has hatched!",
+        "many": "{count} eggs have hatched!"
+      }
+    },
+    "friend": {
+      "title": "New Friend Request",
+      "body": "{sender} sent you a friend request!"
+    },
+    "coparenting": {
+      "title": "Co-Parenting Invite",
+      "body": "{sender} wants to co-parent {pet} with you!"
+    },
+    "gift": {
+      "title": "Valentine Gift!",
+      "body": "{sender} sent you a valentine!"
+    },
+    "items": {
+      "title": "Goodies Available!",
+      "daily": "Your daily goodies are ready to collect!",
+      "quick": "Your quick goodies are ready to collect!",
+      "all": "Your daily and quick goodies are ready to collect!"
+    }
+  },
+  "items": {
+    "collecting": "Collecting...",
+    "dailyCarePackage": "Daily Treat Box",
+    "quickCarePackage": "Quick Treat Box",
+    "carePackage": "Treat Box",
+    "debugClaim": "Debug Claim",
+    "claimRewards": "Claim Rewards",
+    "nextIn": "Next in:",
+    "failedLoad": "Failed to load claim status",
+    "failedClaim": "Failed to claim rewards. Please try again.",
+    "title": "Treat Box Rewards!",
+    "food": "Food",
+    "drinks": "Drinks",
+    "hygiene": "Hygiene",
+    "care": "Care",
+    "count": "{count} items",
+    "bonus": "Bonus",
+    "luckyFind": "Lucky find!",
+    "awesome": "AWESOME!",
+    "valentines": "Valentines"
+  }
 }

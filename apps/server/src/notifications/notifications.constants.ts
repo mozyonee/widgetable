@@ -1,0 +1,3 @@
+export const WEBPUSH_CONFIG = {
+	INVALID_SUBSCRIPTION_CODES: [410, 404],
+} as const;

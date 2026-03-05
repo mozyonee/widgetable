@@ -2,14 +2,14 @@
 
 import { useCountdown } from '@/lib/hooks/useCountdown';
 
-interface ClaimTimerProps {
-	nextClaimTime?: Date;
+interface ItemTimerProps {
+	nextItemTime?: Date;
 }
 
-export const ClaimTimer = ({ nextClaimTime }: ClaimTimerProps) => {
-	const { timeLeft, isReady } = useCountdown(nextClaimTime);
+export const ItemTimer = ({ nextItemTime }: ItemTimerProps) => {
+	const { timeLeft, isReady } = useCountdown(nextItemTime);
 
-	if (!nextClaimTime) return null;
+	if (!nextItemTime) return null;
 
 	const displayText = isReady ? 'Ready!' : timeLeft;
 

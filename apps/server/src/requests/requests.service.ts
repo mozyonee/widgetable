@@ -1,5 +1,5 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
-import { USER_POPULATE_FIELDS } from 'src/shared/constants';
+import { USER_POPULATE_FIELDS } from 'src/users/users.constants';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, ClientSession, Types } from 'mongoose';
 import { Request, RequestDocument, RequestMetadata } from './entities/request.entity';

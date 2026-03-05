@@ -2,7 +2,7 @@
 
 import { Modal } from '@/components/ui/Modal';
 import { Skeleton } from '@/components/ui/Skeleton';
-import { getActionSprite } from '@/data/actionSprites';
+import { getItemSprite } from '@widgetable/types';
 import { useRefreshUser } from '@/features/auth/hooks/useRefreshUser';
 import { useTranslation } from '@/i18n/hooks/useTranslation';
 import api from '@/lib/api';
@@ -29,7 +29,7 @@ export const GiftModal = ({ isOpen, onClose, friend }: GiftModalProps) => {
 	const giftableItems = VALENTINE_GIFT_ITEM_NAMES.filter((name) => (inventory[name] ?? 0) > 0).map((name) => ({
 		name,
 		count: inventory[name],
-		sprite: getActionSprite(name),
+		sprite: getItemSprite(name),
 	}));
 
 	const spriteUrls = giftableItems.map((item) => item.sprite).filter(Boolean) as string[];

@@ -135,7 +135,9 @@
       "mcp__claude_ai_Context7__resolve-library-id",
       "mcp__claude_ai_Context7__query-docs",
       "Bash(npm show:*)",
-      "Bash(git:*)"
+      "Bash(git:*)",
+      "Bash(cp:*)",
+      "Bash(/home/mozyonee/Projects/widgetable/apps/server/src/storage/storage.config.ts:*)"
     ],
     "deny": [],
     "ask": []

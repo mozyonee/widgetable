@@ -3,9 +3,9 @@
 import { Button, InputTextHidden } from '@/components/ui/Button';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { HTTP_STATUS } from '@/config/constants';
-import { getActionSprite } from '@/data/actionSprites';
+import { getItemSprite } from '@widgetable/types';
 import { setUserData } from '@/features/auth/slices/userSlice';
-import { RewardsModal } from '@/features/claims/components/RewardsModal';
+import { ItemsModal } from '@/features/items/components/ItemsModal';
 import { BackgroundSelector } from '@/features/pets/components/BackgroundSelector';
 import { InviteModal } from '@/features/pets/components/InviteModal';
 import PetSprite from '@/features/pets/components/PetSprite';
@@ -30,7 +30,7 @@ import {
 	Users,
 	Zap,
 } from '@nsmr/pixelart-react';
-import { ClaimResult, formatTime, Pet, PET_THRESHOLDS, User } from '@widgetable/types';
+import { getItemTier, ItemResult, ItemTier, formatTime, Pet, PET_THRESHOLDS, User } from '@widgetable/types';
 
 import {
 	getExpForCurrentLevel,
@@ -44,19 +44,11 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
 import { usePet } from '../hooks/usePet';
 
-const getTierColor = (tier?: number): string => {
-	switch (tier) {
-		case 1:
-			return 'border-gray-400/50';
-		case 2:
-			return 'border-green-500/50';
-		case 3:
-			return 'border-blue-500/50';
-		case 4:
-			return 'border-purple-500/50';
-		default:
-			return 'border-gray-400/50';
-	}
+const TIER_COLORS: Record<number, string> = {
+	[ItemTier.BASIC]: 'border-inactive/50',
+	[ItemTier.COMMON]: 'border-tier-common/50',
+	[ItemTier.PREMIUM]: 'border-tier-premium/50',
+	[ItemTier.LEGENDARY]: 'border-tier-legendary/50',
 };
 
 const actionBarBtnClass =
@@ -71,7 +63,7 @@ const PetPage = () => {
 	const [eggTimeLeft, setEggTimeLeft] = useState<string>('');
 	const [expeditionTimeLeft, setExpeditionTimeLeft] = useState<string>('');
 	const [canClaimExpedition, setCanClaimExpedition] = useState(false);
-	const [lastRewards, setLastRewards] = useState<ClaimResult | null>(null);
+	const [lastItems, setLastItems] = useState<ItemResult | null>(null);
 	const [bgSelectorOpen, setBgSelectorOpen] = useState(false);
 	const [actionsMenuOpen, setActionsMenuOpen] = useState(false);
 
@@ -187,8 +179,8 @@ const PetPage = () => {
 	const handleClaimExpedition = async () => {
 		if (!pet?._id) return;
 		try {
-			const rewards = await api.post<ClaimResult>(`/pets/${pet._id}/expedition/claim`);
-			setLastRewards(rewards.data);
+			const rewards = await api.post<ItemResult>(`/pets/${pet._id}/expedition/claim`);
+			setLastItems(rewards.data);
 
 			await Promise.all([loadPet(), api.get<User>('/auth/me').then((r) => dispatch(setUserData(r.data)))]);
 		} catch {
@@ -224,7 +216,8 @@ const PetPage = () => {
 				const isDisabled = inventoryCount === 0 || isNeedTooHigh;
 				return {
 					name: action.name,
-					sprite: getActionSprite(action.name),
+					sprite: getItemSprite(action.name),
+					amount: action.amount,
 					inventoryCost: action.inventoryCost,
 					inventoryCount,
 					isDisabled,
@@ -472,7 +465,7 @@ const PetPage = () => {
 										disabled={
 											isEgg || pet.isOnExpedition || !!currentAnimation || action.isDisabled
 										}
-										className={`flex flex-col items-center justify-center gap-1 p-2 rounded-lg border-2 bg-surface transition-colors ${getTierColor(action.inventoryCost)} ${isEgg || pet.isOnExpedition || currentAnimation || action.isDisabled ? 'opacity-30 cursor-not-allowed' : 'hover:bg-secondary/10 cursor-pointer'}`}
+										className={`flex flex-col items-center justify-center gap-1 p-2 rounded-lg border-2 bg-surface transition-colors ${TIER_COLORS[getItemTier(action.amount)]} ${isEgg || pet.isOnExpedition || currentAnimation || action.isDisabled ? 'opacity-30 cursor-not-allowed' : 'hover:bg-secondary/10 cursor-pointer'}`}
 									>
 										{action.sprite && (
 											<div className="relative w-16 h-16">
@@ -513,7 +506,7 @@ const PetPage = () => {
 				onInvite={(friendId) => void sendCoparentingRequest(friendId)}
 			/>
 
-			{lastRewards && <RewardsModal rewards={lastRewards} onClose={() => setLastRewards(null)} />}
+			{lastItems && <ItemsModal result={lastItems} onClose={() => setLastItems(null)} />}
 		</>
 	);
 };
