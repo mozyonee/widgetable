@@ -3,7 +3,7 @@ export const ACTION_SPRITES: Record<string, string> = {
 	sushi: 'food/food/sushi_rolls.png',
 	hamburger: 'food/food/hamburger.png',
 	pizza: 'food/food/pizza_slice.png',
-	chocolateBar: 'food/desserts/chocolate_chip_cookies.png',
+	chocolateBar: 'food/food/chocolate_bar.png',
 	cookie: 'food/desserts/chocolate_chip_cookies.png',
 	donut: 'food/desserts/glazed_donut.png',
 	watermelon: 'food/fruits/watermelon_slice.png',
