@@ -3,7 +3,7 @@
 import { Button, InputTextHidden } from '@/components/ui/Button';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { HTTP_STATUS } from '@/config/constants';
-import { getActionSprite } from '@/data/actionSprites';
+import { getItemSprite } from '@widgetable/types';
 import { setUserData } from '@/features/auth/slices/userSlice';
 import { ItemsModal } from '@/features/items/components/ItemsModal';
 import { BackgroundSelector } from '@/features/pets/components/BackgroundSelector';
@@ -216,7 +216,7 @@ const PetPage = () => {
 				const isDisabled = inventoryCount === 0 || isNeedTooHigh;
 				return {
 					name: action.name,
-					sprite: getActionSprite(action.name),
+					sprite: getItemSprite(action.name),
 					amount: action.amount,
 					inventoryCost: action.inventoryCost,
 					inventoryCount,

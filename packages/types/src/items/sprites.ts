@@ -1,5 +1,5 @@
-export const ACTION_SPRITES: Record<string, string> = {
-	// Feed Actions
+export const ITEM_SPRITES: Record<string, string> = {
+	// Feed
 	sushi: 'food/food/sushi_rolls.png',
 	hamburger: 'food/food/hamburger.png',
 	pizza: 'food/food/pizza_slice.png',
@@ -10,7 +10,7 @@ export const ACTION_SPRITES: Record<string, string> = {
 	mango: 'food/fruits/mango.png',
 	strawberry: 'food/plants/strawberry.png',
 
-	// Drink Actions
+	// Drink
 	orangeJuice: 'food/desserts/orange_juice.png',
 	fruitTea: 'food/desserts/tea_cup.png',
 	appleCider: 'food/desserts/apple_cider_mug.png',
@@ -18,7 +18,7 @@ export const ACTION_SPRITES: Record<string, string> = {
 	hotCocoa: 'food/desserts/cocoa_mug.png',
 	milk: 'food/food/milk_carton.png',
 
-	// Wash Actions
+	// Wash
 	bathtub: 'bathroom/bathtub.png',
 	shower: 'bathroom/shower_stall.png',
 	handSoap: 'bathroom/hand_soap_pump.png',
@@ -26,21 +26,21 @@ export const ACTION_SPRITES: Record<string, string> = {
 	earCleaning: 'bathroom/cotton_swab_jar.png',
 	nailTrim: 'bathroom/nail_file.png',
 
-	// Care Actions
+	// Care
 	toilet: 'bathroom/toilet.png',
 	quickPotty: 'bathroom/toilet_paper_roll.png',
 	longSleep: 'bedroom/blue_bed_horizontal.png',
 	nap: 'bedroom/white_pillow.png',
 	rest: 'bedroom/folded_blanket.png',
 
-	// Valentine Items - Chocolates
+	// Valentine - Chocolates
 	chocolateBarBrown: '/valentine/chocolate_bar_brown.png',
 	chocolateBarBlue: '/valentine/chocolate_bar_blue.png',
 	chocolateBarWhite: '/valentine/chocolate_bar_white.png',
 	chocolateBarDuo: '/valentine/chocolate_bar_red_blue.png',
 	chocolate: '/valentine/chocolate.png',
 
-	// Valentine Items - Letters & Envelopes
+	// Valentine - Letters & Envelopes
 	letterSealedRedHeart: '/valentine/letter_sealed_red_heart.png',
 	letterSealedRedBorder: '/valentine/letter_sealed_red_border.png',
 	letterSealedPink: '/valentine/letter_sealed_pink.png',
@@ -53,8 +53,8 @@ export const ACTION_SPRITES: Record<string, string> = {
 	envelopePink: '/valentine/envelope_pink.png',
 };
 
-export const getActionSprite = (actionName: string): string | undefined => {
-	const sprite = ACTION_SPRITES[actionName];
+export const getItemSprite = (itemName: string): string | undefined => {
+	const sprite = ITEM_SPRITES[itemName];
 	if (!sprite) return undefined;
 	return sprite.startsWith('/') ? sprite : `/assets_new/${sprite}`;
 };

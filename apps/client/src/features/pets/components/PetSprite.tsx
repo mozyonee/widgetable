@@ -1,5 +1,5 @@
 import { PET_SPRITE_SIZES } from '@/config/constants';
-import { getPetScale } from '@/data/petScales';
+import { getPetScale } from '@widgetable/types';
 import {
 	ANIMATION_DURATIONS,
 	Pet,

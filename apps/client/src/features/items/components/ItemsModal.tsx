@@ -2,7 +2,7 @@
 
 import { Modal } from '@/components/ui/Modal';
 import { ICON_SIZES } from '@/config/constants';
-import { getActionSprite } from '@/data/actionSprites';
+import { getItemSprite } from '@widgetable/types';
 import { useTranslation } from '@/i18n/hooks/useTranslation';
 import { Bed, Check, Coffee, Edit, Zap } from '@nsmr/pixelart-react';
 import {
@@ -38,7 +38,7 @@ const TIER_COLORS: Record<ItemTier, string> = {
 
 const ItemDisplay = ({ item, index }: { item: ItemReward; index: number }) => {
 	const { t } = useTranslation();
-	const spritePath = getActionSprite(item.name);
+	const spritePath = getItemSprite(item.name);
 
 	return (
 		<div
