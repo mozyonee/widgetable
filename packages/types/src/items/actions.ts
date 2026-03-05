@@ -47,9 +47,9 @@ export const PET_ACTIONS_BY_CATEGORY = {
 	[PetActionCategory.CARE]: [
 		{ name: 'toilet', needKey: PetNeed.TOILET, amount: 100, inventoryCost: 1, experience: 15 },
 		{ name: 'quickPotty', needKey: PetNeed.TOILET, amount: 60, inventoryCost: 1, experience: 10 },
-		{ name: 'longSleep', needKey: PetNeed.ENERGY, amount: 100, inventoryCost: 1, experience: 12 },
-		{ name: 'nap', needKey: PetNeed.ENERGY, amount: 50, inventoryCost: 1, experience: 6 },
-		{ name: 'rest', needKey: PetNeed.ENERGY, amount: 35, inventoryCost: 1, experience: 4 },
+		{ name: 'longSleep', needKey: PetNeed.ENERGY, amount: 100, experience: 12 },
+		{ name: 'nap', needKey: PetNeed.ENERGY, amount: 50, experience: 6 },
+		{ name: 'rest', needKey: PetNeed.ENERGY, amount: 35, experience: 4 },
 	] as PetAction[],
 };
 
