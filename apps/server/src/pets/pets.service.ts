@@ -18,6 +18,7 @@ import {
 	MAX_EXPEDITION_SLOTS_RATIO,
 	PET_NEED_KEYS,
 	PET_THRESHOLDS,
+	PET_UPDATE_INTERVAL,
 	PetType,
 	PetUpdate,
 } from '@widgetable/types';
@@ -145,13 +146,17 @@ export class PetsService extends BaseService {
 
 		if (pet.isEgg) return pet;
 
-		const lastUpdatedAt = pet.needsUpdatedAt ?? pet.updatedAt ?? new Date();
-		const { needs: updatedNeeds, changed } = calculateDecayedNeeds(pet.needs, lastUpdatedAt, new Date());
+		const now = new Date();
+		const lastUpdatedAt = pet.needsUpdatedAt ?? pet.updatedAt ?? now;
+		const { needs: updatedNeeds, changed, intervals } = calculateDecayedNeeds(pet.needs, lastUpdatedAt, now);
 
 		if (!changed) return pet;
 
+		// Snap to the last completed interval boundary so the remainder carries over to the next run
+		const snappedUpdatedAt = new Date(lastUpdatedAt.getTime() + intervals * PET_UPDATE_INTERVAL);
+
 		const updatedPet = await this.petModel
-			.findByIdAndUpdate(pet._id, { needs: updatedNeeds, needsUpdatedAt: new Date() }, { new: true })
+			.findByIdAndUpdate(pet._id, { needs: updatedNeeds, needsUpdatedAt: snappedUpdatedAt }, { new: true })
 			.populate('parents', this.PARENT_FIELDS);
 
 		return updatedPet || pet;
@@ -163,16 +168,10 @@ export class PetsService extends BaseService {
 		if (pet.isEgg) throw new UnprocessableEntityException();
 		if (pet.isOnExpedition) throw new ConflictException();
 
-		if (pet.needs) {
-			const urgentNeeds: string[] = [];
-			if (pet.needs.hunger < PET_THRESHOLDS.URGENT) urgentNeeds.push('hunger');
-			if (pet.needs.thirst < PET_THRESHOLDS.URGENT) urgentNeeds.push('thirst');
-			if (pet.needs.hygiene < PET_THRESHOLDS.URGENT) urgentNeeds.push('hygiene');
-			if (pet.needs.energy < PET_THRESHOLDS.URGENT) urgentNeeds.push('energy');
-			if (pet.needs.toilet < PET_THRESHOLDS.URGENT) urgentNeeds.push('toilet');
-
-			if (urgentNeeds.length > 0) throw new BadRequestException();
+		if (pet.needs && PET_NEED_KEYS.some((key) => pet.needs[key] < PET_THRESHOLDS.URGENT)) {
+			throw new BadRequestException();
 		}
+
 		// Only count pets still away, not returned but unclaimed
 		const now = new Date();
 		const allPets = await this.getPetsForUser(userId);
