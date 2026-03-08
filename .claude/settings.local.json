@@ -138,7 +138,8 @@
       "Bash(git:*)",
       "Bash(cp:*)",
       "Bash(/home/mozyonee/Projects/widgetable/apps/server/src/storage/storage.config.ts:*)",
-      "mcp__github__create_branch"
+      "mcp__github__create_branch",
+      "mcp__github__update_pull_request"
     ],
     "deny": [],
     "ask": []

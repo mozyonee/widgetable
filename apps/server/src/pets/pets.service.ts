@@ -19,6 +19,7 @@ import {
 	PET_NEED_KEYS,
 	PET_THRESHOLDS,
 	PET_UPDATE_INTERVAL,
+	PetNeeds,
 	PetType,
 	PetUpdate,
 } from '@widgetable/types';
@@ -148,7 +149,8 @@ export class PetsService extends BaseService {
 
 		const now = new Date();
 		const lastUpdatedAt = pet.needsUpdatedAt ?? pet.updatedAt ?? now;
-		const { needs: updatedNeeds, changed, intervals } = calculateDecayedNeeds(pet.needs, lastUpdatedAt, now);
+		const plainNeeds = Object.fromEntries(PET_NEED_KEYS.map((key) => [key, pet.needs[key]])) as PetNeeds;
+		const { needs: updatedNeeds, changed, intervals } = calculateDecayedNeeds(plainNeeds, lastUpdatedAt, now);
 
 		if (!changed) return pet;
 
