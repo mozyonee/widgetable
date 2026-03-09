@@ -27,36 +27,31 @@ export const getPetScale = (petType: PetType | 'egg'): number => {
 
 export const PET_NEEDS_CONFIG = {
 	[PetNeed.HYGIENE]: {
-		label: 'Hygiene',
-		decayRate: 0.28,
+		decayDuration: 6 * 60 * 60 * 1000,
 		urgencyMessage: 'I need a bath!',
 		category: PetActionCategory.WASH,
 		animation: PetAnimation.BATH,
 	},
 	[PetNeed.TOILET]: {
-		label: 'Toilet',
-		decayRate: 0.56,
+		decayDuration: 3 * 60 * 60 * 1000,
 		urgencyMessage: 'I need to go to the toilet!',
 		category: PetActionCategory.CARE,
 		animation: PetAnimation.TOILET,
 	},
 	[PetNeed.HUNGER]: {
-		label: 'Hunger',
-		decayRate: 0.42,
+		decayDuration: 4 * 60 * 60 * 1000,
 		urgencyMessage: "I'm hungry!",
 		category: PetActionCategory.FEED,
 		animation: PetAnimation.EAT,
 	},
 	[PetNeed.THIRST]: {
-		label: 'Thirst',
-		decayRate: 0.83,
+		decayDuration: 2 * 60 * 60 * 1000,
 		urgencyMessage: "I'm thirsty!",
 		category: PetActionCategory.DRINK,
 		animation: PetAnimation.DRINK,
 	},
 	[PetNeed.ENERGY]: {
-		label: 'Energy',
-		decayRate: 0.33,
+		decayDuration: 5 * 60 * 60 * 1000,
 		urgencyMessage: "I'm tired!",
 		category: PetActionCategory.CARE,
 		animation: PetAnimation.SLEEP,
