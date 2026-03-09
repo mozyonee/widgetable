@@ -2,8 +2,7 @@ import { Database } from '../database';
 import { PetActionCategory, PetAnimation, PetNeed, PetType } from './enums';
 
 export interface PetNeedConfig {
-	label: string;
-	decayRate: number;
+	decayDuration: number;
 	urgencyMessage: string;
 	category: PetActionCategory;
 	animation: PetAnimation;
