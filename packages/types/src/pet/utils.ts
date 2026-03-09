@@ -8,11 +8,11 @@ export const calculateDecayedNeeds = (
 	needs: PetNeeds,
 	lastUpdatedAt: Date,
 	now: Date,
-): { needs: PetNeeds; changed: boolean } => {
+): { needs: PetNeeds; changed: boolean; intervals: number } => {
 	const timeDiff = now.getTime() - lastUpdatedAt.getTime();
 	const intervals = Math.floor(timeDiff / PET_UPDATE_INTERVAL);
 
-	if (intervals <= 0) return { needs, changed: false };
+	if (intervals <= 0) return { needs, changed: false, intervals: 0 };
 
 	const updated = { ...needs };
 	for (const key of PET_NEED_KEYS) {
@@ -20,7 +20,7 @@ export const calculateDecayedNeeds = (
 		updated[key] = Math.max(0, Math.min(100, needs[key] - decrease));
 	}
 
-	return { needs: updated, changed: true };
+	return { needs: updated, changed: true, intervals };
 };
 
 const BASE_EXP = 50;
