@@ -21,7 +21,7 @@ export const ITEMS_CLAIM_CONFIG = {
 	BASE_FOOD_ITEMS: 3,
 	BASE_DRINK_ITEMS: 4,
 	BASE_HYGIENE_ITEMS: 2,
-	BASE_CARE_ITEMS: 4,
+	BASE_CARE_ITEMS: 2,
 	BASE_EGG_CHANCE: 0.35,
 	// Controls how fast egg chance decays as pet count grows: 1 + petCount * decay
 	EGG_CHANCE_PET_DECAY: 0.6,
@@ -32,7 +32,7 @@ export const EXPEDITION_CONFIG = {
 	BASE_FOOD_ITEMS: 3,
 	BASE_DRINK_ITEMS: 4,
 	BASE_HYGIENE_ITEMS: 2,
-	BASE_CARE_ITEMS: 4,
+	BASE_CARE_ITEMS: 2,
 	MIN_EGG_CHANCE: 0.05,
 	MAX_EGG_CHANCE: 0.18,
 	// Per-level bonus rate applied to item counts (caps at LEVEL_ITEM_CAP)
